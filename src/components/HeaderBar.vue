@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="d-flex justify-between w-100 mt-3 fw-bold">
+    <div class="d-flex justify-between w-100 mt-3 fw-bold container">
         <div class="flex-grow-1">MIOTO</div>
 
         <div class="d-flex">

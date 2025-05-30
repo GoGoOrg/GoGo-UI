@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <div id="app" class="w-100 d-flex flex-column container">
+  <div id="app" class="w-100 d-flex flex-column">
 
     <header>
       <meta name="viewport" content="width=device-width, initial-scale=1">
