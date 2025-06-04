@@ -12,6 +12,53 @@ const carouselConfig = {
   itemsToShow: 3.5,
   wrapAround: true,
 }
+
+const featuredLocations = [
+  {
+    name: 'TP. Hồ Chí Minh',
+    image: 'https://via.placeholder.com/300x200?text=TP.HCM',
+    vehicles: '5000+ xe',
+  },
+  {
+    name: 'Hà Nội',
+    image: 'https://via.placeholder.com/300x200?text=Ha+Noi',
+    vehicles: '2500+ xe',
+  },
+  {
+    name: 'Đà Nẵng',
+    image: 'https://via.placeholder.com/300x200?text=Da+Nang',
+    vehicles: '500+ xe',
+  },
+  {
+    name: 'Bình Dương',
+    image: 'https://via.placeholder.com/300x200?text=Binh+Duong',
+    vehicles: '500+ xe',
+  },
+];
+
+const airportDeliveries = [
+  {
+    name: 'Tân Sơn Nhất',
+    image: 'https://via.placeholder.com/60?text=TSN',
+    vehicles: '2000+ xe',
+  },
+  {
+    name: 'Ga T3 (TSN)',
+    image: 'https://via.placeholder.com/60?text=Ga+T3',
+    vehicles: '2000+ xe',
+  },
+  {
+    name: 'Nội Bài',
+    image: 'https://via.placeholder.com/60?text=Noi+Bai',
+    vehicles: '200+ xe',
+  },
+  {
+    name: 'Đà Nẵng',
+    image: 'https://via.placeholder.com/60?text=Da+Nang',
+    vehicles: '100+ xe',
+  },
+];
+
 </script>
 
 
@@ -114,7 +161,60 @@ const carouselConfig = {
         </div>
       </div>
     </div>
+
+
+
+
+
+      <div class="container py-5">
+    <h2 class="text-center fw-bold mb-4">Địa Điểm Nổi Bật</h2>
+    <div class="d-flex overflow-auto gap-3">
+      <div
+        v-for="location in featuredLocations"
+        :key="location.name"
+        class="card position-relative text-white flex-shrink-0"
+        style="min-width: 250px; border-radius: 20px; overflow: hidden"
+      >
+        <img :src="location.image" class="card-img" alt="..." style="height: 300px; object-fit: cover;">
+        <div class="card-img-overlay d-flex flex-column justify-content-end">
+          <h5 class="card-title">{{ location.name }}</h5>
+          <p class="card-text small">{{ location.vehicles }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="fw-bold mb-3">Giao xe tại sân bay</h4>
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-light rounded-circle border"><i class="bi bi-chevron-left"></i></button>
+
+        <div class="d-flex gap-3 overflow-auto flex-grow-1">
+          <div
+            v-for="airport in airportDeliveries"
+            :key="airport.name"
+            class="bg-light rounded-4 p-3 text-center flex-shrink-0"
+            style="min-width: 150px"
+          >
+            <img
+              :src="airport.image"
+              alt="airport"
+              class="rounded-circle mb-2"
+              style="width: 60px; height: 60px; object-fit: cover"
+            />
+            <div class="fw-semibold">{{ airport.name }}</div>
+            <div class="text-muted small">{{ airport.vehicles }}</div>
+          </div>
+        </div>
+
+        <button class="btn btn-light rounded-circle border"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
   </div>
+  </div>
+
+
+
+
 </template>
 
 
@@ -183,6 +283,13 @@ const carouselConfig = {
 .carousel__slide--next ~ .carousel__slide {
   opacity: var(--carousel-opacity-inactive);
   transform: translateX(-10px) rotateY(12deg) scale(0.9);
+}
+
+.card-title {
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+.card-text {
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
 }
 </style>
 
