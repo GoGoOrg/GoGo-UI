@@ -16,22 +16,22 @@ const carouselConfig = {
 const featuredLocations = [
   {
     name: 'TP. Hồ Chí Minh',
-    image: 'https://via.placeholder.com/300x200?text=TP.HCM',
+    image: 'https://placehold.co/300x300',
     vehicles: '5000+ xe',
   },
   {
     name: 'Hà Nội',
-    image: 'https://via.placeholder.com/300x200?text=Ha+Noi',
+    image: 'https://placehold.co/300x300',
     vehicles: '2500+ xe',
   },
   {
     name: 'Đà Nẵng',
-    image: 'https://via.placeholder.com/300x200?text=Da+Nang',
+    image: 'https://placehold.co/300x300',
     vehicles: '500+ xe',
   },
   {
     name: 'Bình Dương',
-    image: 'https://via.placeholder.com/300x200?text=Binh+Duong',
+    image: 'https://placehold.co/300x300',
     vehicles: '500+ xe',
   },
 ];
@@ -39,22 +39,22 @@ const featuredLocations = [
 const airportDeliveries = [
   {
     name: 'Tân Sơn Nhất',
-    image: 'https://via.placeholder.com/60?text=TSN',
+    image: 'https://placehold.co/60',
     vehicles: '2000+ xe',
   },
   {
     name: 'Ga T3 (TSN)',
-    image: 'https://via.placeholder.com/60?text=Ga+T3',
+    image: 'https://placehold.co/60',
     vehicles: '2000+ xe',
   },
   {
     name: 'Nội Bài',
-    image: 'https://via.placeholder.com/60?text=Noi+Bai',
+    image: 'https://placehold.co/60',
     vehicles: '200+ xe',
   },
   {
     name: 'Đà Nẵng',
-    image: 'https://via.placeholder.com/60?text=Da+Nang',
+    image: 'https://placehold.co/60',
     vehicles: '100+ xe',
   },
 ];
@@ -67,7 +67,11 @@ const airportDeliveries = [
     <div class="container">
       <div class="text-center position-absolute top-50 start-50 translate-middle">
         <h1 class="display-4 fw-bold">
-          GoGo - Cùng Bạn Đến Mọi Hành Trình
+          GoGo - Cùng Bạn Đến Mọi 
+          <div>
+
+            Hành Trình
+          </div>
         </h1>
         <hr class="w-50" style="margin: auto;">
         <h5 class="m-3">
@@ -168,7 +172,7 @@ const airportDeliveries = [
 
       <div class="container py-5">
     <h2 class="text-center fw-bold mb-4">Địa Điểm Nổi Bật</h2>
-    <div class="d-flex overflow-auto gap-3">
+    <div class="d-flex overflow-auto gap-3 justify-content-center">
       <div
         v-for="location in featuredLocations"
         :key="location.name"
@@ -177,13 +181,13 @@ const airportDeliveries = [
       >
         <img :src="location.image" class="card-img" alt="..." style="height: 300px; object-fit: cover;">
         <div class="card-img-overlay d-flex flex-column justify-content-end">
-          <h5 class="card-title">{{ location.name }}</h5>
-          <p class="card-text small">{{ location.vehicles }}</p>
+          <h5 class="card-title card-title-city">{{ location.name }}</h5>
+          <p class="card-text cart-text-city small">{{ location.vehicles }}</p>
         </div>
       </div>
     </div>
 
-    <div class="mt-5">
+    <!-- <div class="mt-5">
       <h4 class="fw-bold mb-3">Giao xe tại sân bay</h4>
       <div class="d-flex align-items-center gap-3">
         <button class="btn btn-light rounded-circle border"><i class="bi bi-chevron-left"></i></button>
@@ -208,7 +212,7 @@ const airportDeliveries = [
 
         <button class="btn btn-light rounded-circle border"><i class="bi bi-chevron-right"></i></button>
       </div>
-    </div>
+    </div> -->
   </div>
   </div>
 
@@ -285,10 +289,10 @@ const airportDeliveries = [
   transform: translateX(-10px) rotateY(12deg) scale(0.9);
 }
 
-.card-title {
+.card-title-city {
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
-.card-text {
+.card-text-city {
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
 }
 </style>
