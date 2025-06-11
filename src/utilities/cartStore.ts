@@ -1,7 +1,7 @@
 // cartStore.js
 import { reactive } from 'vue';
 import selectedProductServices from "../services/selectedProduct.services"
-import imageServices from "../services/image.services"
+import imageServices from "../services/carImage.services"
 
 type sProduct = {
   selectedProductId: number,

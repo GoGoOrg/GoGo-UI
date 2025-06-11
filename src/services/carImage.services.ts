@@ -1,6 +1,6 @@
 import createApiClient,{ handlingError } from "./api.service";
 
-class TagService {
+class CarImageService {
   private api: any;
 
   constructor(baseUrl = "http://localhost:3000/api") {
@@ -9,7 +9,7 @@ class TagService {
 
   async getAll() {
     try {
-      const response = await this.api.get("/tags");
+      const response = await this.api.get("/carimages");
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -18,7 +18,7 @@ class TagService {
 
   async getOne(id: number) {
     try {
-      const response = await this.api.get(`/tags/${id}`);
+      const response = await this.api.get(`/carimages/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -27,7 +27,7 @@ class TagService {
 
   async create(data: any) {
     try {
-      const response = await this.api.post("/tags", data);
+      const response = await this.api.post("/carimages", data);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -36,7 +36,7 @@ class TagService {
 
   async delete(id: number) {
     try {
-      const response = await this.api.delete(`/tags/${id}`);
+      const response = await this.api.delete(`/carimages/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -45,7 +45,7 @@ class TagService {
 
   async update(id: number, data: any) {
     try {
-      const response = await this.api.patch(`/tags/${id}`, data);
+      const response = await this.api.patch(`/carimages/${id}`, data);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -53,4 +53,4 @@ class TagService {
   }
 }
 
-export default new TagService();
+export default new CarImageService();

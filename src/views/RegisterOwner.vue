@@ -2,11 +2,15 @@
   <div class="container my-5">
     <div class="hero position-relative">
       <!-- Background image -->
-      <img
-        src="https://placehold.co/1200x600"
-        alt="Hero background"
-        class="img-fluid w-100 rounded-4"
-      />
+       <div class="rounded-4" style="max-height: 600px; overflow: hidden; ">
+
+         <img
+         src="../assets/images/owner-register-image.jpg"
+         alt="Hero background"
+         class="img-fluid w-100 rounded-4"
+         style="max-width: 1800px;  -webkit-transform: scaleX(-1); transform: scaleX(-1); "
+         />
+        </div>
 
       <!-- Floating content -->
       <div class="hero-content text-dark bg-white p-4 rounded-4 shadow">
@@ -42,7 +46,6 @@
 .hero {
   position: relative;
   overflow: hidden;
-  max-width: 1200px;
   margin: auto;
 }
 
@@ -53,12 +56,12 @@
   max-width: 500px;
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .hero-content {
     position: static;
     width: 100%;
     max-width: 100%;
     margin-top: 1rem;
   }
-}
+} */
 </style>

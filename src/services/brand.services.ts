@@ -1,25 +1,16 @@
-import createApiClient from "./api.service";
-import handlingError from "./api.service";
-import axios from "axios";
+import createApiClient,{ handlingError } from "./api.service";
 
 class BrandService {
-  api: any;
+  private api: any;
+
   constructor(baseUrl = "http://localhost:3000/api") {
     this.api = createApiClient(baseUrl);
   }
+
   async getAll() {
     try {
-      const brands = await this.api.get("/brands");
-      return brands.data;
-    } catch (err) {
-      handlingError(err);
-    }
-  }
-
-  async getTop10() {
-    try {
-      const brands = await this.api.get("/brands/top/10");
-      return brands.data;
+      const response = await this.api.get("/brands");
+      return response.data;
     } catch (err) {
       handlingError(err);
     }
@@ -27,8 +18,8 @@ class BrandService {
 
   async getOne(id: number) {
     try {
-      const brands = await this.api.get("/brands/" + id);
-      return brands.data;
+      const response = await this.api.get(`/brands/${id}`);
+      return response.data;
     } catch (err) {
       handlingError(err);
     }
@@ -36,30 +27,29 @@ class BrandService {
 
   async create(data: any) {
     try {
-      const resp = await this.api.post(
-        "http://localhost:3000/api/brands",
-        data
-      );
-      return resp.data;
-    } catch (err: any) {
+      const response = await this.api.post("/brands", data);
+      return response.data;
+    } catch (err) {
       handlingError(err);
     }
   }
 
   async delete(id: number) {
     try {
-      return await this.api.delete("/brands/" + id);
+      const response = await this.api.delete(`/brands/${id}`);
+      return response.data;
     } catch (err) {
       handlingError(err);
     }
   }
 
-  async update(id: number, data: any, ) {
-    return await axios.patch(`http://localhost:3000/api/brands/${id}`, data).then((res) => {
-    return res.data;
-    }).catch((err) => {
-        handlingError(err);
-    })
+  async update(id: number, data: any) {
+    try {
+      const response = await this.api.patch(`/brands/${id}`, data);
+      return response.data;
+    } catch (err) {
+      handlingError(err);
+    }
   }
 }
 

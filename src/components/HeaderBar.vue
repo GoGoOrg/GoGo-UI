@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import userServices from '../services/user.services';
+import userServices from '../services/users.services';
 import { checkLogin } from '../utilities/utilities';
 import { useRouter } from "vue-router";
 import { onMounted, ref } from 'vue';
@@ -117,18 +117,16 @@ onMounted(() => {
 
 <template>
     <div class="d-flex justify-between w-100 mt-3 container">
-        <div class="flex-grow-1 fw-bold display-6">GOGO</div>
+        <div class="flex-grow-1 fw-bold display-6">
+            <RouterLink class="text-decoration-none text-black" to="/">GOGO</RouterLink>     
+        </div>
 
         <div class="d-flex">
             <div class="p-3 fw-bold">
-                <a class="text-decoration-none text-black" href="#">
-                    Về GoGo
-                </a>
+                <RouterLink class="text-decoration-none text-black" to="/about">Về GoGo</RouterLink>                
             </div>
             <div class="p-3 fw-bold">
-                <a class="text-decoration-none text-black" href="#">
-                    Trở thành chủ xe
-                </a>
+                <RouterLink class="text-decoration-none text-black" to="/owner/register">Trở thành chủ xe</RouterLink>                
 
             </div>
             <div class="m-1" style="width:1px; height:50px; background-color:#ccc;"></div>

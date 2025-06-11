@@ -9,7 +9,7 @@ const images = Array.from({ length: 10 }, (_, index) => ({
 
 const carouselConfig = {
   height: 200,
-  itemsToShow: 3.5,
+  itemsToShow: 4.5,
   wrapAround: true,
 }
 
@@ -130,7 +130,11 @@ const airportDeliveries = [
               <i class="fas fa-map-marker-alt me-1"></i> Giao xe tận nơi
             </span>
 
-            <h6 class="card-title fw-bold mb-2">BMW 520i 2012</h6>
+            <RouterLink class="text-decoration-none text-black" to="/car">
+              <h6 class="card-title fw-bold mb-2 ">
+                BMW 520i 2012
+                </h6>
+              </RouterLink>
 
             <div class="d-flex flex-wrap text-muted mb-2">
               <div class="me-3">
