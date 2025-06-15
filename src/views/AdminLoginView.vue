@@ -1,94 +1,105 @@
 <script setup lang="ts">
-import userServices from '../services/users.services';
-import { checkLogin } from '../utilities/utilities';
-import { onMounted, ref } from 'vue';
-import { useRouter } from "vue-router";
-import { useCookies } from "vue3-cookies";
-import Swal from "sweetalert2";
+import userServices from '../services/users.services'
+import { checkLogin } from '../utilities/utilities'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCookies } from 'vue3-cookies'
+import Swal from 'sweetalert2'
 
 const inputFormLogin = ref({
-    username: "",
-    password: ""
-});
-
-const currentToken = ref({
-    token: "",
-    id: "",
-});
-
-const currentUser = ref({
-    id: 0,
-    username: "",
-    password: "",
-    email: "",
-    role: ""
-});
-
-const router = useRouter();
-const cookies = useCookies();
-const token = cookies.cookies.get("Admin Token");
-
-async function onLogin(e: any) {
-    e.preventDefault();
-    try {
-        let resp = await userServices.login(inputFormLogin.value);
-
-        if (resp.role != 'admin') {
-            throw new Error("Không phải tài khoản admin!")
-        }
-
-        cookies.cookies.set("Admin Token", resp.token);
-        Swal.fire({
-            title: "Success!",
-            text: "Đăng nhập thành công",
-            icon: "success",
-            confirmButtonText: "OK",
-            timer: 1500
-        });
-
-        setTimeout(() => {
-            router.push({ name: "admin" });
-        }, 1500);
-
-    } catch (err: any) {
-        Swal.fire({
-            title: "Lỗi!",
-            text: "Sai tài khoản hoặc mật khẩu",
-            icon: "error",
-            confirmButtonText: "OK",
-            timer: 1500
-        });
-        console.log(err);
-    }
-};
-
-onMounted(async () => {
-    if (checkLogin('admin')) {
-        let resp = await userServices.getMe(token);
-        currentUser.value = resp.data.user;
-        console.log(currentUser.value)
-
-        router.push({ name: "admin" });
-    }
+  username: '',
+  password: '',
 })
 
+const currentToken = ref({
+  token: '',
+  id: '',
+})
+
+const currentUser = ref({
+  id: 0,
+  username: '',
+  password: '',
+  email: '',
+  role: '',
+})
+
+const router = useRouter()
+const cookies = useCookies()
+const token = cookies.cookies.get('Admin Token')
+
+async function onLogin(e: any) {
+  e.preventDefault()
+  try {
+    let resp = await userServices.login(inputFormLogin.value)
+
+    if (resp.role != 'admin') {
+      throw new Error('Không phải tài khoản admin!')
+    }
+
+    cookies.cookies.set('Admin Token', resp.token)
+    Swal.fire({
+      title: 'Success!',
+      text: 'Đăng nhập thành công',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+
+    setTimeout(() => {
+      router.push({ name: 'admin' })
+    }, 1500)
+  } catch (err: any) {
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Sai tài khoản hoặc mật khẩu',
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+    console.log(err)
+  }
+}
+
+onMounted(async () => {
+  if (checkLogin('admin')) {
+    let resp = await userServices.getMe(token)
+    currentUser.value = resp.data.user
+    console.log(currentUser.value)
+
+    router.push({ name: 'admin' })
+  }
+})
 </script>
 <template>
-  <div class="about ">
+  <div class="about">
     <!-- Login 9 - Bootstrap Brain Component -->
-    <section class="bg-primary py-3 py-md-5 py-xl-8 ">
+    <section class="bg-primary py-3 py-md-5 py-xl-8">
       <div class="container">
         <div class="row gy-4 align-items-center">
-          <div class="col-12 col-md-6 col-xl-7 " style="min-height: 88vh;">
-
+          <div class="col-12 col-md-6 col-xl-7" style="min-height: 88vh">
             <div class="d-flex justify-content-center text-bg-primary">
               <div class="col-12 col-xl-9">
-                <hr class="border-primary-subtle mb-4">
-                <h2 class="h1 mb-4">Chúng tôi mang đến dịch vụ thuê xe giúp bạn chinh phục mọi hành trình.</h2>
-                <p class="lead mb-5">Từ những chuyến đi thường ngày đến những hành trình khám phá, hành trình của bạn bắt đầu từ đây.</p>
+                <hr class="border-primary-subtle mb-4" />
+                <h2 class="h1 mb-4">
+                  Chúng tôi mang đến dịch vụ thuê xe giúp bạn chinh phục mọi hành trình.
+                </h2>
+                <p class="lead mb-5">
+                  Từ những chuyến đi thường ngày đến những hành trình khám phá, hành trình của bạn
+                  bắt đầu từ đây.
+                </p>
                 <div class="text-endx">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
-                    <path d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    fill="currentColor"
+                    class="bi bi-grip-horizontal"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                    />
                   </svg>
                 </div>
               </div>
@@ -108,13 +119,27 @@ onMounted(async () => {
                   <div class="row gy-3 overflow-hidden">
                     <div class="col-12">
                       <div class="form-floating mb-3">
-                        <input v-model="inputFormLogin.username" type="text" class="form-control" name="username" id="username" required>
+                        <input
+                          v-model="inputFormLogin.username"
+                          type="text"
+                          class="form-control"
+                          name="username"
+                          id="username"
+                          required
+                        />
                         <label for="username" class="form-label">Tài khoản</label>
                       </div>
                     </div>
                     <div class="col-12">
-                      <div  class="form-floating mb-3">
-                        <input v-model="inputFormLogin.password" type="password" class="form-control" name="password" id="password" required>
+                      <div class="form-floating mb-3">
+                        <input
+                          v-model="inputFormLogin.password"
+                          type="password"
+                          class="form-control"
+                          name="password"
+                          id="password"
+                          required
+                        />
                         <label for="password" class="form-label">Mật khẩu</label>
                       </div>
                     </div>
@@ -158,6 +183,4 @@ onMounted(async () => {
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

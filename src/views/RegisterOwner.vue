@@ -2,15 +2,14 @@
   <div class="container my-5">
     <div class="hero position-relative">
       <!-- Background image -->
-       <div class="rounded-4" style="max-height: 600px; overflow: hidden; ">
-
-         <img
-         src="../assets/images/owner-register-image.jpg"
-         alt="Hero background"
-         class="img-fluid w-100 rounded-4"
-         style="max-width: 1800px;  -webkit-transform: scaleX(-1); transform: scaleX(-1); "
-         />
-        </div>
+      <div class="rounded-4" style="max-height: 600px; overflow: hidden">
+        <img
+          src="../assets/images/owner-register-image.jpg"
+          alt="Hero background"
+          class="img-fluid w-100 rounded-4"
+          style="max-width: 1800px; -webkit-transform: scaleX(-1); transform: scaleX(-1)"
+        />
+      </div>
 
       <!-- Floating content -->
       <div class="hero-content text-dark bg-white p-4 rounded-4 shadow">
@@ -20,8 +19,8 @@
           Thu Nhập Đến <br />10tr/Tháng!
         </h1>
         <p class="mb-3">
-          Mioto không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với
-          Mioto khi có giao dịch cho thuê thành công.
+          Mioto không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Mioto khi có giao
+          dịch cho thuê thành công.
         </p>
         <hr />
         <p class="mb-2">
@@ -31,11 +30,7 @@
         <button class="btn btn-dark mt-2">Đăng ký ngay</button>
       </div>
     </div>
-
-
   </div>
-
-
 </template>
 
 <script setup lang="ts">

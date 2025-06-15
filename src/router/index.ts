@@ -22,10 +22,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-      meta: {
-        hideHeader: true,
-        hideFooter: true,
-      },
+
     },
     {
       path: '/car',
