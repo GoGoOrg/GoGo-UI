@@ -10,6 +10,24 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
+      path: '/admin/login',
+      name: 'admin login',
+      component: () => import('../views/AdminLoginView.vue'),
+      meta: {
+        hideHeader: true,
+        hideFooter: true,
+      },
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminView.vue'),
+      meta: {
+        hideHeader: true,
+        hideFooter: true,
+      },
+    },
+    {
       path: '/car',
       name: 'car',
       component: () => import('../views/CarView.vue')

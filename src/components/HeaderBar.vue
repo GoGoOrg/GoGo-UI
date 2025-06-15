@@ -110,7 +110,7 @@ async function onLogin(e: any) {
 };
 
 onMounted(() => {
-    if (checkLogin()) router.push({ name: "home" });
+    if (checkLogin('member')) router.push({ name: "home" });
 });
 </script>
 

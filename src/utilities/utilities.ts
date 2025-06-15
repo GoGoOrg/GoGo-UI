@@ -5,10 +5,17 @@ const cookies = useCookies();
 function isTokenExpired(token: string) {
     const expiry = (JSON.parse(atob(token.split('.')[1]))).exp;
     return (Math.floor((new Date()).getTime() / 1000)) >= expiry;
-  }
+}
 
-export function checkLogin() {
-    const tokenBearer = cookies.cookies.get('Token');
+export function checkLogin(role: string) {
+
+    var tokenBearer = "";
+    if (role == 'admin') {
+        tokenBearer = cookies.cookies.get('Admin Token');
+    } else {
+        tokenBearer = cookies.cookies.get('Token');
+    }
+
     if (tokenBearer == null || tokenBearer == '' || isTokenExpired(tokenBearer)) return false;
   
     return true
