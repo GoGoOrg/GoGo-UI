@@ -1,111 +1,142 @@
 <script setup lang="ts">
 import { Chart, Grid, Line } from 'vue3-charts'
 
+import { ref, onMounted, computed } from 'vue'
+import { checkLogin } from '../utilities/utilities'
+import { useRouter } from 'vue-router'
+import { useCookies } from 'vue3-cookies'
+import Swal from 'sweetalert2'
+import usersServices from '../services/users.services'
+import type { Car } from '../types/car'
+import carServices from '@/services/car.services'
 
-import { ref, onMounted, computed } from 'vue';
-import { checkLogin } from "../utilities/utilities";
-import { useRouter } from 'vue-router';
-import { useCookies } from 'vue3-cookies';
-import Swal from 'sweetalert2';
-import usersServices from '../services/users.services';
-
-const router = useRouter();
-
+const router = useRouter()
 
 const plByMonth = ref([
-    { name: 'Jan', pl: 0, avg: 0, inc: 0 },
-    { name: 'Feb', pl: 0, avg: 0, inc: 0 },
-    { name: 'Apr', pl: 0, avg: 0, inc: 0 },
-    { name: 'Mar', pl: 0, avg: 0, inc: 0 },
-    { name: 'May', pl: 0, avg: 0, inc: 0 },
-    { name: 'Jun', pl: 0, avg: 0, inc: 0 },
-    { name: 'Jul', pl: 0, avg: 0, inc: 0 },
-    { name: 'Aug', pl: 0, avg: 0, inc: 0 },
-    { name: 'Sep', pl: 0, avg: 0, inc: 0 },
-    { name: 'Oct', pl: 0, avg: 0, inc: 0 },
-    { name: 'Nov', pl: 0, avg: 0, inc: 0 },
-    { name: 'Dec', pl: 0, avg: 0, inc: 0 }
+  { name: 'Jan', pl: 0, avg: 0, inc: 0 },
+  { name: 'Feb', pl: 0, avg: 0, inc: 0 },
+  { name: 'Apr', pl: 0, avg: 0, inc: 0 },
+  { name: 'Mar', pl: 0, avg: 0, inc: 0 },
+  { name: 'May', pl: 0, avg: 0, inc: 0 },
+  { name: 'Jun', pl: 0, avg: 0, inc: 0 },
+  { name: 'Jul', pl: 0, avg: 0, inc: 0 },
+  { name: 'Aug', pl: 0, avg: 0, inc: 0 },
+  { name: 'Sep', pl: 0, avg: 0, inc: 0 },
+  { name: 'Oct', pl: 0, avg: 0, inc: 0 },
+  { name: 'Nov', pl: 0, avg: 0, inc: 0 },
+  { name: 'Dec', pl: 0, avg: 0, inc: 0 },
 ])
 const plByMoney = ref([
-    { name: 'Jan', pl: 0, avg: 0, inc: 0 },
-    { name: 'Feb', pl: 0, avg: 0, inc: 0 },
-    { name: 'Apr', pl: 0, avg: 0, inc: 0 },
-    { name: 'Mar', pl: 0, avg: 0, inc: 0 },
-    { name: 'May', pl: 0, avg: 0, inc: 0 },
-    { name: 'Jun', pl: 0, avg: 0, inc: 0 },
-    { name: 'Jul', pl: 0, avg: 0, inc: 0 },
-    { name: 'Aug', pl: 0, avg: 0, inc: 0 },
-    { name: 'Sep', pl: 0, avg: 0, inc: 0 },
-    { name: 'Oct', pl: 0, avg: 0, inc: 0 },
-    { name: 'Nov', pl: 0, avg: 0, inc: 0 },
-    { name: 'Dec', pl: 0, avg: 0, inc: 0 }
+  { name: 'Jan', pl: 0, avg: 0, inc: 0 },
+  { name: 'Feb', pl: 0, avg: 0, inc: 0 },
+  { name: 'Apr', pl: 0, avg: 0, inc: 0 },
+  { name: 'Mar', pl: 0, avg: 0, inc: 0 },
+  { name: 'May', pl: 0, avg: 0, inc: 0 },
+  { name: 'Jun', pl: 0, avg: 0, inc: 0 },
+  { name: 'Jul', pl: 0, avg: 0, inc: 0 },
+  { name: 'Aug', pl: 0, avg: 0, inc: 0 },
+  { name: 'Sep', pl: 0, avg: 0, inc: 0 },
+  { name: 'Oct', pl: 0, avg: 0, inc: 0 },
+  { name: 'Nov', pl: 0, avg: 0, inc: 0 },
+  { name: 'Dec', pl: 0, avg: 0, inc: 0 },
 ])
 
 const toBase64 = (file: any) =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-    });
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+  })
 
 const currentUser = ref({
-    accountId: 0,
-    username: "",
-    password: "",
-    email: "",
-    name: "",
-    phone: "",
-    birthDate: null,
-    avatar: "",
-    billingAddress: "",
-    created_at: null,
-    updated_at: null,
-    role: ""
-});
-const cookies = useCookies();
-const token = cookies.cookies.get("Admin Token");
+  accountId: 0,
+  username: '',
+  password: '',
+  email: '',
+  name: '',
+  phone: '',
+  birthDate: null,
+  avatar: '',
+  billingAddress: '',
+  created_at: null,
+  updated_at: null,
+  role: '',
+})
+const car = ref<Car>({
+  id: 0,
+  name: '',
+  type: '',
+  licenseplate: '',
+  description: '',
+  regulation: '',
+  color: '',
+  seats: 0,
+  doors: 0,
+  price: 0,
+  ownerid: 0,
+  brandid: 0,
+  cityid: 0,
+  transmissiontypeid: 0,
+  fueltypeid: 0,
+  totalride: 0,
+  totalheart: 0,
+  mortage: 0,
+  insurance: 0,
+  starnumber: 0,
+  avgrating: 0,
+  reviewcount: 0,
+  priceperday: 0,
+  discountvalue: 0,
+  discounttype: '',
+  createdat: '',
+  updatedat: '',
+  deletedat: null,
+})
+const cookies = useCookies()
+const token = cookies.cookies.get('Admin Token')
 
 onMounted(async () => {
-    try {
-        document.querySelectorAll('label[for^="tagEdit"]').forEach(label => {
-            label.addEventListener('click', event => {
-                event.preventDefault(); // Ngăn cuộn
-            });
-        });
+  try {
+    document.querySelectorAll('label[for^="tagEdit"]').forEach((label) => {
+      label.addEventListener('click', (event) => {
+        event.preventDefault() // Ngăn cuộn
+      })
+    })
 
+    if (!checkLogin('admin')) {
+      Swal.fire({
+        title: 'Chưa đăng nhập!',
+        text: 'Vui lòng đăng nhập để xem thông tin',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        timer: 1500,
+      })
 
-        if (!checkLogin('admin')) {
-            Swal.fire({
-                title: "Chưa đăng nhập!",
-                text: "Vui lòng đăng nhập để xem thông tin",
-                icon: "error",
-                confirmButtonText: "OK",
-                timer: 1500
-            });
-
-            router.push({ name: "admin login" });
-        } else {
-            let resp1 = await usersServices.getMe(token);
-            currentUser.value = resp1.data.account[0];
-        }
-        if (currentUser.value.role != 'admin' || currentUser.value.accountId == 0) {
-            Swal.fire({
-                title: "Không có quyền!",
-                text: "Vui lòng đăng nhập dưới vai trò admin để xem thông tin",
-                icon: "error",
-                confirmButtonText: "OK",
-                timer: 1500
-            });
-
-            router.push({ name: "admin login" });
-        }
-       
-    } catch (error) {
-        console.log(error)
+      router.push({ name: 'admin login' })
+    } else {
+      let resp1 = await usersServices.getMe(token)
+      currentUser.value = resp1.data.user
     }
-})
+    if (currentUser.value.role != 'admin' || currentUser.value.accountId == 0) {
+      Swal.fire({
+        title: 'Không có quyền!',
+        text: 'Vui lòng đăng nhập dưới vai trò admin để xem thông tin',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        timer: 1500,
+      })
 
+      router.push({ name: 'admin login' })
+    }
+
+    // get all cars
+    var resp = await carServices.getAll()
+    console.log(resp.data.cars)
+  } catch (error) {
+    console.log(error)
+  }
+})
 </script>
 
 <template>
