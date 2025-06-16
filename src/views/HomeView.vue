@@ -1,15 +1,44 @@
-<script setup>
+<script setup lang="ts">
 import 'vue3-carousel/carousel.css'
+import { ref } from 'vue'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 
-const images = Array.from({ length: 10 }, (_, index) => ({
-  id: index + 1,
-  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
-}))
+const images = [
+  { id: 1, 
+    url: '/images/offer1-home.jpg',
+    contents: [
+      "🏝 Mùa hè là mùa của những chuyến đi. Lên lịch khám phá những miền đất mới, mở ra những trải nghiệm mới.",
+      "Tận hưởng chuyến đi nghỉ dưỡng mùa hè với xế êm, ngồi điều hòa mát lạnh, bon bon qua từng chặng đường.",
+      "✨ Nhập mã HERUCRO - nhận ngay ưu đãi 140k, áp dụng cho chuyến đi ngày 04/07 - 06/07/2025, và thanh toán giữ chỗ sớm ngày 02/07/2025.",
+      "🚗 Đặt xe đúng ý, du hè mê ly. Mở app đặt ngay!"
+    ],
+    title: "🌞 Hè đến rồi! Lên lịch khám phá muôn nơi với ưu đãi 140k"
+  },
+  { id: 2, 
+    url: '/images/offer2-home.jpg',
+    contents: [
+      "🌞 Hè đến rồi, cả nhà mình định đi đâu?",
+      "Dù ngắn hay dài, hành trình nào cũng thêm ý nghĩa khi có gia đình bên cạnh. Khám phá mọi miền với xe tự lái riêng tư - thoải mái dừng chân, lưu giữ từng khoảnh khắc.",
+      "🎈Hè đi chơi xa, nhà ta thêm gần. Mioto tặng bạn ưu đãi 120k - nhập mã MI796, áp dụng cho chuyến đi 27/06 - 29/06/2025, đặt cọc trước 25/06/2025.",
+      "🚗 Lên lịch đi ngay!"
+    ],
+    title: "🚗 Tận hưởng chuyến đi cùng gia đình với ưu đãi 120k - nhập mã MI796"
+  },
+  { id: 3, 
+    url: '/images/offer3-home.jpg',
+    contents: [
+      "🌞 Hè sang nắng gọi, là thời điểm lý tưởng để lên kế hoạch chu du muôn nơi!",
+      "Có xe riêng đồng hành, chủ động trên từng điểm đến, lưu giữ trọn vẹn những khoảnh khắc trên mọi cung đường.",
+      "🚗 Tận hưởng chuyến đi đầy hứng khởi với ưu đãi 8% (tối đa 80k) - nhập mã VUIHE, áp dụng đến hết ngày 30/06/2025.",
+      "📅 Lên lịch đi ngay!"
+    ],
+    title: "✨ Du lịch giải nhiệt mùa hè - Nhận ngay ưu đãi 8%"
+  },
+]
 
 const carouselConfig = {
-  height: 200,
-  itemsToShow: 4.5,
+  height: 300,
+  itemsToShow: 3,
   wrapAround: true,
 }
 
@@ -58,6 +87,11 @@ const airportDeliveries = [
     vehicles: '100+ xe',
   },
 ]
+
+const choosenImage = ref({ id: 0, url: '', contents:[], title: ""})
+async function addDataToModal(id: any) {
+  choosenImage.value = id
+}
 </script>
 
 <template>
@@ -74,8 +108,13 @@ const airportDeliveries = [
         </h5>
       </div>
 
-      <div class="mt-3">
-        <img class="rounded-4" src="https://placehold.co/1290x620" alt="" />
+      <div class="mt-3" style="max-height: 600px; overflow: hidden">
+        <img
+          class="rounded-4"
+          src="/images/wallpaper.jpg"
+          style="max-width: 1290px; overflow: hidden"
+          alt=""
+        />
       </div>
 
       <div class="text-center m-5">
@@ -83,16 +122,57 @@ const airportDeliveries = [
         <h5 class="m-4">Nhận nhiều ưu đãi hấp dẫn từ GoGo</h5>
       </div>
     </div>
-    <div clas="m-5">
+    <div class="m-5">
       <Carousel v-bind="carouselConfig">
         <Slide v-for="image in images" :key="image.id">
-          <img :src="image.url" alt="image" class="carousel-img" />
+          <img
+            :src="image.url"
+            alt="image"
+            class="carousel-img"
+            data-bs-toggle="modal"
+            data-bs-target="#offerModal"
+            @click="addDataToModal(image)"
+          />
         </Slide>
 
         <template #addons>
           <Navigation />
         </template>
       </Carousel>
+    </div>
+
+    <!-- Offer Modal -->
+    <div
+      class="modal fade"
+      id="offerModal"
+      tabindex="-1"
+      aria-labelledby="offerModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="text-end">
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <img :src="choosenImage.url" alt="" class="img-fluid w-100 mt-3" />
+            <div class="p-5 pt-4">
+              <h4 class="text-center mb-3">
+                {{ choosenImage.title }}
+              </h4>
+              <div v-for="content in choosenImage.contents" :key="content">         
+                {{ content }}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="mt-5 pb-5 pt-5 text-center w-100" style="background-color: #f6f6f6">
@@ -224,6 +304,7 @@ const airportDeliveries = [
 }
 
 .carousel-img {
+  cursor: pointer;
   border-radius: 8px;
   width: 100%;
   height: 100%;
