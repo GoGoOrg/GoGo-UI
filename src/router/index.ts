@@ -10,6 +10,11 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutView.vue')
+    },
+    {
       path: '/admin/login',
       name: 'admin login',
       component: () => import('../views/AdminLoginView.vue'),
@@ -33,7 +38,12 @@ const router = createRouter({
       path: '/owner/register',
       name: 'owner register',
       component: () => import('../views/RegisterOwner.vue')
-    }
+    },
+    {
+      path: '/owner',
+      name: 'owner view',
+      component: () => import('../views/OwnerView.vue')
+    },
     
   ],
   scrollBehavior(to, from, savedPosition) {

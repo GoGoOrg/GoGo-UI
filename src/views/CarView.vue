@@ -303,7 +303,7 @@ const images = Array.from({ length: 10 }, (_, index) => ({
   </div>
 </template>
 
-<style>
+<style scoped>
 pre {
   font-family: Arial, Helvetica, sans-serif;
   white-space: pre-wrap; /* Since CSS 2.1 */

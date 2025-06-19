@@ -16,6 +16,7 @@ const inputFormRegister = ref({
     fullName: "",
     email: "",
     phone: "",
+    role: "member"
 });
 
 const inputFormLogin = ref({
@@ -117,9 +118,11 @@ onMounted(() => {
 
 <template>
     <div class="d-flex justify-between w-100 mt-3 container">
-        <div class="flex-grow-1 fw-bold display-6">
-            <RouterLink class="text-decoration-none text-black" to="/">GOGO</RouterLink>     
-        </div>
+        <RouterLink to="/" class=" d-flex flex-grow-1 fw-bold display-6 justify-content-start align-items-center text-decoration-none text-black">
+            <img src="/images/logo.png" class="rounded-4 me-1" alt="" style="max-width: 40px; max-width: 40px;">
+
+            <div>GOGO</div>     
+        </RouterLink>
 
         <div class="d-flex">
             <div class="p-3 fw-bold">
@@ -131,9 +134,13 @@ onMounted(() => {
             </div>
             <div class="m-1" style="width:1px; height:50px; background-color:#ccc;"></div>
 
-            <div class="p-3 fw-bold" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#registerModal">
-                Đăng ký
+            <div class="d-flex" v-if="!checkLogin('member') && !checkLogin('admin')">
+                <div class="p-3 fw-bold" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    Đăng ký
+                </div>
+                <button type="button" class="btn btn-outline-dark fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</button>
             </div>
+            <button v-else type="button" class="btn btn-outline-dark fw-bold" >Đăng xuất</button>
 
             <!-- register modal -->
             <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
@@ -216,7 +223,6 @@ onMounted(() => {
             </div>
             
             
-            <button type="button" class="btn btn-outline-dark fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</button>
             <!-- login modal -->
             <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">

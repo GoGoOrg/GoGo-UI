@@ -97,24 +97,29 @@ async function addDataToModal(id: any) {
 <template>
   <div>
     <div class="container">
-      <div class="text-center position-absolute top-50 start-50 translate-middle">
-        <h1 class="display-4 fw-bold">
-          GoGo - Cùng Bạn Đến Mọi
-          <div>Hành Trình</div>
-        </h1>
-        <hr class="w-50" style="margin: auto" />
-        <h5 class="m-3">
-          Trải nghiệm sự khác biệt từ hơn 10.000 xe gia đình đời mới khắp Việt Nam
-        </h5>
-      </div>
 
-      <div class="mt-3" style="max-height: 600px; overflow: hidden">
+     <div class="position-relative mt-3 rounded-4 overflow-hidden" style="max-height: 600px;">
+        <!-- Background image -->
         <img
-          class="rounded-4"
           src="/images/wallpaper.jpg"
-          style="max-width: 1290px; overflow: hidden"
-          alt=""
+          class="img-fluid w-100 h-100 object-fit-cover"
+          alt="Wallpaper"
         />
+
+        <!-- Dark overlay -->
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(0,0,0,0.5);"></div>
+
+        <!-- Text content -->
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3">
+          <h1 class="display-4 fw-bold mb-3">
+            GoGo - Cùng Bạn Đến Mọi
+            <span>Hành Trình</span>
+          </h1>
+          <hr class="w-50 mx-auto" />
+          <h5 class="mt-3">
+            Trải nghiệm sự khác biệt từ hơn 10.000 xe gia đình đời mới khắp Việt Nam
+          </h5>
+        </div>
       </div>
 
       <div class="text-center m-5">
@@ -288,7 +293,7 @@ async function addDataToModal(id: any) {
   </div>
 </template>
 
-<style>
+<style scoped>
 :root {
   --carousel-transition: 300ms;
   --carousel-opacity-inactive: 0.7;

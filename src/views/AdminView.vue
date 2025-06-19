@@ -1,47 +1,28 @@
 <script setup lang="ts">
-import { Chart, Grid, Line } from 'vue3-charts'
-
-import { ref, onMounted, computed } from 'vue'
-import { checkLogin } from '../utilities/utilities'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
-import usersServices from '../services/users.services'
-import type { Car } from '../types/car'
+
+import { Chart, Grid, Line } from 'vue3-charts'
+import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
+import { checkLogin } from '@/utilities/utilities'
+
+import type { Car } from '@/types/car'
 
 const router = useRouter()
+const { cookies } = useCookies()
+const token = cookies.get('Admin Token')
 
-const plByMonth = ref([
-  { name: 'Jan', pl: 0, avg: 0, inc: 0 },
-  { name: 'Feb', pl: 0, avg: 0, inc: 0 },
-  { name: 'Apr', pl: 0, avg: 0, inc: 0 },
-  { name: 'Mar', pl: 0, avg: 0, inc: 0 },
-  { name: 'May', pl: 0, avg: 0, inc: 0 },
-  { name: 'Jun', pl: 0, avg: 0, inc: 0 },
-  { name: 'Jul', pl: 0, avg: 0, inc: 0 },
-  { name: 'Aug', pl: 0, avg: 0, inc: 0 },
-  { name: 'Sep', pl: 0, avg: 0, inc: 0 },
-  { name: 'Oct', pl: 0, avg: 0, inc: 0 },
-  { name: 'Nov', pl: 0, avg: 0, inc: 0 },
-  { name: 'Dec', pl: 0, avg: 0, inc: 0 },
-])
-const plByMoney = ref([
-  { name: 'Jan', pl: 0, avg: 0, inc: 0 },
-  { name: 'Feb', pl: 0, avg: 0, inc: 0 },
-  { name: 'Apr', pl: 0, avg: 0, inc: 0 },
-  { name: 'Mar', pl: 0, avg: 0, inc: 0 },
-  { name: 'May', pl: 0, avg: 0, inc: 0 },
-  { name: 'Jun', pl: 0, avg: 0, inc: 0 },
-  { name: 'Jul', pl: 0, avg: 0, inc: 0 },
-  { name: 'Aug', pl: 0, avg: 0, inc: 0 },
-  { name: 'Sep', pl: 0, avg: 0, inc: 0 },
-  { name: 'Oct', pl: 0, avg: 0, inc: 0 },
-  { name: 'Nov', pl: 0, avg: 0, inc: 0 },
-  { name: 'Dec', pl: 0, avg: 0, inc: 0 },
-])
+// Chart data
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-const toBase64 = (file: any) =>
+const plByMonth = ref(months.map((name) => ({ name, pl: 0, avg: 0, inc: 0 })))
+const plByMoney = ref(months.map((name) => ({ name, pl: 0, avg: 0, inc: 0 })))
+
+// Convert file to base64
+const toBase64 = (file: File): Promise<string | ArrayBuffer | null> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
@@ -49,6 +30,7 @@ const toBase64 = (file: any) =>
     reader.onerror = reject
   })
 
+// Admin user data
 const currentUser = ref({
   accountId: 0,
   username: '',
@@ -63,6 +45,8 @@ const currentUser = ref({
   updated_at: null,
   role: '',
 })
+
+// Example car data
 const car = ref<Car>({
   id: 0,
   name: '',
@@ -93,48 +77,72 @@ const car = ref<Car>({
   updatedat: '',
   deletedat: null,
 })
-const cookies = useCookies()
-const token = cookies.cookies.get('Admin Token')
+
+const newCar = ref({
+  name: '',
+  type: '',
+  licenseplate: '',
+  description: '',
+  regulation: '',
+  color: '',
+  seats: 0,
+  doors: 0,
+  price: 0,
+  ownerid: 0,
+  brandid: 0,
+  cityid: 0,
+  transmissiontypeid: 0,
+  fueltypeid: 0,
+  totalride: 0,
+  totalheart: 0,
+  mortage: 0,
+  insurance: 0,
+  starnumber: 0,
+  avgrating: 0,
+  reviewcount: 0,
+  priceperday: 0,
+  discountvalue: 0,
+  discounttype: '',
+})
 
 onMounted(async () => {
   try {
+    // Prevent scroll on tagEdit labels
     document.querySelectorAll('label[for^="tagEdit"]').forEach((label) => {
-      label.addEventListener('click', (event) => {
-        event.preventDefault() // Ngăn cuộn
-      })
+      label.addEventListener('click', (e) => e.preventDefault())
     })
 
+    // Check login
     if (!checkLogin('admin')) {
-      Swal.fire({
+      await Swal.fire({
         title: 'Chưa đăng nhập!',
         text: 'Vui lòng đăng nhập để xem thông tin',
         icon: 'error',
         confirmButtonText: 'OK',
         timer: 1500,
       })
-
-      router.push({ name: 'admin login' })
-    } else {
-      let resp1 = await usersServices.getMe(token)
-      currentUser.value = resp1.data.user
+      return router.push({ name: 'admin login' })
     }
-    if (currentUser.value.role != 'admin' || currentUser.value.accountId == 0) {
-      Swal.fire({
+
+    const respUser = await usersServices.getMe(token)
+    currentUser.value = respUser.data.user
+
+    if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
+      await Swal.fire({
         title: 'Không có quyền!',
         text: 'Vui lòng đăng nhập dưới vai trò admin để xem thông tin',
         icon: 'error',
         confirmButtonText: 'OK',
         timer: 1500,
       })
-
-      router.push({ name: 'admin login' })
+      return router.push({ name: 'admin login' })
     }
 
-    // get all cars
-    var resp = await carServices.getAll()
-    console.log(resp.data.cars)
+    // Load car data
+    const respCars = await carServices.getAll()
+    console.log(respCars.data.cars)
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 })
 </script>

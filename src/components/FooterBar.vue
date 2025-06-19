@@ -7,7 +7,10 @@
         <div class="container mb-5">
             <div class="d-flex justify-content-between">
                 <div class="">
-                    <img src="https://placehold.co/400x100" alt="MIOTO Logo">
+                    <RouterLink to="/" class="d-flex text-decoration-none text-black align-items-center">
+                        <img class="rounded-4 me-2" src="/images/logo.png" alt="Gogo Logo" style="max-width: 70px; max-height: 70px;">
+                        <h1 style="font-size: 70px;">GoGo</h1>
+                    </RouterLink>
                     <div class="mt-3">
                     <div><strong>1900 9217</strong></div>
                     <div>Tổng đài hỗ trợ: 7AM - 10PM</div>
