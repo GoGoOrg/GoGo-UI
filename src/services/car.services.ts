@@ -16,6 +16,15 @@ class CarService {
     }
   }
 
+  async getAllByOwnerId(id: number) {
+    try {
+      const response = await this.api.get("/cars");
+      return response.data;
+    } catch (err) {
+      handlingError(err);
+    }
+  }
+
   async getOne(id: number) {
     try {
       const response = await this.api.get(`/cars/${id}`);
