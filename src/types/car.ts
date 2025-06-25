@@ -1,13 +1,11 @@
 export interface Car {
   id: number
   name: string
-  type: string
   licenseplate: string
   description: string
   regulation: string
   color: string
   seats: number
-  doors: number
   price: number
   ownerid: number
   brandid: number

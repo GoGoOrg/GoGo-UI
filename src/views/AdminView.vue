@@ -12,8 +12,8 @@ import { checkLogin } from '@/utilities/utilities'
 import type { Car } from '@/types/car'
 
 const router = useRouter()
-const { cookies } = useCookies()
-const token = cookies.get('Admin Token')
+const cookies = useCookies()
+const token = cookies.cookies.get('Admin Token')
 
 // Chart data
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -50,13 +50,11 @@ const currentUser = ref({
 const car = ref<Car>({
   id: 0,
   name: '',
-  type: '',
   licenseplate: '',
   description: '',
   regulation: '',
   color: '',
   seats: 0,
-  doors: 0,
   price: 0,
   ownerid: 0,
   brandid: 0,
