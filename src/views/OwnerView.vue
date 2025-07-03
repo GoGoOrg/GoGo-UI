@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
@@ -14,13 +14,14 @@ import cityServices from '@/services/city.services'
 import type { Brand } from '@/types/brand'
 import brandServices from '@/services/brand.services'
 
+import OwnerCardComponent from '@/components/OwnerCardComponent.vue';
+
 const router = useRouter()
 const cookies = useCookies()
 
-const activeTab = ref('active')
 
 // Admin user data
-const currentUser = ref({
+const currentUser = reactive({
   id: 0,
   username: '',
   password: '',
@@ -56,7 +57,7 @@ const brands = ref<Brand[]>([
   },
 ])
 
-const car = ref<Car>({
+const cars = ref<Car[]>([{
   id: 0,
   name: '',
   licenseplate: '',
@@ -83,9 +84,9 @@ const car = ref<Car>({
   createdat: '',
   updatedat: '',
   deletedat: null,
-})
+}])
 
-const newCar = ref({
+const newCar = reactive({
   name: '',
   licenseplate: '',
   description: '',
@@ -121,7 +122,7 @@ async function uploadImageCar(event: Event) {
   try {
     const fileArray = Array.from(files)
     const base64Images = await Promise.all(fileArray.map((file) => toBase64(file).then(String)))
-    newCar.value.images = base64Images
+    newCar.images = base64Images
   } catch (err) {
     console.error('Error uploading images:', err)
   }
@@ -144,10 +145,9 @@ async function addCar(e: Event) {
     'insurance',
     'images'
   ]
-  const car = newCar.value
   const isEmpty = (val: any) => val === undefined || val === null || val === ''
   const hasEmptyRequiredFields = requiredFields.some((field) =>
-    isEmpty(car[field as keyof typeof car]),
+    isEmpty(newCar[field as keyof typeof newCar]),
   )
 
   try {
@@ -155,9 +155,9 @@ async function addCar(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    car.ownerid = currentUser.value.id
-    console.log(car)
-    await carServices.create(car)
+    newCar.ownerid = currentUser.id
+    console.log(newCar)
+    await carServices.create(newCar)
 
     Swal.fire({
       title: 'Thành công!',
@@ -193,7 +193,8 @@ onMounted(async () => {
     // }
 
     const respUser = await usersServices.getMe(token)
-    currentUser.value = respUser.data.user
+
+    Object.assign(currentUser, respUser.data.user)
     // if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
     //   await Swal.fire({
     //     title: 'Không có quyền!',
@@ -206,7 +207,8 @@ onMounted(async () => {
     // }
 
     // Load car data
-    const respCars = await carServices.getAllByOwnerId(1) // TODO
+    const respCars = await carServices.getAllByOwnerId(currentUser.id) // TODO
+    cars.value = respCars.data.cars
 
     const respCities = await cityServices.getAll()
     cities.value = respCities.data.citys
@@ -244,88 +246,7 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-for="i in 3" :key="i" class="card text-center mb-5">
-      <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item">
-            <a
-              class="nav-link text-black"
-              :class="{ active: activeTab === 'active' }"
-              href="#"
-              @click.prevent="activeTab = 'active'"
-            >
-              Thông tin xe
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link text-black"
-              :class="{ active: activeTab === 'link' }"
-              href="#"
-              @click.prevent="activeTab = 'link'"
-            >
-              Người thuê
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link text-black"
-              href="#"
-              :class="{ active: activeTab === 'calendar' }"
-              @click.prevent="activeTab = 'calendar'"
-            >
-              Lịch
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="card-body">
-        <template v-if="activeTab === 'active'">
-          <div class="card mb-3">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img
-                  src="https://placehold.co/500x500"
-                  class="img-fluid rounded-start h-100 w-100"
-                  alt="..."
-                />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">
-                    This is a wider card with supporting text below as a natural lead-in to
-                    additional content. This content is a little bit longer.
-                  </p>
-                  <p class="card-text">
-                    <small class="text-body-secondary">Last updated 3 mins ago</small>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <template v-else-if="activeTab === 'link'">
-          <h5 class="card-title">Link Tab</h5>
-          <p class="card-text">
-            This is the content of the Link tab. Feel free to update or replace it with dynamic
-            content.
-          </p>
-          <a href="#" class="btn btn-success">Go to another place</a>
-        </template>
-
-        <template v-else-if="activeTab === 'calendar'">
-          <h5 class="card-title">Link Tab</h5>
-          <p class="card-text">
-            This is the content of the Link tab. Feel free to update or replace it with dynamic
-            content.
-          </p>
-          <a href="#" class="btn btn-success">Go to another place</a>
-        </template>
-      </div>
-    </div>
+      <OwnerCardComponent v-for="car in cars" :key="car.id" :car="car"/>
   </div>
 
   <div
