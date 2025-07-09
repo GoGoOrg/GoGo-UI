@@ -19,7 +19,6 @@ import OwnerCardComponent from '@/components/OwnerCardComponent.vue';
 const router = useRouter()
 const cookies = useCookies()
 
-
 // Admin user data
 const currentUser = reactive({
   id: 0,
@@ -57,7 +56,7 @@ const brands = ref<Brand[]>([
   },
 ])
 
-const cars = ref<Car[]>([{
+const cars = ref([{
   id: 0,
   name: '',
   licenseplate: '',
@@ -84,6 +83,7 @@ const cars = ref<Car[]>([{
   createdat: '',
   updatedat: '',
   deletedat: null,
+  imageurl: '',
 }])
 
 const newCar = reactive({

@@ -47,7 +47,7 @@ const currentUser = ref({
 })
 
 // Example car data
-const car = ref<Car>({
+const car = ref<Partial<Car>>({
   id: 0,
   name: '',
   licenseplate: '',

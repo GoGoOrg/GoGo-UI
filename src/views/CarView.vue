@@ -1,14 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { height, width } from '@fortawesome/free-brands-svg-icons/fa42Group'
+import type { Car } from '@/types/car'
+import { useRoute, useRouter } from 'vue-router'
+import carServices from '@/services/car.services'
+import type { CarouselConfig } from 'vue3-carousel'
 
+const router = useRouter();
+const route = useRoute();
+const id = ref(0)
 const currentSlide = ref(0)
 
-const slideTo = (nextSlide) => (currentSlide.value = nextSlide)
+const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
 
-const galleryConfig = {
+const galleryConfig: Partial<CarouselConfig> = {
   itemsToShow: 1,
   wrapAround: true,
   slideEffect: 'fade',
@@ -24,10 +31,60 @@ const thumbnailsConfig = {
   gap: 10,
 }
 
+const car = ref<Partial<Car>>({
+  id: 0,
+  name: '',
+  licenseplate: '',
+  description: '',
+  regulation: '',
+  color: '',
+  seats: 0,
+  price: 0,
+  ownerid: 0,
+  ownername: '',
+  brandid: 0,
+  brand: '',
+  cityid: 0,
+  city: '',
+  transmissiontypeid: 0,
+  transmissiontype: '',
+  fueltypeid: 0,
+  fueltype: '',
+  totalride: 0,
+  totalheart: 0,
+  mortage: 0,
+  insurance: 0,
+  starnumber: 0,
+  avgrating: 0,
+  reviewcount: 0,
+  priceperday: 0,
+  discountvalue: 0,
+  discounttype: '',
+  imageurl: '',
+  createdat: '',
+  updatedat: '',
+  deletedat: null,
+})
+
 const images = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
   url: `https://picsum.photos/seed/${Math.random()}/1920/1080`,
 }))
+
+onMounted(async () => {
+  try {
+    id.value = Number(route.params.id);
+
+    let respCar = await carServices.getOne(id.value);
+    car.value = respCar.data.car[0]
+
+    console.log(car.value)
+
+  } catch (error) {
+    
+  }
+})
+
 </script>
 
 <template>
@@ -68,8 +125,7 @@ const images = Array.from({ length: 10 }, (_, index) => ({
         <div class="col-8">
           <!--  Name section -->
           <div class="d-flex flex-row justify-content-between align-items-center">
-            <h1 class="display-6 fw-bold">MITSUBISHI XPANDER CROSS 2021</h1>
-
+            <h1 class="display-6 fw-bold text-uppercase">{{ car.name }}</h1>
             <div>
               <button type="button" class="btn rounded"></button>
               <button type="button" class="btn btn-outline-light rounded-circle">
@@ -88,6 +144,34 @@ const images = Array.from({ length: 10 }, (_, index) => ({
           <hr />
           <div>
             <h4>Đặc điểm</h4>
+
+            <div class="d-flex justify-content-between p-2">
+              <div class="col-6 col-md-3 text-center d-flex align-items-center">
+                <i class="fa-solid fa-gears fa-2x text-success mb-2"></i>
+                <div class="text-start ms-3 fs-5">
+                  <div class="text-muted small">Truyền động</div>
+                  <div class="fw-semibold h5">{{ car.transmissiontype }}</div>
+                </div>
+              </div>
+
+              <!-- Seat count -->
+              <div class="col-6 col-md-3 text-center d-flex align-items-center">
+                <i class="fa-solid fa-chair fa-2x text-success mb-2"></i>
+                <div class="text-start ms-3 fs-5">
+                  <div class="text-muted small">Số ghế</div>
+                  <div class="fw-semibold h5">{{ car.seats }} chỗ</div>
+                </div>
+              </div>
+
+              <!-- Fuel type -->
+              <div class="col-6 col-md-3 text-center d-flex align-items-center">
+                <i class="fa-solid fa-gas-pump fa-2x text-success mb-2"></i>
+                <div class="text-start ms-3 fs-5">
+                  <div class="text-muted small">Nhiên liệu</div>
+                  <div class="fw-semibold h5">{{ car.fueltype }}</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- description section -->
@@ -95,14 +179,8 @@ const images = Array.from({ length: 10 }, (_, index) => ({
           <div>
             <h4>Mô tả</h4>
             <pre class="fs-6 text-secondary mt-4">
-    - Ngoài các ưu đãi về giá MICARRO còn hổ trợ thêm cho Quý Khách hàng các Chính sách như sau:
-    * Hoàn Tiền đổ xăng dư.
-    * Miễn phí vượt dưới 1h.
-    * Miễn phí vượt dưới 10Km.
-    - Sử dụng miễn phí: Nước, Đồ ăn vặt, Khăn giấy có trong gói MICAR KIT khi thuê xe
-    - Mitsubishi Xpander là một mẫu MPV 7 chỗ ngồi. Xe được thiết kế hiện đại và thể thao, với đường nét sắc sảo và mạnh mẽ. Xpander trang bị động cơ xăng tiết kiệm nhiên liệu và hiệu suất cao, cung cấp một trải nghiệm lái êm ái và mạnh mẽ. Xe có không gian nội thất rộng rãi và thoải mái, với nhiều tiện nghi hiện đại và tiện lợi cho người sử dụng. Mitsubishi Xpander được xem là một lựa chọn phù hợp cho gia đình hoặc các chuyến đi dài hạn.
-                </pre
-            >
+              {{ car.description }}
+            </pre>
           </div>
 
           <!-- addtional utility section -->
@@ -131,7 +209,7 @@ const images = Array.from({ length: 10 }, (_, index) => ({
                   class="img-fluid rounded-circle me-3"
                 />
                 <div>
-                  <h3>MICARRO</h3>
+                  <h3>{{ car.ownername }}</h3>
                   <div class="d-flex justify-content-between">
                     <div class="d-flex align-items-center justify-content-center">
                       <svg
@@ -249,14 +327,14 @@ const images = Array.from({ length: 10 }, (_, index) => ({
 
         <!-- Right Column -->
         <div class="col-4 d-flex flex-column">
-          <div class="d-flex">
-            <div class="display-6">856K</div>
-            <div>/ngày</div>
+          <div class="d-flex align-items-end">
+            <div class="display-6 fw-bold">{{ car.price }}K</div>
+            <div class="fw-bold text-secondary">/ngày</div>
           </div>
           <hr />
           <div class="d-flex justify-content-between">
             <div>Đơn giá thuê</div>
-            <div class="fw-bold">975.800 /ngày</div>
+            <div class="fw-bold">{{ car.price }} /ngày</div>
           </div>
           <div class="d-flex justify-content-between">
             <div>Bảo hiểm thuê xe</div>
@@ -273,6 +351,7 @@ const images = Array.from({ length: 10 }, (_, index) => ({
 
     <div class="text-center p-5" style="background-color: #f6f6f6">
       <h3 class="mb-5">Xe tương tự</h3>
+
       <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
         <Slide v-for="image in images" :key="image.id">
           <div class="position-relative text-white mb-4">

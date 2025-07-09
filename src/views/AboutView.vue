@@ -51,7 +51,7 @@
           sống tốt đẹp hơn.
         </p>
         <p>
-          Chúng tôi tin rằng mỗi hành trình đều quan trọng, vì vậy đội ngũ và các đối tác của MIOTO
+          Chúng tôi tin rằng mỗi hành trình đều quan trọng, vì vậy đội ngũ và các đối tác của GOGO
           với nhiều kinh nghiệm về lĩnh vực cho thuê xe, công nghệ, bảo hiểm &amp; du lịch sẽ mang
           đến cho hành trình của bạn thêm nhiều trải nghiệm mới lạ, thú vị cùng sự an toàn ở mức cao
           nhất.
@@ -109,7 +109,7 @@
           >
             <div>
               <h3 class="fw-bold">Tài xế của bạn đã đến!</h3>
-              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên Mioto.</p>
+              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên Gogo.</p>
               <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
             </div>
           </div>

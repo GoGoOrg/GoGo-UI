@@ -134,8 +134,12 @@ async function onLogin(e: any) {
 }
 
 onMounted(async () => {
-  const respUser = await usersServices.getMe(token)
+  try {
+    const respUser = await usersServices.getMe(token)
     currentUser.value = respUser.data.user
+  } catch (error) {
+    console.error(error)
+  }
 })
 </script>
 

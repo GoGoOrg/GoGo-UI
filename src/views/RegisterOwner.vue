@@ -85,17 +85,17 @@ async function onRegister(e: any) {
       <div class="hero-content text-dark bg-white p-4 rounded-4 shadow">
         <h1 class="fw-bold mb-3">
           <span class="text-success">Cho Thuê Xe</span> Trên<br />
-          Mioto Để Gia Tăng<br />
+          Gogo Để Gia Tăng<br />
           Thu Nhập Đến <br />10tr/Tháng!
         </h1>
         <p class="mb-3">
-          Mioto không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Mioto khi có giao
+          Gogo không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Gogo khi có giao
           dịch cho thuê thành công.
         </p>
         <hr />
         <p class="mb-2">
           <strong>Hotline:</strong> 1900 9217 (T2-T7 9AM–9PM)<br />
-          Hoặc để lại tin nhắn cho Mioto qua Fanpage
+          Hoặc để lại tin nhắn cho Gogo qua Fanpage
         </p>
         <button class="btn fw-bold btn-dark mt-2 ps-5 pe-5 pt-3 pb-3" data-bs-toggle="modal" data-bs-target="#registerOwnerModal">
           Đăng ký ngay

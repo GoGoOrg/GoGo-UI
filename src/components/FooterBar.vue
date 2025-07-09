@@ -15,8 +15,8 @@
                     <div><strong>1900 9217</strong></div>
                     <div>Tổng đài hỗ trợ: 7AM - 10PM</div>
                     <div class="mt-2">
-                        <a href="mailto:contact@mioto.vn" class="text-dark">contact@mioto.vn</a><br>
-                        Gửi mail cho Mioto
+                        <a href="mailto:contact@Gogo.vn" class="text-dark">contact@Gogo.vn</a><br>
+                        Gửi mail cho Gogo
                     </div>
                     </div>
                     <div class="mt-3 d-flex gap-3">
@@ -48,7 +48,7 @@
                     <div>
                     <h6 class="fw-bold mb-4">Đối Tác</h6>
                     <ul class="list-unstyled small">
-                        <li class="mb-3"><a href="#" class="text-dark text-muted text-decoration-none">Đăng ký chủ xe Mioto</a></li>
+                        <li class="mb-3"><a href="#" class="text-dark text-muted text-decoration-none">Đăng ký chủ xe Gogo</a></li>
                         <li class="mb-3"><a href="#" class="text-dark text-muted text-decoration-none">Đăng ký GPS MITRACK 4G</a></li>
                         <li class="mb-3"><a href="#" class="text-dark text-muted text-decoration-none">Đăng ký cho thuê xe dài hạn MICAR</a></li>
                     </ul>

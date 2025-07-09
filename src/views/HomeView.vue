@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import 'vue3-carousel/carousel.css'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
-
+import type { Car } from '@/types/car'
+import carServices from '@/services/car.services'
 const images = [
   { id: 1, 
     url: '/images/offer1-home.jpg',
@@ -19,7 +20,7 @@ const images = [
     contents: [
       "🌞 Hè đến rồi, cả nhà mình định đi đâu?",
       "Dù ngắn hay dài, hành trình nào cũng thêm ý nghĩa khi có gia đình bên cạnh. Khám phá mọi miền với xe tự lái riêng tư - thoải mái dừng chân, lưu giữ từng khoảnh khắc.",
-      "🎈Hè đi chơi xa, nhà ta thêm gần. Mioto tặng bạn ưu đãi 120k - nhập mã MI796, áp dụng cho chuyến đi 27/06 - 29/06/2025, đặt cọc trước 25/06/2025.",
+      "🎈Hè đi chơi xa, nhà ta thêm gần. Gogo tặng bạn ưu đãi 120k - nhập mã MI796, áp dụng cho chuyến đi 27/06 - 29/06/2025, đặt cọc trước 25/06/2025.",
       "🚗 Lên lịch đi ngay!"
     ],
     title: "🚗 Tận hưởng chuyến đi cùng gia đình với ưu đãi 120k - nhập mã MI796"
@@ -88,10 +89,53 @@ const airportDeliveries = [
   },
 ]
 
+const cars = ref<Partial<Car>[]>([{
+  id: 0,
+  name: '',
+  licenseplate: '',
+  description: '',
+  regulation: '',
+  color: '',
+  seats: 0,
+  price: 0,
+  ownerid: 0,
+  ownername: '',
+  brandid: 0,
+  brand: '',
+  cityid: 0,
+  city: '',
+  transmissiontypeid: 0,
+  transmissiontype: '',
+  fueltypeid: 0,
+  fueltype: '',
+  totalride: 0,
+  totalheart: 0,
+  mortage: 0,
+  insurance: 0,
+  starnumber: 0,
+  avgrating: 0,
+  reviewcount: 0,
+  priceperday: 0,
+  discountvalue: 0,
+  discounttype: '',
+  createdat: '',
+  updatedat: '',
+  deletedat: null
+}])
+
 const choosenImage = ref({ id: 0, url: '', contents:[], title: ""})
 async function addDataToModal(id: any) {
   choosenImage.value = id
 }
+
+onMounted(async () => {
+  try {
+    let respCars = await carServices.getAll();
+    cars.value = respCars.data.cars
+  } catch (error) {
+    
+  }
+})
 </script>
 
 <template>
@@ -185,13 +229,13 @@ async function addDataToModal(id: any) {
 
       <div class="d-flex flex-wrap justify-content-center">
         <div
-          v-for="i in 8"
-          :key="i"
+          v-for="car in cars"
+          :key="car.id"
           class="card shadow-sm rounded-4 m-3"
           style="width: 20rem; font-size: 14px"
         >
           <div class="position-relative">
-            <img src="https://placehold.co/50x50" class="card-img-top rounded-top-4" alt="BMW" />
+            <img :src="car.imageurl" style="max-width: 500px; max-height: 500px;" class="card-img-top rounded-top-4" alt="BMW" />
             <span
               class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 rounded-pill"
             >
@@ -210,17 +254,18 @@ async function addDataToModal(id: any) {
             </span>
 
             <RouterLink class="text-decoration-none text-black" to="/car">
-              <h6 class="card-title fw-bold mb-2">BMW 520i 2012</h6>
+              <h6 class="card-title fw-bold text-uppercase">{{ car.name }}</h6>
             </RouterLink>
+            <div class="text-muted mb-2">{{ car.brand }}</div>
 
             <div class="d-flex flex-wrap text-muted mb-2">
-              <div class="me-3"><i class="fas fa-cogs me-1"></i> Số tự động</div>
-              <div class="me-3"><i class="fas fa-user-friends me-1"></i> 4 chỗ</div>
-              <div><i class="fas fa-gas-pump me-1"></i> Xăng</div>
+              <div class="me-3"><i class="fas fa-cogs me-1"></i> {{ car.transmissiontype }}</div>
+              <div class="me-3"><i class="fas fa-user-friends me-1"></i> {{ car.seats }} chỗ</div>
+              <div><i class="fas fa-gas-pump me-1"></i> {{ car.fueltype }}</div>
             </div>
 
             <div class="mb-2 text-muted">
-              <i class="fas fa-map-pin me-1"></i> Quận Bình Thạnh, TP. Hồ Chí Minh
+              <i class="fas fa-map-pin me-1"></i> {{ car.city }}
             </div>
 
             <hr />
@@ -229,7 +274,7 @@ async function addDataToModal(id: any) {
               <div class="text-end">
                 <div>
                   <del class="text-muted">2.296K</del>
-                  <span class="fw-bold text-success ms-1">2.176K</span>/ngày
+                  <span class="fw-bold text-success ms-1">{{ car.price }}K</span>/ngày
                 </div>
                 <div class="text-primary small">
                   <i class="fas fa-clock me-1"></i> 1.378K gói 4 giờ

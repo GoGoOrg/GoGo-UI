@@ -30,7 +30,7 @@ const router = createRouter({
 
     },
     {
-      path: '/car',
+      path: '/car/:id',
       name: 'car',
       component: () => import('../views/CarView.vue')
     },
@@ -44,7 +44,11 @@ const router = createRouter({
       name: 'owner view',
       component: () => import('../views/OwnerView.vue')
     },
-    
+    {
+      path: '/brand/:id',
+      name: 'brand view',
+      component: () => import('../views/BrandView.vue')
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

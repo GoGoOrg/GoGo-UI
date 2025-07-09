@@ -8,10 +8,15 @@ export interface Car {
   seats: number
   price: number
   ownerid: number
+  ownername: string
   brandid: number
+  brand: string
   cityid: number
+  city: string
   transmissiontypeid: number
+  transmissiontype: string
   fueltypeid: number
+  fueltype: string
   totalride: number
   totalheart: number
   mortage: number
@@ -22,6 +27,7 @@ export interface Car {
   priceperday: number
   discountvalue: number
   discounttype: string
+  imageurl: string
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable
