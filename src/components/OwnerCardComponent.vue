@@ -7,40 +7,38 @@ const activeTab = ref('active')
 
 defineProps<{
   car: {
-  id: number
-  name: string
-  licenseplate: string
-  description: string
-  regulation: string
-  color: string
-  seats: number
-  price: number
-  ownerid: number
-  brandid: number
-  cityid: number
-  transmissiontypeid: number
-  fueltypeid: number
-  totalride: number
-  totalheart: number
-  mortage: number
-  insurance: number
-  starnumber: number
-  avgrating: number
-  reviewcount: number
-  priceperday: number
-  discountvalue: number
-  discounttype: string
-  createdat: string // or Date
-  updatedat: string // or Date
-  deletedat: string | null // nullable
-  imageurl: string
-}
+    id: number
+    name: string
+    licenseplate: string
+    description: string
+    regulation: string
+    color: string
+    seats: number
+    price: number
+    ownerid: number
+    brandid: number
+    cityid: number
+    transmissiontypeid: number
+    fueltypeid: number
+    totalride: number
+    totalheart: number
+    mortage: number
+    insurance: number
+    starnumber: number
+    avgrating: number
+    reviewcount: number
+    priceperday: number
+    discountvalue: number
+    discounttype: string
+    createdat: string // or Date
+    updatedat: string // or Date
+    deletedat: string | null // nullable
+    imageurl: string
+  }
 }>()
 </script>
-<style scoped></style>
-
 <template>
-  <div class="card  mb-5">
+  <div class="card mb-5">
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs">
         <li class="nav-item">
@@ -78,27 +76,31 @@ defineProps<{
 
     <div class="card-body">
       <template v-if="activeTab === 'active'">
-        <div class="card mb-3">
+        <div class="card ">
           <div class="row g-0">
             <div class="col-md-4">
               <img
                 :src="car.imageurl"
                 class="img-fluid rounded-start h-100 w-100"
                 alt="..."
-                style="max-width: 500px; max-height: 500px;"
+                style="max-width: 500px; max-height: 500px"
               />
             </div>
             <div class="col-md-8">
               <div class="card-body">
-                <a :href='"http://localhost:5173/car/" + car.id' class="card-title text-uppercase ms-2 h2 text-decoration-none">
+                <a
+                  :href="'http://localhost:5173/car/' + car.id"
+                  class="card-title text-uppercase ms-2 h2 text-decoration-none"
+                >
                   {{ car.name }}
                 </a>
                 <p class="card-text">
                   {{ car.regulation }}
                 </p>
                 <div class="d-flex justify-content-between p-2">
+                  
                   <div class="col-6 col-md-3 text-center">
-                    <i class="fa-solid fa-gears fa-2x text-success mb-2"></i>
+                    <i class="fa-solid fa-gears fa-2x text-success"></i>
                     <div class="text-muted small">Truyền động</div>
                     <div class="fw-semibold">{{ car.transmissiontypeid }}</div>
                   </div>
@@ -118,34 +120,19 @@ defineProps<{
                   </div>
                 </div>
 
-                <div class="border rounded p-4" style="background-color: #F8FBFE;">
-
-                  <p class="card-text d-flex align-items-center">
+                <div class="border rounded p-4" style="background-color: #f8fbfe">
+                  <div class="card-text d-flex align-items-center">
                     <div class="fw-bold h3">
                       {{ car.price }}
                     </div>
-                    <div class="fw-bold text-secondary">
-                      /ngày
-                    </div>
-                  </p>
-                  <p class="card-text">
-                    Tổng lượt thuê: {{ car.totalride }}
-                  </p>
-                  <p class="card-text">
-                    Tổng lượt thích: {{ car.totalheart }}
-                  </p>
-                  <p class="card-text">
-                    Bảo hiểm: {{ car.insurance }}
-                  </p>
-                  <p class="card-text">
-                    Số sao: {{ car.starnumber }}
-                  </p>
-                  <p class="card-text">
-                    Điểm trung bình{{ car.avgrating }}
-                  </p>
-                  <p class="card-text">
-                    Số lượt đánh giá: {{ car.reviewcount }}
-                  </p>
+                    <div class="fw-bold text-secondary">/ngày</div>
+                  </div>
+                  <p class="card-text">Tổng lượt thuê: {{ car.totalride }}</p>
+                  <p class="card-text">Tổng lượt thích: {{ car.totalheart }}</p>
+                  <p class="card-text">Bảo hiểm: {{ car.insurance }}</p>
+                  <p class="card-text">Số sao: {{ car.starnumber }}</p>
+                  <p class="card-text">Điểm trung bình{{ car.avgrating }}</p>
+                  <p class="card-text">Số lượt đánh giá: {{ car.reviewcount }}</p>
                 </div>
                 <!-- <p class="card-text">
                   <small class="text-body-secondary">Last updated 3 mins ago</small>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import userServices from '../services/users.services'
-import { checkLogin } from '../utilities/utilities'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
@@ -63,13 +62,12 @@ async function onLogin(e: any) {
 
 onMounted(async () => {
   try {
-    if (checkLogin('admin')) {
-      let resp = await userServices.getMe(token)
+      let resp = await userServices.getMe()
       currentUser.value = resp.data.user
       console.log(currentUser.value)
 
       router.push({ name: 'admin' })
-    }
+    
   } catch (error) {
     console.log(error)
   }

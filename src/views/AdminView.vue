@@ -7,7 +7,6 @@ import Swal from 'sweetalert2'
 import { Chart, Grid, Line } from 'vue3-charts'
 import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
-import { checkLogin } from '@/utilities/utilities'
 
 import type { Car } from '@/types/car'
 
@@ -110,19 +109,8 @@ onMounted(async () => {
       label.addEventListener('click', (e) => e.preventDefault())
     })
 
-    // Check login
-    if (!checkLogin('admin')) {
-      await Swal.fire({
-        title: 'Chưa đăng nhập!',
-        text: 'Vui lòng đăng nhập để xem thông tin',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        timer: 1500,
-      })
-      return router.push({ name: 'admin login' })
-    }
 
-    const respUser = await usersServices.getMe(token)
+    const respUser = await usersServices.getMe()
     currentUser.value = respUser.data.user
 
     if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {

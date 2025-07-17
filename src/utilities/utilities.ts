@@ -7,19 +7,19 @@ function isTokenExpired(token: string) {
     return (Math.floor((new Date()).getTime() / 1000)) >= expiry;
 }
 
-export function checkLogin(role: string) {
+// export function checkLogin(role: string) {
 
-    var tokenBearer = "";
-    if (role == 'admin') {
-        tokenBearer = cookies.cookies.get('Admin Token');
-    } else {
-        tokenBearer = cookies.cookies.get('Token');
-    }
+//     var tokenBearer = "";
+//     if (role == 'admin') {
+//         tokenBearer = cookies.cookies.get('Admin Token');
+//     } else {
+//         tokenBearer = cookies.cookies.get('Token');
+//     }
 
-    if (tokenBearer == null || tokenBearer == '' || isTokenExpired(tokenBearer)) return false;
+//     if (tokenBearer == null || tokenBearer == '' || isTokenExpired(tokenBearer)) return false;
   
-    return true
-};
+//     return true
+// };
 
 export function calculateTimeElapse(t: string): string {
 
@@ -35,4 +35,15 @@ export function calculateTimeElapse(t: string): string {
     if (hoursElapsed > 24) content = daysElapsed + ' ngày trước'
 
     return content
+}
+
+export function preventSpecialChars(event: KeyboardEvent) {
+  const allowed = /^[a-zA-Z0-9]$/
+
+  if (
+    event.key.length === 1 && // Only block printable characters, not control keys
+    !allowed.test(event.key)
+  ) {
+    event.preventDefault()
+  }
 }

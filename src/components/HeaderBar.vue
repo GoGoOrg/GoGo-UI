@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import userServices from '../services/users.services'
-import { checkLogin } from '../utilities/utilities'
+import { preventSpecialChars } from '../utilities/utilities'
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
 import usersServices from '../services/users.services'
-
 const router = useRouter()
 const cookies = useCookies()
 
@@ -25,14 +24,8 @@ const inputFormLogin = ref({
   password: '',
 })
 
-const currentToken = ref({
-  token: '',
-  id: '',
-})
-const token = cookies.cookies.get('Admin Token')
-
 const currentUser = ref({
-  accountId: 0,
+  id: 0,
   username: '',
   password: '',
   email: '',
@@ -60,17 +53,29 @@ function toggleRepeatPassword() {
   showRepeatPassword.value = !showRepeatPassword.value
 }
 
-function signOut(e: any) {
+async function signOut(e: any) {
   e.preventDefault()
-  document.cookie = 'Token' + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-  document.cookie = 'Admin Token' + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-  router.push({ name: 'home' })
+  await userServices.logout()
   window.location.reload()
 }
 
 async function onRegister(e: any) {
   e.preventDefault()
   try {
+    if (
+      inputFormRegister.value.email == '' ||
+      inputFormRegister.value.fullName == '' ||
+      inputFormRegister.value.password == '' ||
+      inputFormRegister.value.phone == '' ||
+      inputFormRegister.value.username == ''
+    ) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Vui lòng nhập tất cả các trường thông tin.',
+      })
+      return
+    }
     if (inputFormRegister.value.password !== repeatPasswordRegister.value) {
       Swal.fire({
         icon: 'error',
@@ -91,9 +96,6 @@ async function onRegister(e: any) {
       timer: 1500,
     })
 
-    setTimeout(() => {
-      router.push({ name: 'login' })
-    }, 1500)
   } catch (err: any) {
     Swal.fire({
       title: 'Error!',
@@ -109,7 +111,6 @@ async function onLogin(e: any) {
   try {
     let resp = await userServices.login(inputFormLogin.value)
 
-    cookies.cookies.set('Token', resp.token)
     Swal.fire({
       title: 'Success!',
       text: 'Đăng nhập thành công',
@@ -119,8 +120,8 @@ async function onLogin(e: any) {
     })
 
     setTimeout(() => {
-      router.push({ name: 'home' })
-    }, 1500)
+      window.location.reload();
+    }, 1200)
   } catch (err: any) {
     Swal.fire({
       title: 'Lỗi!',
@@ -135,7 +136,7 @@ async function onLogin(e: any) {
 
 onMounted(async () => {
   try {
-    const respUser = await usersServices.getMe(token)
+    const respUser = await usersServices.getMe()
     currentUser.value = respUser.data.user
   } catch (error) {
     console.error(error)
@@ -170,7 +171,7 @@ onMounted(async () => {
       </div>
       <div class="m-1" style="width: 1px; height: 50px; background-color: #ccc"></div>
 
-      <div class="d-flex" v-if="!checkLogin('member') && !checkLogin('admin')">
+      <div v-if="!currentUser.id" class="d-flex">
         <div
           class="p-3 fw-bold"
           style="cursor: pointer"
@@ -196,7 +197,7 @@ onMounted(async () => {
             id="dropdownMenuButton"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-        >
+          >
             <img
               v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
               :src="currentUser.avatar"
@@ -208,7 +209,7 @@ onMounted(async () => {
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">
             <li>
-              <a class="dropdown-item" href="http://localhost:5173/personal"
+              <a class="dropdown-item" :href="'http://localhost:5173/personal/' + currentUser.id"
                 ><i class="fa-solid fa-user"></i> Tài khoản</a
               >
             </li>
@@ -218,8 +219,8 @@ onMounted(async () => {
               >
             </li>
             <li v-if="currentUser.username != 'admin'">
-              <a class="dropdown-item" href="http://localhost:5173/orders"
-                ><i class="fa-solid fa-list"></i> Đơn mua</a
+              <a class="dropdown-item" href="http://localhost:5173/owner"
+                ><i class="fa-solid fa-list"></i> Quản lý xe</a
               >
             </li>
             <li>
@@ -242,12 +243,14 @@ onMounted(async () => {
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-body">
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <div class="text-end">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
 
               <h1 class="modal-title fs-5 text-center">Đăng ký</h1>
 
@@ -255,6 +258,8 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerUsernameInput" class="form-label">Tài khoản</label>
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.username"
                     type="text"
                     class="form-control"
@@ -267,6 +272,8 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerPhoneNumberInput" class="form-label">Số điện thoại</label>
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.phone"
                     type="text"
                     class="form-control"
@@ -279,6 +286,8 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerNameInput" class="form-label">Họ và tên</label>
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.fullName"
                     type="text"
                     class="form-control"
@@ -290,6 +299,8 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerEmailInput" class="form-label">Email</label>
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.email"
                     type="email"
                     class="form-control"
@@ -301,6 +312,8 @@ onMounted(async () => {
                 <div class="mb-3 position-relative">
                   <label for="registerPasswordInput" class="form-label">Mật khẩu</label>
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.password"
                     :type="showRegisterPassword ? 'text' : 'password'"
                     class="form-control"
@@ -320,6 +333,8 @@ onMounted(async () => {
                     >Lặp lại mật khẩu</label
                   >
                   <input
+                    @keydown="preventSpecialChars"
+                    pattern="[A-Za-z0-9]*"
                     v-model="repeatPasswordRegister"
                     :type="showRepeatPassword ? 'text' : 'password'"
                     class="form-control"
@@ -334,7 +349,22 @@ onMounted(async () => {
                   ></i>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100 fw-bold p-3">Đăng ký</button>
+                <button
+                  :disabled="
+                    inputFormRegister.email.length == 0 ||
+                    inputFormRegister.username.length == 0 ||
+                    inputFormRegister.password.length == 0 ||
+                    inputFormRegister.phone.length == 0 ||
+                    inputFormRegister.fullName.length == 0 ||
+                    repeatPasswordRegister.length == 0
+                  "
+                  type="submit"
+                  class="btn btn-success w-100 fw-bold p-3"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  Đăng ký
+                </button>
 
                 <div class="text-center mt-2">
                   <div>
@@ -359,18 +389,21 @@ onMounted(async () => {
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-body">
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <div class="text-end">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
               <h1 class="modal-title fs-5 text-center">Đăng nhập</h1>
 
               <form @submit="onLogin">
                 <div class="mb-3">
                   <label for="loginUsernameInput" class="form-label">Tài khoản</label>
                   <input
+                    @keydown="preventSpecialChars"
                     v-model="inputFormLogin.username"
                     type="text"
                     class="form-control"
@@ -383,6 +416,7 @@ onMounted(async () => {
                 <div class="mb-3 position-relative">
                   <label for="loginPasswordInput" class="form-label">Mật khẩu</label>
                   <input
+                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormLogin.password"
                     :type="showLoginPassword ? 'text' : 'password'"
                     class="form-control"
@@ -401,7 +435,17 @@ onMounted(async () => {
                   <a href="#" class="text-decoration-none text-success fw-bold">Quên mật khẩu?</a>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100 fw-bold p-3">Đăng nhập</button>
+                <button
+                  type="submit"
+                  class="btn btn-success w-100 fw-bold p-3"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  :disabled="
+                    inputFormLogin.username.length == 0 || inputFormLogin.password.length == 0
+                  "
+                >
+                  Đăng nhập
+                </button>
 
                 <div class="text-center mt-2">
                   <div>

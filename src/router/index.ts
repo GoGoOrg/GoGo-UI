@@ -3,7 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-   
+    {
+      path: '/personal/:id',
+      name: 'personal',
+      component: () => import('../views/PersonalView.vue')
+    },
     {
       path: '/',
       name: 'home',

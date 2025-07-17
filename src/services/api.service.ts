@@ -3,10 +3,11 @@ import axios from "axios";
 export default (baseURL: any) => {
     return axios.create({
         baseURL,
+        withCredentials: true, 
         ...commonConfig,
     });
-
 };
+
 
 const commonConfig = {
     headers: {

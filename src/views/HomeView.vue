@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import type { Car } from '@/types/car'
 import carServices from '@/services/car.services'
+import CarCardComponent from '@/components/CarCardComponent.vue'
 const images = [
   { id: 1, 
     url: '/images/offer1-home.jpg',
@@ -46,22 +47,22 @@ const carouselConfig = {
 const featuredLocations = [
   {
     name: 'TP. Hồ Chí Minh',
-    image: 'https://placehold.co/300x300',
+    image: 'https://images.unsplash.com/photo-1602479185069-cf2cfc4c463f?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     vehicles: '5000+ xe',
   },
   {
     name: 'Hà Nội',
-    image: 'https://placehold.co/300x300',
+    image: 'https://images.unsplash.com/photo-1676019266474-3538f3f19e6b?q=80&w=2446&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     vehicles: '2500+ xe',
   },
   {
     name: 'Đà Nẵng',
-    image: 'https://placehold.co/300x300',
+    image: 'https://images.unsplash.com/photo-1716903197952-440ea3233ba3?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     vehicles: '500+ xe',
   },
   {
-    name: 'Bình Dương',
-    image: 'https://placehold.co/300x300',
+    name: 'Cần thơ',
+    image: 'https://plus.unsplash.com/premium_photo-1693237310410-75528c5d5826?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     vehicles: '500+ xe',
   },
 ]
@@ -228,71 +229,17 @@ onMounted(async () => {
       <h1 class="display-6 fw-bold m-5">Xe Dành Cho Bạn</h1>
 
       <div class="d-flex flex-wrap justify-content-center">
-        <div
-          v-for="car in cars"
-          :key="car.id"
-          class="card shadow-sm rounded-4 m-3"
-          style="width: 20rem; font-size: 14px"
-        >
-          <div class="position-relative">
-            <img :src="car.imageurl" style="max-width: 500px; max-height: 500px;" class="card-img-top rounded-top-4" alt="BMW" />
-            <span
-              class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 rounded-pill"
-            >
-              <i class="fas fa-bolt"></i>
-            </span>
-
-            <span
-              class="badge text-bg-success text-white position-absolute bottom-0 end-0 m-2 rounded-pill p-2"
-            >
-              Giảm 6%
-            </span>
-          </div>
-          <div class="card-body">
-            <span class="badge text-bg-secondary mb-2 fs-6">
-              <i class="fas fa-map-marker-alt me-1"></i> Giao xe tận nơi
-            </span>
-
-            <RouterLink class="text-decoration-none text-black" to="/car">
-              <h6 class="card-title fw-bold text-uppercase">{{ car.name }}</h6>
-            </RouterLink>
-            <div class="text-muted mb-2">{{ car.brand }}</div>
-
-            <div class="d-flex flex-wrap text-muted mb-2">
-              <div class="me-3"><i class="fas fa-cogs me-1"></i> {{ car.transmissiontype }}</div>
-              <div class="me-3"><i class="fas fa-user-friends me-1"></i> {{ car.seats }} chỗ</div>
-              <div><i class="fas fa-gas-pump me-1"></i> {{ car.fueltype }}</div>
-            </div>
-
-            <div class="mb-2 text-muted">
-              <i class="fas fa-map-pin me-1"></i> {{ car.city }}
-            </div>
-
-            <hr />
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted">Chưa có chuyến</span>
-              <div class="text-end">
-                <div>
-                  <del class="text-muted">2.296K</del>
-                  <span class="fw-bold text-success ms-1">{{ car.price }}K</span>/ngày
-                </div>
-                <div class="text-primary small">
-                  <i class="fas fa-clock me-1"></i> 1.378K gói 4 giờ
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CarCardComponent v-for="car in cars" :car="car"></CarCardComponent>
       </div>
     </div>
 
     <div class="container py-5">
       <h2 class="text-center fw-bold mb-4">Địa Điểm Nổi Bật</h2>
-      <div class="d-flex overflow-auto gap-3 justify-content-center">
+      <div class=" d-flex  gap-3 justify-content-center">
         <div
           v-for="location in featuredLocations"
           :key="location.name"
-          class="card position-relative text-white flex-shrink-0"
+          class="card-city card position-relative text-white flex-shrink-0"
           style="min-width: 250px; border-radius: 20px; overflow: hidden"
         >
           <img
@@ -353,6 +300,8 @@ onMounted(async () => {
   --vc-nav-border-radius: 100%;
 }
 
+
+
 .carousel-img {
   cursor: pointer;
   border-radius: 8px;
@@ -412,4 +361,13 @@ onMounted(async () => {
 .card-text-city {
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
 }
+.card-city {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.card-city:hover {
+  transform: scale(1.1);
+}
+
 </style>
