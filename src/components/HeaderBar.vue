@@ -95,7 +95,6 @@ async function onRegister(e: any) {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-
   } catch (err: any) {
     Swal.fire({
       title: 'Error!',
@@ -120,7 +119,7 @@ async function onLogin(e: any) {
     })
 
     setTimeout(() => {
-      window.location.reload();
+      window.location.reload()
     }, 1200)
   } catch (err: any) {
     Swal.fire({
@@ -286,8 +285,6 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerNameInput" class="form-label">Họ và tên</label>
                   <input
-                    @keydown="preventSpecialChars"
-                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.fullName"
                     type="text"
                     class="form-control"
