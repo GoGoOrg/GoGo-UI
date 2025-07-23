@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
 
 import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
-import { checkLogin } from '@/utilities/utilities'
 
 import type { Car } from '@/types/car'
 import type { City } from '@/types/city'
@@ -14,10 +12,9 @@ import cityServices from '@/services/city.services'
 import type { Brand } from '@/types/brand'
 import brandServices from '@/services/brand.services'
 
-import OwnerCardComponent from '@/components/OwnerCardComponent.vue';
+import OwnerCardComponent from '@/components/OwnerCardComponent.vue'
 
 const router = useRouter()
-const cookies = useCookies()
 
 // Admin user data
 const currentUser = reactive({
@@ -56,50 +53,52 @@ const brands = ref<Brand[]>([
   },
 ])
 
-const cars = ref([{
-  id: 0,
-  name: '',
-  licenseplate: '',
-  description: '',
-  regulation: '',
-  color: '',
-  seats: 0,
-  price: 0,
-  ownerid: 0,
-  brandid: 0,
-  cityid: 0,
-  transmissiontypeid: 0,
-  fueltypeid: 0,
-  totalride: 0,
-  totalheart: 0,
-  mortage: 0,
-  insurance: 0,
-  starnumber: 0,
-  avgrating: 0,
-  reviewcount: 0,
-  priceperday: 0,
-  discountvalue: 0,
-  discounttype: '',
-  createdat: '',
-  updatedat: '',
-  deletedat: null,
-  imageurl: '',
-}])
+const cars = ref([
+  {
+    id: 0,
+    name: '',
+    licenseplate: '',
+    description: '',
+    regulation: '',
+    color: '',
+    seats: 0,
+    price: 0,
+    ownerid: 0,
+    brandid: 0,
+    cityid: 0,
+    transmissiontypeid: 0,
+    fueltypeid: 0,
+    totalride: 0,
+    totalheart: 0,
+    mortage: 0,
+    insurance: 0,
+    starnumber: 0,
+    avgrating: 0,
+    reviewcount: 0,
+    priceperday: 0,
+    discountvalue: 0,
+    discounttype: '',
+    createdat: '',
+    updatedat: '',
+    deletedat: null,
+    imageurl: '',
+  },
+])
 
 const newCar = reactive({
   name: '',
   licenseplate: '',
   description: '',
   regulation: '',
-  color: '',
-  seats: 1,
+  color: 'Trắng',
+  seats: 4,
   price: 0,
   ownerid: 0,
   brandid: 1,
   cityid: 1,
   transmissiontypeid: 1,
   fueltypeid: 1,
-  insurance: 0,
+  insurance: 1,
   images: [] as string[],
 })
 
@@ -143,8 +142,9 @@ async function addCar(e: Event) {
     'transmissiontypeid',
     'fueltypeid',
     'insurance',
-    'images'
+    'images',
   ]
+
   const isEmpty = (val: any) => val === undefined || val === null || val === ''
   const hasEmptyRequiredFields = requiredFields.some((field) =>
     isEmpty(newCar[field as keyof typeof newCar]),
@@ -155,7 +155,6 @@ async function addCar(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    newCar.ownerid = currentUser.id
     console.log(newCar)
     await carServices.create(newCar)
 
@@ -179,7 +178,6 @@ async function addCar(e: Event) {
 
 onMounted(async () => {
   try {
-    const token = cookies.cookies.get('Token')
     // Check login TODO
     // if (!checkLogin('admin')) {
     //   await Swal.fire({
@@ -192,7 +190,7 @@ onMounted(async () => {
     //   return router.push({ name: 'admin login' })
     // }
 
-    const respUser = await usersServices.getMe(token)
+    const respUser = await usersServices.getMe()
 
     Object.assign(currentUser, respUser.data.user)
     // if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
@@ -246,7 +244,7 @@ onMounted(async () => {
       </button>
     </div>
 
-      <OwnerCardComponent v-for="car in cars" :key="car.id" :car="car"/>
+    <OwnerCardComponent v-for="car in cars" :key="car.id" :car="car" />
   </div>
 
   <div
@@ -373,7 +371,7 @@ onMounted(async () => {
                     v-model="newCar.transmissiontypeid"
                     class="form-check-input"
                     type="radio"
-                    :value=1
+                    :value="1"
                     name="selectTransmissionType"
                     id="selectTransmissionType1"
                   />
@@ -386,7 +384,7 @@ onMounted(async () => {
                     type="radio"
                     name="selectTransmissionType"
                     id="selectTransmissionType2"
-                    :value=2
+                    :value="2"
                   />
                   <label class="form-check-label" for="selectTransmissionType2"> Số sàn </label>
                 </div>
@@ -402,7 +400,7 @@ onMounted(async () => {
                     type="radio"
                     name="selectFuelType"
                     id="selectFuelType1"
-                    :value=1
+                    :value="1"
                   />
                   <label class="form-check-label" for="selectFuelType1"> Xe xăng </label>
                 </div>
@@ -413,7 +411,7 @@ onMounted(async () => {
                     type="radio"
                     name="selectFuelType"
                     id="selectFuelType2"
-                    :value=2
+                    :value="2"
                   />
                   <label class="form-check-label" for="selectFuelType2"> Xe điện </label>
                 </div>
@@ -450,7 +448,13 @@ onMounted(async () => {
                 <label for="formFileMultiple" class="form-label fw-bold"
                   >Ảnh xe (1 hoặc nhiều)</label
                 >
-                <input class="form-control" type="file" @change="uploadImageCar($event)" id="formFileMultiple" multiple />
+                <input
+                  class="form-control"
+                  type="file"
+                  @change="uploadImageCar($event)"
+                  id="formFileMultiple"
+                  multiple
+                />
               </div>
             </div>
           </form>
@@ -464,9 +468,13 @@ onMounted(async () => {
           >
             Hủy
           </button>
-          <button @click="addCar($event)" type="submit" class="btn btn-success rounded fw-bold" style="border-radius: 0px">
+          <button
+            @click="addCar($event)"
+            type="submit"
+            class="btn btn-success rounded fw-bold"
+            style="border-radius: 0px"
+          >
             Tạo xe
-            
           </button>
         </div>
       </div>

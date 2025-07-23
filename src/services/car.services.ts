@@ -16,9 +16,22 @@ class CarService {
     }
   }
 
+  async getMyCar(id: number) {
+    try {
+      const response = await this.api.get(`/cars/mycars`, {
+        withCredentials: true,
+      })
+      return response.data
+    } catch (err) {
+      handlingError(err)
+    }
+  }
+
   async getAllByOwnerId(id: number) {
     try {
-      const response = await this.api.get(`/cars/owner/${id}`)
+      const response = await this.api.get(`/cars/owner/${id}`, {
+        withCredentials: true,
+      })
       return response.data
     } catch (err) {
       handlingError(err)
@@ -44,7 +57,9 @@ class CarService {
 
   async create(data: any) {
     try {
-      const response = await this.api.post('/cars', data)
+      const response = await this.api.post('/cars', data, {
+        withCredentials: true,
+      })
       return response.data
     } catch (err) {
       handlingError(err)
@@ -53,7 +68,9 @@ class CarService {
 
   async delete(id: number) {
     try {
-      const response = await this.api.delete(`/cars/${id}`)
+      const response = await this.api.delete(`/cars/${id}`, {
+        withCredentials: true,
+      })
       return response.data
     } catch (err) {
       handlingError(err)
@@ -62,7 +79,9 @@ class CarService {
 
   async update(id: number, data: any) {
     try {
-      const response = await this.api.patch(`/cars/${id}`, data)
+      const response = await this.api.patch(`/cars/${id}`, data, {
+        withCredentials: true,
+      })
       return response.data
     } catch (err) {
       handlingError(err)
