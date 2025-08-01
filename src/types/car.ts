@@ -28,6 +28,7 @@ export interface Car {
   discountvalue: number
   discounttype: string
   imageurl: string
+  images: string[]
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

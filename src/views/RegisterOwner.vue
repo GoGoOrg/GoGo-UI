@@ -1,71 +1,68 @@
 <script setup lang="ts">
-import userServices from '../services/users.services';
-import { checkLogin } from '../utilities/utilities';
-import { useRouter } from "vue-router";
-import { onMounted, ref } from 'vue';
-import { useCookies } from "vue3-cookies";
-import Swal from "sweetalert2";
+import userServices from '../services/users.services'
+import { checkLogin } from '../utils/utils'
+import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { useCookies } from 'vue3-cookies'
+import Swal from 'sweetalert2'
 
-const router = useRouter();
-
+const router = useRouter()
 
 const inputFormRegister = ref({
-    username: "",
-    password: "",
-    fullName: "",
-    email: "",
-    phone: "",
-    role: "owner"
-});
-const repeatPasswordRegister = ref('');
+  username: '',
+  password: '',
+  fullName: '',
+  email: '',
+  phone: '',
+  role: 'owner',
+})
+const repeatPasswordRegister = ref('')
 
-const showRegisterPassword = ref(false);
-const showRepeatPassword = ref(false);
+const showRegisterPassword = ref(false)
+const showRepeatPassword = ref(false)
 
 function toggleRegisterPassword() {
-    showRegisterPassword.value = !showRegisterPassword.value;
+  showRegisterPassword.value = !showRegisterPassword.value
 }
 function toggleRepeatPassword() {
-    showRepeatPassword.value = !showRepeatPassword.value;
+  showRepeatPassword.value = !showRepeatPassword.value
 }
 
 async function onRegister(e: any) {
-    e.preventDefault();
-    try {
-        if (inputFormRegister.value.password !== repeatPasswordRegister.value) {
-            Swal.fire({
-                icon: "error",
-                title: "Lỗi!",
-                text: "Mật khẩu nhập lại không khớp.",
-            });
-            return;
-        }
-
-        let resp = await userServices.register(inputFormRegister.value);
-        console.log(resp);
-
-        Swal.fire({
-            title: "Success!",
-            text: "Register success.",
-            icon: "success",
-            confirmButtonText: "OK",
-            timer: 1500
-        });
-
-        setTimeout(() => {
-            router.push({ name: "login" });
-        }, 1500);
-
-    } catch (err: any) {
-        Swal.fire({
-            title: "Error!",
-            text: err || "Đăng ký thất bại!",
-            icon: "error",
-        });
-        console.log(err);
+  e.preventDefault()
+  try {
+    if (inputFormRegister.value.password !== repeatPasswordRegister.value) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Mật khẩu nhập lại không khớp.',
+      })
+      return
     }
-};
 
+    let resp = await userServices.register(inputFormRegister.value)
+    console.log(resp)
+
+    Swal.fire({
+      title: 'Success!',
+      text: 'Register success.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+
+    setTimeout(() => {
+      router.push({ name: 'login' })
+    }, 1500)
+  } catch (err: any) {
+    Swal.fire({
+      title: 'Error!',
+      text: err || 'Đăng ký thất bại!',
+      icon: 'error',
+    })
+    console.log(err)
+  }
+}
 </script>
 
 <template>
@@ -89,15 +86,19 @@ async function onRegister(e: any) {
           Thu Nhập Đến <br />10tr/Tháng!
         </h1>
         <p class="mb-3">
-          Gogo không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Gogo khi có giao
-          dịch cho thuê thành công.
+          Gogo không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Gogo khi có giao dịch
+          cho thuê thành công.
         </p>
         <hr />
         <p class="mb-2">
           <strong>Hotline:</strong> 1900 9217 (T2-T7 9AM–9PM)<br />
           Hoặc để lại tin nhắn cho Gogo qua Fanpage
         </p>
-        <button class="btn fw-bold btn-dark mt-2 ps-5 pe-5 pt-3 pb-3" data-bs-toggle="modal" data-bs-target="#registerOwnerModal">
+        <button
+          class="btn fw-bold btn-dark mt-2 ps-5 pe-5 pt-3 pb-3"
+          data-bs-toggle="modal"
+          data-bs-target="#registerOwnerModal"
+        >
           Đăng ký ngay
         </button>
       </div>

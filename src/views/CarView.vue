@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { height, width } from '@fortawesome/free-brands-svg-icons/fa42Group'
 import type { Car } from '@/types/car'
 import { useRoute, useRouter } from 'vue-router'
 import carServices from '@/services/car.services'
 import type { CarouselConfig } from 'vue3-carousel'
 
-const router = useRouter();
-const route = useRoute();
+const router = useRouter()
+const route = useRoute()
 const id = ref(0)
 const currentSlide = ref(0)
 
@@ -31,7 +31,9 @@ const thumbnailsConfig = {
   gap: 10,
 }
 
-const car = ref<Partial<Car>>({
+const cars = reactive<Partial<Car>[]>([])
+
+const car = reactive<Partial<Car>>({
   id: 0,
   name: '',
   licenseplate: '',
@@ -60,7 +62,7 @@ const car = ref<Partial<Car>>({
   priceperday: 0,
   discountvalue: 0,
   discounttype: '',
-  imageurl: '',
+  images: [],
   createdat: '',
   updatedat: '',
   deletedat: null,
@@ -73,49 +75,37 @@ const images = Array.from({ length: 10 }, (_, index) => ({
 
 onMounted(async () => {
   try {
-    id.value = Number(route.params.id);
+    id.value = Number(route.params.id)
 
-    let respCar = await carServices.getOne(id.value);
-    car.value = respCar.data.car[0]
+    let respCar = await carServices.getOne(id.value)
+    Object.assign(car, respCar.data.car[0])
 
-    console.log(car.value)
+    let respCars = await carServices.getAll()
+    cars.push(...respCars.data.cars)
 
-  } catch (error) {
-    
-  }
+    console.log(cars)
+  } catch (error) {}
 })
-
 </script>
 
 <template>
   <div>
     <div class="container mt-5">
-      <div class="row">
+      <div class="row" v-if="car.images && car.images.length > 0">
         <!-- Left Column -->
         <div class="col-8">
-          <img
-            src="https://placehold.co/900x600"
-            alt=""
-            class="img-fluid rounded-4 w-100 cursor-pointer"
-          />
+          <img :src="car.images[0]" alt="" class="img-fluid rounded-4 w-100 cursor-pointer" />
         </div>
 
         <!-- Right Column -->
         <div class="col-4 d-flex flex-column justify-content-between">
           <img
-            src="https://placehold.co/400x160"
+            v-for="(img, index) in car.images.slice(1, 4)"
+            :key="index"
+            :src="img"
             alt=""
             class="img-fluid rounded-4 cursor-pointer"
-          />
-          <img
-            src="https://placehold.co/400x160"
-            alt=""
-            class="img-fluid rounded-4 cursor-pointer"
-          />
-          <img
-            src="https://placehold.co/400x160"
-            alt=""
-            class="img-fluid rounded-4 cursor-pointer"
+            style="max-height: 200px; object-fit: cover"
           />
         </div>
       </div>
@@ -183,10 +173,119 @@ onMounted(async () => {
             </pre>
           </div>
 
+          <!-- regulation section -->
+          <hr />
+          <div>
+            <h4>Điều khoản</h4>
+            <pre class="fs-6 text-secondary mt-4">
+              {{ car.regulation }}
+            </pre>
+          </div>
+
           <!-- addtional utility section -->
           <hr />
           <div>
             <h4>Các tiện nghi khác</h4>
+          </div>
+
+          <!-- cancel trip -->
+          <div class="mt-5">
+            <h5 class="fw-bold mb-3">Chính sách huỷ chuyến</h5>
+
+            <div class="table-responsive">
+              <table class="table border rounded text-center">
+                <thead class="table-light">
+                  <tr>
+                    <th class="w-50">Thời Điểm Huỷ Chuyến</th>
+                    <th>Phí Huỷ Chuyến</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Trong Vòng 1h Sau Giữ Chỗ</td>
+                    <td class="text-success fw-semibold">
+                      <i class="fa fa-check-circle me-1"></i> Miễn phí
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Trước Chuyến Đi &gt; 7 Ngày<br /><small class="text-muted"
+                        >(Sau 1h Giữ Chỗ)</small
+                      >
+                    </td>
+                    <td class="text-success fw-semibold">
+                      <i class="fa fa-check-circle me-1"></i> 10% giá trị chuyến đi
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Trong Vòng 7 Ngày Trước Chuyến Đi<br /><small class="text-muted"
+                        >(Sau 1h Giữ Chỗ)</small
+                      >
+                    </td>
+                    <td class="text-danger fw-semibold">
+                      <i class="fa fa-times-circle me-1"></i> 40% giá trị chuyến đi
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <ul class="small text-muted mt-2 ps-3">
+              <li>
+                Chính sách huỷ chuyến áp dụng chung cho cả khách thuê và chủ xe (ngoài ra, tuỳ vào
+                thời điểm huỷ chuyến, chủ xe có thể bị đánh giá từ 2-3★ trên hệ thống).
+              </li>
+              <li>Khách thuê không nhận xe sẽ mất phí huỷ chuyến (40% giá trị chuyến đi).</li>
+              <li>
+                Chủ xe không giao xe sẽ hoàn tiền giữ chỗ & bồi thường phí huỷ chuyến cho khách thuê
+                (40% giá trị chuyến đi).
+              </li>
+              <li>
+                Tiền giữ chỗ & bồi thường do chủ xe huỷ chuyến (nếu có) sẽ được Mioto hoàn trả đến
+                khách thuê bằng chuyển khoản ngân hàng trong vòng 1-3 ngày làm việc kế tiếp.
+                <button
+                  type="button"
+                  class="btn btn-link text-decoration-underline text-dark fw-bold p-0"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelModal"
+                >
+                  Thủ tục hoàn tiền & bồi thường huỷ chuyến
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="modal fade"
+            id="cancelModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="cancelModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header text-center w-100">
+                  <h5 class="modal-title fw-bold text-center" id="cancelModalLabel">
+                    Chính sách hủy chuyến
+                  </h5>
+                </div>
+                <div class="modal-body">
+                  <p class="fw-bold">Thủ tục hoàn tiền & bồi thường hủy chuyến</p>
+                  <p>
+                    GoGo sẽ hoàn lại tiền giữ chỗ (& tiền bồi thường do chủ xe hủy chuyến (nếu có)
+                    theo chính sách hủy chuyến) qua tài khoản ngân hàng của khách thuê trong vòng
+                    1-3 ngày làm việc kể từ thời điểm hủy chuyến.
+                  </p>
+                  <p>
+                    *Nhân viên GoGo sẽ liên hệ khách thuê (qua số điện thoại đã đăng ký trên GoGo)
+                    để xin thông tin tài khoản ngân hàng, hoặc Khách thuê có thể chủ động gửi thông
+                    tin cho GoGo qua email contact@gogo.vn hoặc nhắn tin tại GoGo Fanpage
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- location section -->
@@ -328,13 +427,28 @@ onMounted(async () => {
         <!-- Right Column -->
         <div class="col-4 d-flex flex-column">
           <div class="d-flex align-items-end">
-            <div class="display-6 fw-bold">{{ car.price }}K</div>
+            <div class="display-6 fw-bold">
+              {{
+                car.price?.toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'VND',
+                })
+              }}
+            </div>
             <div class="fw-bold text-secondary">/ngày</div>
           </div>
           <hr />
           <div class="d-flex justify-content-between">
             <div>Đơn giá thuê</div>
-            <div class="fw-bold">{{ car.price }} /ngày</div>
+            <div class="fw-bold">
+              {{
+                car.price?.toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'VND',
+                })
+              }}
+              /ngày
+            </div>
           </div>
           <div class="d-flex justify-content-between">
             <div>Bảo hiểm thuê xe</div>
@@ -342,7 +456,15 @@ onMounted(async () => {
           </div>
           <div class="d-flex justify-content-between">
             <div>Tổng cộng</div>
-            <div class="fw-bold">1.071.850 x 1 ngày</div>
+            <div class="fw-bold">
+              {{
+                ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'VND',
+                })
+              }}
+              x 1 ngày
+            </div>
           </div>
           <hr />
         </div>
@@ -353,23 +475,23 @@ onMounted(async () => {
       <h3 class="mb-5">Xe tương tự</h3>
 
       <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
-        <Slide v-for="image in images" :key="image.id">
+        <Slide v-for="car in cars" :key="car.id">
           <div class="position-relative text-white mb-4">
-            <img :src="image.url" alt="Gallery Image" class="gallery-image" />
+            <img :src="car.imageurl" alt="Gallery Image" style="min-height: 700px;" class="gallery-image" />
 
             <div class="card-img-overlay d-flex flex-column justify-content-end mb-5">
-              <h1 class="card-title">Tên xe</h1>
-              <p class="card-text">Tên chủ sở hữu</p>
+              <h1 class="card-title">{{ car.name }}</h1>
+              <p class="card-text">{{ car.ownername }}</p>
             </div>
           </div>
         </Slide>
       </Carousel>
 
       <Carousel id="thumbnails" v-bind="thumbnailsConfig" v-model="currentSlide">
-        <Slide v-for="image in images" :key="image.id">
+        <Slide v-for="car in cars" :key="car.id">
           <template #default="{ currentIndex, isActive }">
             <div :class="['thumbnail', { 'is-active': isActive }]" @click="slideTo(currentIndex)">
-              <img :src="image.url" alt="Thumbnail Image" class="thumbnail-image" />
+              <img :src="car.imageurl" alt="Thumbnail Image" class="thumbnail-image" />
             </div>
           </template>
         </Slide>
