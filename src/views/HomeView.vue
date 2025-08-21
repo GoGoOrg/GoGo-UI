@@ -174,6 +174,24 @@ onMounted(async () => {
             Trải nghiệm sự khác biệt từ hơn 10.000 xe gia đình đời mới khắp Việt Nam
           </h5>
         </div>
+
+        <div class="search-container-main w-50 mt-5 position-absolute bottom-0 start-50 translate-middle">
+          <input type="text" placeholder="Tìm kiếm..." id="search-input-main" />
+          <button id="search-button-main">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-search"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.85-3.85a1.007 1.007 0 0 0-.115-.098zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="text-center m-5">
@@ -499,5 +517,37 @@ onMounted(async () => {
 
 .card-city:hover {
   transform: scale(1.1);
+}
+
+.search-container-main {
+  position: relative;
+  bottom: 30px;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+  padding: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#search-input-main {
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+
+#search-button-main {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+#search-button-main svg {
+  fill: #000;
 }
 </style>

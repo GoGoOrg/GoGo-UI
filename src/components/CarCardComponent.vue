@@ -11,18 +11,16 @@ defineProps<{
 </script>
 
 <template>
-  <div
-    class="card shadow-sm rounded-4 m-3"
-    style="width: 20rem; font-size: 14px"
-  >
+  <div class="card shadow-sm rounded-4 m-3" style="width: 20rem; font-size: 14px">
     <div class="position-relative">
-      <img v-if="car.imageurl"
+      <img
+        v-if="car.imageurl"
         :src="car.imageurl"
-        style="max-width: 500px; max-height: 500px"
+        style="max-height: 300px"
         class="card-img-top rounded-top-4"
         alt="BMW"
       />
-      <img v-else src="https://placehold.co/200x200" alt="">
+      <img v-else src="https://placehold.co/200x200" alt="" />
       <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 rounded-pill">
         <i class="fas fa-bolt"></i>
       </span>
@@ -33,15 +31,18 @@ defineProps<{
         Giảm 6%
       </span>
     </div>
-    <div class="card-body">
+    <div class="card-body text-center">
       <span class="badge text-bg-secondary mb-2 fs-6">
         <i class="fas fa-map-marker-alt me-1"></i> Giao xe tận nơi
       </span>
 
-      <RouterLink class="text-decoration-none text-black" :to="'/car/'+ car.id">
-        <h6 class="card-title fw-bold text-uppercase">{{ car.name }}</h6>
+      <RouterLink class="text-decoration-none text-black" :to="'/car/' + car.id">
+        <h6 class="card-title car-name fw-bold text-uppercase">{{ car.name }}</h6>
       </RouterLink>
-      <div class="text-muted mb-2">{{ car.brand }}</div>
+      
+      <RouterLink class="text-decoration-none" :to="'/brand/' + car.brandid">
+        <div class="text-muted car-name mb-2">{{ car.brand }}</div>
+      </RouterLink>
 
       <div class="d-flex flex-wrap text-muted mb-2">
         <div class="me-3"><i class="fas fa-cogs me-1"></i> {{ car.transmissiontype }}</div>
@@ -56,14 +57,24 @@ defineProps<{
         <span class="text-muted">Chưa có chuyến</span>
         <div class="text-end">
           <div>
-            <del class="text-muted">2.296K</del>
-            <span class="fw-bold text-success ms-1">{{ car.price }}K</span>/ngày
+            <!-- <del class="text-muted">2.296K</del> -->
+            <span class="fw-bold text-success ms-1">{{
+              car.price?.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+            }}</span
+            >/ngày
           </div>
-          <div class="text-primary small"><i class="fas fa-clock me-1"></i> 1.378K gói 4 giờ</div>
+          <div class="text-primary small">
+            <i class="fas fa-clock me-1"></i>
+            {{ car.price ? (car.price/6).toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) : 0 }} gói 4 giờ
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.car-name:hover {
+  text-decoration: underline;
+}
+</style>

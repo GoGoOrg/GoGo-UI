@@ -53,6 +53,11 @@ const router = createRouter({
       name: 'brand view',
       component: () => import('../views/BrandView.vue')
     },
+        {
+      path: '/search/:id',
+      name: 'search view',
+      component: () => import('../views/SearchView.vue')
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

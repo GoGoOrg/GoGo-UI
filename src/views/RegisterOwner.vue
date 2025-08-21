@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import userServices from '../services/users.services'
-import { checkLogin } from '../utils/utils'
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { useCookies } from 'vue3-cookies'

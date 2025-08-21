@@ -87,7 +87,7 @@ defineProps<{
             <div class="mb-3">
               <a
                 :href="'/car/' + car.id"
-                class="text-uppercase fw-bold h4 text-decoration-none text-dark"
+                class="text-uppercase fw-bold h4 text-dark"
               >
                 {{ car.name }}
               </a>
@@ -131,12 +131,49 @@ defineProps<{
 
       <!-- Tab: Người thuê -->
       <template v-else-if="activeTab === 'link'">
-        <div class="text-center text-muted">Hiện chưa có thông tin người thuê.</div>
+         <div class="row g-4">
+          <div class="col-md-5">
+            <img
+              :src="car.imageurl"
+              class="img-fluid rounded shadow-sm w-100 h-100 object-fit-cover"
+              style="max-width: 600px; max-height: 400px;"
+              alt="Car Image"
+            />
+          </div>
+
+          <div class="col-md-7">
+            <div class="mb-3">
+              <a
+                :href="'/car/' + car.id"
+                class="text-uppercase fw-bold h4 text-dark"
+              >
+                {{ car.name }}
+              </a>
+            </div>
+
+            <div class="row text-center mb-4">
+            </div>
+          </div>
+        </div>
+        
       </template>
 
       <!-- Tab: Lịch -->
       <template v-else-if="activeTab === 'calendar'">
-        <div class="text-center text-muted">Lịch thuê xe sẽ được hiển thị tại đây.</div>
+         <div class="row g-4">
+          <div class="col-md-5">
+            <img
+              :src="car.imageurl"
+              class="img-fluid rounded shadow-sm w-100 h-100 object-fit-cover"
+              style="max-width: 600px; max-height: 400px;"
+              alt="Car Image"
+            />
+          </div>
+
+          <div class="col-md-7">
+            
+          </div>
+        </div>
       </template>
     </div>
   </div>

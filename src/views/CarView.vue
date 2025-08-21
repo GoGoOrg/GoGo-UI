@@ -477,12 +477,19 @@ onMounted(async () => {
       <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
         <Slide v-for="car in cars" :key="car.id">
           <div class="position-relative text-white mb-4">
-            <img :src="car.imageurl" alt="Gallery Image" style="min-height: 700px;" class="gallery-image" />
+            <img
+              :src="car.imageurl"
+              alt="Gallery Image"
+              style="min-height: 700px"
+              class="gallery-image"
+            />
 
             <div class="card-img-overlay d-flex flex-column justify-content-end mb-5">
-              <h1 class="card-title">{{ car.name }}</h1>
-              <p class="card-text">{{ car.ownername }}</p>
             </div>
+            <h1 class="card-title">
+              <a class="text-dark fw-bold" :href="'http://localhost:5173/car/' + car.id" style="">{{ car.name }}</a>
+            </h1>
+            <p class="card-text text-dark">{{ car.ownername }}</p>
           </div>
         </Slide>
       </Carousel>

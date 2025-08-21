@@ -16,7 +16,6 @@
                     <div>Tổng đài hỗ trợ: 7AM - 10PM</div>
                     <div class="mt-2">
                         <a href="mailto:contact@Gogo.vn" class="text-dark">contact@Gogo.vn</a><br>
-                        Gửi mail cho Gogo
                     </div>
                     </div>
                     <div class="mt-3 d-flex gap-3">

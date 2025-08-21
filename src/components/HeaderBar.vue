@@ -197,13 +197,18 @@ onMounted(async () => {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <img
+            <div
               v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
-              :src="currentUser.avatar"
-              height="25px"
-              width="25px"
-              alt=""
-            />
+              style="
+                width: 25px;
+                height: 25px;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+              "
+            >
+              <img :src="currentUser.avatar" height="25px"  alt="" />
+            </div>
             <i v-else class="fa-solid fa-user"></i>
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">

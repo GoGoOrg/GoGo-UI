@@ -5,14 +5,14 @@ import { useRouter, useRoute } from 'vue-router'
 import usersServices from '@/services/users.services'
 
 const router = useRouter()
-const route = useRoute();
+const route = useRoute()
 const id = ref(0)
 
 const currentUser = ref({
   id: 0,
   username: '',
   password: '',
-  name: '',
+  fullname: '',
   email: '',
   phone: '',
   birthDate: '',
@@ -23,11 +23,33 @@ const currentUser = ref({
   role: '',
 })
 
+const toBase64 = (file: any) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+  })
+
+async function uploadAvatar(event: any) {
+  try {
+    let code = await toBase64(event.target.files[0])
+
+    let resp = await usersServices.updateAvatar(currentUser.value.id, {
+      avatar: String(code),
+    })
+
+    window.location.reload()
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 onMounted(async () => {
   try {
-      id.value = Number(route.params.id)
-      const respUser = await usersServices.getMe()
-      currentUser.value = respUser.data.use
+    id.value = Number(route.params.id)
+    const respUser = await usersServices.getMe()
+    currentUser.value = respUser.data.user
   } catch (error) {
     console.log(error)
   }
@@ -57,7 +79,7 @@ onMounted(async () => {
                 type="text"
                 class="form-control"
                 id="name"
-                v-model="currentUser.name"
+                v-model="currentUser.fullname"
                 required
               />
             </div>
@@ -109,6 +131,7 @@ onMounted(async () => {
                   />
                 </div>
               </div>
+
               <!-- Date of Birth -->
               <div class="mb-3 w-25">
                 <label for="dob" class="fw-bold form-label">Ngày sinh:</label>
@@ -126,7 +149,7 @@ onMounted(async () => {
                 required
               />
             </div>
-            <button type="submit" class="btn btn-danger">Lưu</button>
+            <button type="submit" class="btn btn-primary">Lưu</button>
           </div>
           <!-- Profile Picture -->
         </form>
@@ -151,14 +174,21 @@ onMounted(async () => {
         <div class="d-flex flex-column">
           <h4>Ảnh đại diện</h4>
           <div class="d-flex align-items-center flex-column mt-3">
-            <img
+            <div style="width: 150px; height: 150px; overflow: hidden; display: flex; justify-content: center;">
+              <img
               v-if="currentUser.avatar != null && currentUser.avatar != ''"
               :src="currentUser.avatar"
               class="rounded-circle me-3 mb-5"
-              style="width: 150px; height: 150px"
+              style="height: 150px;"
               alt="Profile Image"
+              />
+            </div>
+            <input
+              type="file"
+              @change="uploadAvatar($event)"
+              class="form-control"
+              id="profileImage"
             />
-            <input type="file" class="form-control" id="profileImage" />
           </div>
         </div>
         <small class="form-text text-muted">
