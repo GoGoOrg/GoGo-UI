@@ -14,7 +14,33 @@ const id = ref(0)
 const currentSlide = ref(0)
 
 const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
-
+const selectedOption = ref('pickup')
+const fees = [
+  {
+    title: 'Phí vượt giới hạn',
+    price: '3.000 VND / km',
+    description:
+      'Phụ phí phát sinh nếu lộ trình di chuyển vượt quá <b>350km</b> khi thuê xe 1 ngày',
+  },
+  {
+    title: 'Phí quá giờ',
+    price: '70.000 VND / giờ',
+    description:
+      'Phụ phí phát sinh nếu hoàn trả xe trễ giờ. Trường hợp trễ quá <b>5 giờ</b>, phụ phí thêm <b>1 ngày</b> thuê',
+  },
+  {
+    title: 'Phí vệ sinh',
+    price: '70.000 VND',
+    description:
+      'Phụ phí phát sinh khi xe hoàn trả không đảm bảo vệ sinh (nhiều vết bẩn, bùn cát, sinh lầy…)',
+  },
+  {
+    title: 'Phí khử mùi',
+    price: '500.000 VND',
+    description:
+      'Phụ phí phát sinh khi xe hoàn trả bị ám mùi khó chịu (mùi thuốc lá, thực phẩm nặng mùi…)',
+  },
+]
 const galleryConfig: Partial<CarouselConfig> = {
   itemsToShow: 1,
   wrapAround: true,
@@ -426,47 +452,128 @@ onMounted(async () => {
 
         <!-- Right Column -->
         <div class="col-4 d-flex flex-column">
-          <div class="d-flex align-items-end">
-            <div class="display-6 fw-bold">
-              {{
-                car.price?.toLocaleString('it-IT', {
-                  style: 'currency',
-                  currency: 'VND',
-                })
-              }}
+          <div class="bg-light rounded-4 p-4" style="height: fit-content">
+            <div class="d-flex align-items-end">
+              <div class="display-6 fw-bold">
+                {{
+                  car.price?.toLocaleString('it-IT', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })
+                }}
+              </div>
+              <div class="fw-bold text-secondary">/ngày</div>
             </div>
-            <div class="fw-bold text-secondary">/ngày</div>
-          </div>
-          <hr />
-          <div class="d-flex justify-content-between">
-            <div>Đơn giá thuê</div>
-            <div class="fw-bold">
-              {{
-                car.price?.toLocaleString('it-IT', {
-                  style: 'currency',
-                  currency: 'VND',
-                })
-              }}
-              /ngày
+            <hr />
+            <div class="d-flex justify-content-between">
+              <div>Đơn giá thuê</div>
+              <div class="fw-bold">
+                {{
+                  car.price?.toLocaleString('it-IT', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })
+                }}
+                /ngày
+              </div>
             </div>
-          </div>
-          <div class="d-flex justify-content-between">
-            <div>Bảo hiểm thuê xe</div>
-            <div class="fw-bold">96.050 /ngày</div>
-          </div>
-          <div class="d-flex justify-content-between">
-            <div>Tổng cộng</div>
-            <div class="fw-bold">
-              {{
-                ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
-                  style: 'currency',
-                  currency: 'VND',
-                })
-              }}
-              x 1 ngày
+            <div class="d-flex justify-content-between">
+              <div>Bảo hiểm thuê xe</div>
+              <div class="fw-bold">96.050 /ngày</div>
             </div>
+            <div class="d-flex justify-content-between">
+              <div>Tổng cộng</div>
+              <div class="fw-bold">
+                {{
+                  ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })
+                }}
+                x 1 ngày
+              </div>
+            </div>
+            <hr />
+
+            <div class="d-flex justify-content-between">
+              <div class="fw-bold">Thành tiền</div>
+              <div class="fw-bold">
+                {{
+                  ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })
+                }}
+              </div>
+            </div>
+
+            <div class="mt-1">
+              <div class="fw-bold mb-2">Địa điểm giao nhận xe</div>
+
+              <!-- Option 1 -->
+              <div
+                class="form-check border rounded p-3 mb-2 d-flex justify-content-between align-items-center"
+                :class="{ 'border-primary': selectedOption === 'pickup' }"
+              >
+                <div>
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="pickup"
+                    value="pickup"
+                    v-model="selectedOption"
+                  />
+                  <label class="form-check-label ms-2" for="pickup">
+                    Tôi tự đến lấy xe
+                    <div class="text-muted small">{{ car.city }}</div>
+                  </label>
+                </div>
+                <span class="text-success fw-bold">Miễn phí</span>
+              </div>
+
+              <!-- Option 2 -->
+              <div
+                class="form-check border rounded p-3 d-flex justify-content-between align-items-center"
+                :class="{ 'bg-light text-muted': true }"
+              >
+                <div>
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="delivery"
+                    value="delivery"
+                    v-model="selectedOption"
+                    disabled
+                  />
+                  <label class="form-check-label ms-2" for="delivery">
+                    Tôi muốn được giao xe tận nơi
+                    <div class="small">Rất tiếc, chủ xe không hỗ trợ giao xe tận nơi</div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-success text-uppercase fw-bold p-3 mt-4 w-100">
+              Chọn thuê
+            </button>
+
           </div>
-          <hr />
+            <div class="card fee-card p-3 mt-3">
+              <h6 class="fw-bold text-success mb-3">Phụ phí có thể phát sinh</h6>
+
+              <div v-for="(fee, index) in fees" :key="index" class="d-flex mb-3">
+                <!-- Info icon -->
+                <i class="bi bi-info-circle me-2 text-muted"></i>
+
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold">{{ fee.title }}</span>
+                    <span class="fw-bold text-success">{{ fee.price }}</span>
+                  </div>
+                  <small class="text-muted" v-html="fee.description"></small>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
@@ -484,10 +591,11 @@ onMounted(async () => {
               class="gallery-image"
             />
 
-            <div class="card-img-overlay d-flex flex-column justify-content-end mb-5">
-            </div>
+            <div class="card-img-overlay d-flex flex-column justify-content-end mb-5"></div>
             <h1 class="card-title">
-              <a class="text-dark fw-bold" :href="'http://localhost:5173/car/' + car.id" style="">{{ car.name }}</a>
+              <a class="text-dark fw-bold" :href="'http://localhost:5173/car/' + car.id" style="">{{
+                car.name
+              }}</a>
             </h1>
             <p class="card-text text-dark">{{ car.ownername }}</p>
           </div>
@@ -557,5 +665,9 @@ pre {
 .thumbnail.is-active,
 .thumbnail:hover {
   opacity: 1;
+}
+.fee-card {
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
 }
 </style>
