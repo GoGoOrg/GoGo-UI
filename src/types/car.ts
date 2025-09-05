@@ -9,6 +9,7 @@ export interface Car {
   price: number
   ownerid: number
   ownername: string
+  owneravatar: string
   brandid: number
   brand: string
   cityid: number

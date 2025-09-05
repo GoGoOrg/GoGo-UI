@@ -2,11 +2,12 @@
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import { onMounted, reactive, ref } from 'vue'
-import { height, width } from '@fortawesome/free-brands-svg-icons/fa42Group'
 import type { Car } from '@/types/car'
 import { useRoute, useRouter } from 'vue-router'
 import carServices from '@/services/car.services'
+import usersServices from '@/services/users.services'
 import type { CarouselConfig } from 'vue3-carousel'
+import type { User } from '@/types/users'
 
 const router = useRouter()
 const route = useRoute()
@@ -57,6 +58,17 @@ const thumbnailsConfig = {
   gap: 10,
 }
 
+const currentUser = reactive<Partial<User>>({
+  id: 0,
+  email: '',
+  fullname: '',
+  phone: '',
+  avatar: '',
+  role: '',
+  createdat: '',
+  updatedat: '',
+  deletedat: null,
+})
 const cars = reactive<Partial<Car>[]>([])
 
 const car = reactive<Partial<Car>>({
@@ -70,6 +82,7 @@ const car = reactive<Partial<Car>>({
   price: 0,
   ownerid: 0,
   ownername: '',
+  owneravatar: '',
   brandid: 0,
   brand: '',
   cityid: 0,
@@ -106,10 +119,14 @@ onMounted(async () => {
     let respCar = await carServices.getOne(id.value)
     Object.assign(car, respCar.data.car[0])
 
+    console.log(car.owneravatar)
+
     let respCars = await carServices.getAll()
     cars.push(...respCars.data.cars)
 
     console.log(cars)
+    const respUser = await usersServices.getMe()
+    Object.assign(currentUser, respUser.data.user)
   } catch (error) {}
 })
 </script>
@@ -318,6 +335,10 @@ onMounted(async () => {
           <hr />
           <div>
             <h4>Vị trí xe</h4>
+            <div class="d-flex align-items-center mt-3 w-100 fs-5">
+              <i class="fa-solid fa-location-dot"></i>
+              <div class="ms-2">{{ car.city }}</div>
+            </div>
           </div>
 
           <!-- owner section -->
@@ -326,9 +347,17 @@ onMounted(async () => {
             <h4>Chủ xe</h4>
 
             <!-- avatar  -->
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mt-4">
               <div class="d-flex">
                 <img
+                  v-if="car.owneravatar != null && car.owneravatar != ''"
+                  :src="car.owneravatar"
+                  class="rounded-circle me-3 mb-5"
+                  style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover"
+                  alt="Profile Image"
+                />
+                <img
+                  v-else
                   src="https://placehold.co/80x80"
                   alt=""
                   class="img-fluid rounded-circle me-3"
@@ -445,8 +474,56 @@ onMounted(async () => {
               <div class="text-secondary">03/05/2025</div>
             </div>
           </div>
+
           <div class="text-end mt-2">
             <button class="btn btn-outline-success p-3 fw-bold">Xem thêm</button>
+          </div>
+
+          <div v-if="currentUser.id != 0" class="mt-3 d-flex justify-content-between align-items-center border rounded p-4">
+            <div class="d-flex w-100">
+              <img
+                v-if="car.owneravatar != null && car.owneravatar != ''"
+                :src="car.owneravatar"
+                class="rounded-circle me-2"
+                style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover"
+                alt="Profile Image"
+              />
+              <img
+                v-else
+                src="https://placehold.co/80x80"
+                alt=""
+                class="img-fluid rounded-circle me-2"
+              />
+              <div class="d-flex flex-column align-content-center justify-content-center w-100">
+                <div class="fw-bold mb-2">{{ currentUser.fullname }}</div>
+                <div class="d-flex w-100">
+                  <svg
+                    v-for="i in 5"
+                    :key="i"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-star-fill"
+                    viewBox="0 0 16 16"
+                    style="color: #f6c854"
+                  >
+                    <path
+                      d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+                    />
+                  </svg>
+                </div>
+                <textarea
+                  class="form-control mt-2 w-100"
+                  rows="3"
+                  placeholder="Viết đánh giá của bạn..."
+                ></textarea>
+                <div class="align-self-end mt-2">
+
+                  <button type="submit" class="btn btn-outline-success fw-bold p-3 ">Gửi</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -556,24 +633,23 @@ onMounted(async () => {
             <button type="button" class="btn btn-success text-uppercase fw-bold p-3 mt-4 w-100">
               Chọn thuê
             </button>
-
           </div>
-            <div class="card fee-card p-3 mt-3">
-              <h6 class="fw-bold text-success mb-3">Phụ phí có thể phát sinh</h6>
+          <div class="card fee-card p-3 mt-3">
+            <h6 class="fw-bold text-success mb-3">Phụ phí có thể phát sinh</h6>
 
-              <div v-for="(fee, index) in fees" :key="index" class="d-flex mb-3">
-                <!-- Info icon -->
-                <i class="bi bi-info-circle me-2 text-muted"></i>
+            <div v-for="(fee, index) in fees" :key="index" class="d-flex mb-3">
+              <!-- Info icon -->
+              <i class="bi bi-info-circle me-2 text-muted"></i>
 
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between">
-                    <span class="fw-bold">{{ fee.title }}</span>
-                    <span class="fw-bold text-success">{{ fee.price }}</span>
-                  </div>
-                  <small class="text-muted" v-html="fee.description"></small>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                  <span class="fw-bold">{{ fee.title }}</span>
+                  <span class="fw-bold text-success">{{ fee.price }}</span>
                 </div>
+                <small class="text-muted" v-html="fee.description"></small>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -583,21 +659,65 @@ onMounted(async () => {
 
       <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
         <Slide v-for="car in cars" :key="car.id">
-          <div class="position-relative text-white mb-4">
+          <div class="position-relative mb-4 card shadow-sm rounded-4 align-items-center pt-5">
             <img
               :src="car.imageurl"
               alt="Gallery Image"
               style="min-height: 700px"
               class="gallery-image"
             />
-
-            <div class="card-img-overlay d-flex flex-column justify-content-end mb-5"></div>
-            <h1 class="card-title">
+            <h1 class="card-title text-start">
               <a class="text-dark fw-bold" :href="'http://localhost:5173/car/' + car.id" style="">{{
                 car.name
               }}</a>
             </h1>
-            <p class="card-text text-dark">{{ car.ownername }}</p>
+            <div class="card-body d-flex w-100 justify-content-center align-items-center">
+              <img
+                v-if="car.owneravatar != null && car.owneravatar != ''"
+                :src="car.owneravatar"
+                class="rounded-circle me-2"
+                style="height: 50px; width: 50px; border-radius: 50%; object-fit: cover"
+                alt="Profile Image"
+              />
+              <img
+                v-else
+                src="https://placehold.co/50x50"
+                alt=""
+                class="img-fluid rounded-circle me-2"
+              />
+              <div class="card-text text-dark fw-bold me-5">{{ car.ownername }}</div>
+              <div class="d-flex flex-column flex-wrap text-start text-muted me-5">
+                <div class="me-3"><i class="fas fa-cogs me-1"></i> {{ car.transmissiontype }}</div>
+                <div class="me-3"><i class="fas fa-user-friends me-1"></i> {{ car.seats }} chỗ</div>
+                <div><i class="fas fa-gas-pump me-1"></i> {{ car.fueltype }}</div>
+                <div class="text-muted"><i class="fas fa-map-pin me-1"></i> {{ car.city }}</div>
+              </div>
+
+              <hr />
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-end">
+                  <div>
+                    <!-- <del class="text-muted">2.296K</del> -->
+                    <span class="fw-bold text-success ms-1">{{
+                      car.price?.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+                    }}</span
+                    >/ngày
+                  </div>
+                  <div class="text-primary small">
+                    <i class="fas fa-clock me-1"></i>
+                    {{
+                      car.price
+                        ? (car.price / 6).toLocaleString('it-IT', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })
+                        : 0
+                    }}
+                    gói 4 giờ
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </Slide>
       </Carousel>

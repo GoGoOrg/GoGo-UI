@@ -6,17 +6,17 @@ const router = createRouter({
     {
       path: '/personal/:id',
       name: 'personal',
-      component: () => import('../views/PersonalView.vue')
+      component: () => import('../views/PersonalView.vue'),
     },
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue')
+      component: () => import('../views/HomeView.vue'),
     },
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/AboutView.vue'),
     },
     {
       path: '/admin/login',
@@ -31,41 +31,40 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-
     },
     {
       path: '/car/:id',
       name: 'car',
-      component: () => import('../views/CarView.vue')
+      component: () => import('../views/CarView.vue'),
     },
     {
       path: '/owner/register',
       name: 'owner register',
-      component: () => import('../views/RegisterOwner.vue')
+      component: () => import('../views/RegisterOwner.vue'),
     },
     {
       path: '/owner',
       name: 'owner view',
-      component: () => import('../views/OwnerView.vue')
+      component: () => import('../views/OwnerView.vue'),
     },
     {
       path: '/brand/:id',
       name: 'brand view',
-      component: () => import('../views/BrandView.vue')
+      component: () => import('../views/BrandView.vue'),
     },
-        {
+    {
       path: '/search/:name',
       name: 'search view',
-      component: () => import('../views/SearchView.vue')
-    }
+      component: () => import('../views/SearchView.vue'),
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       // Scroll to the saved position if navigating back
-      return savedPosition;
+      return savedPosition
     } else {
       // Scroll to top when navigating to a new route
-      return { top: 0 };
+      return { top: 0 }
     }
   },
 })

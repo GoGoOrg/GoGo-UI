@@ -6,6 +6,7 @@ import { onMounted, ref } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
 import usersServices from '../services/users.services'
+import type { User } from '../types/users.ts'
 const router = useRouter()
 const cookies = useCookies()
 
@@ -24,20 +25,7 @@ const inputFormLogin = ref({
   password: '',
 })
 
-const currentUser = ref({
-  id: 0,
-  username: '',
-  password: '',
-  email: '',
-  name: '',
-  phone: '',
-  birthDate: null,
-  avatar: '',
-  billingAddress: '',
-  created_at: null,
-  updated_at: null,
-  role: '',
-})
+const currentUser = ref(<Partial<User>>{})
 
 const showLoginPassword = ref(false)
 const showRegisterPassword = ref(false)
@@ -197,18 +185,12 @@ onMounted(async () => {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <div
-              v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
-              style="
-                width: 25px;
-                height: 25px;
-                overflow: hidden;
-                display: flex;
-                justify-content: center;
-              "
-            >
-              <img :src="currentUser.avatar" height="25px"  alt="" />
-            </div>
+           
+              <img  v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
+                :src="currentUser.avatar"
+                style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover"
+                alt=""
+              />
             <i v-else class="fa-solid fa-user"></i>
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">

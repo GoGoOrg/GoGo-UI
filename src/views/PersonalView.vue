@@ -174,15 +174,13 @@ onMounted(async () => {
         <div class="d-flex flex-column">
           <h4>Ảnh đại diện</h4>
           <div class="d-flex align-items-center flex-column mt-3">
-            <div style="width: 150px; height: 150px; overflow: hidden; display: flex; justify-content: center;">
               <img
               v-if="currentUser.avatar != null && currentUser.avatar != ''"
               :src="currentUser.avatar"
               class="rounded-circle me-3 mb-5"
-              style="height: 150px;"
+              style="height: 150px; width: 150px; border-radius: 50%; object-fit: cover"
               alt="Profile Image"
               />
-            </div>
             <input
               type="file"
               @change="uploadAvatar($event)"

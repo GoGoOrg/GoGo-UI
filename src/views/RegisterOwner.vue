@@ -20,6 +20,21 @@ const repeatPasswordRegister = ref('')
 const showRegisterPassword = ref(false)
 const showRepeatPassword = ref(false)
 
+const data = [
+  { area: 'TP.HCM (khu vực trung tâm)', income: 'Từ 5 - 10 triệu', days: 'Từ 6 - 12 ngày' },
+  { area: 'TP.HCM (khu vực ngoại thành)', income: '3 - 6', days: '4 - 8' },
+  { area: 'Hà Nội (khu vực trung tâm)', income: '5 - 8', days: '6 - 10' },
+  { area: 'Hà Nội (khu vực ngoại thành)', income: '3 - 6', days: '4 - 8' },
+  { area: 'Đà Nẵng', income: '3 - 6', days: '4 - 8' },
+  { area: 'Bình Dương', income: '3 - 6', days: '4 - 8' },
+  { area: 'Biên Hòa', income: '3 - 6', days: '4 - 8' },
+  { area: 'Đà Lạt', income: '3 - 6', days: '4 - 8' },
+  { area: 'Hải Phòng', income: '3 - 6', days: '4 - 8' },
+  { area: 'Nha Trang', income: '2 - 5', days: '3 - 6' },
+  { area: 'Quy Nhơn', income: '2 - 5', days: '3 - 6' },
+  { area: 'TP khác', income: '2 - 5', days: '3 - 6' },
+]
+
 function toggleRegisterPassword() {
   showRegisterPassword.value = !showRegisterPassword.value
 }
@@ -210,6 +225,39 @@ async function onRegister(e: any) {
         </div>
       </div>
     </div>
+
+  </div>
+  <div class="my-5 bg-light p-5">
+    <h2 class="text-center fw-bold">Thu nhập ước tính của chủ xe</h2>
+    <p class="text-center text-muted">
+      GoGo dựa trên dữ liệu thu nhập bình quân 6 tháng gần nhất của các chủ xe đang kinh doanh
+      hiệu quả trên hệ thống và thống kê theo từng khu vực.
+    </p>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Khu vực</th>
+            <th>Thu nhập / tháng<br /><small>(Sau khi trừ phí dịch vụ)</small></th>
+            <th>Số ngày cho thuê / tháng</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in data" :key="index">
+            <td>{{ row.area }}</td>
+            <td>{{ row.income }}</td>
+            <td>{{ row.days }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-muted small text-center">
+      * Lưu ý: Thu nhập của chủ xe khi cho thuê trên GoGo còn tùy thuộc vào nhiều yếu tố, bao gồm
+      thời gian xe sẵn sàng cho thuê mỗi tháng, mức giá cho thuê và nhu cầu thuê xe ở khu vực của
+      bạn.
+    </p>
   </div>
 </template>
 
@@ -226,7 +274,10 @@ async function onRegister(e: any) {
   left: 5%;
   max-width: 500px;
 }
-
+table {
+  border-radius: 12px;
+  overflow: hidden;
+}
 /* @media (max-width: 768px) {
   .hero-content {
     position: static;
