@@ -2,20 +2,35 @@
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import { onMounted, reactive, ref } from 'vue'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+
 import type { Car } from '@/types/car'
 import { useRoute, useRouter } from 'vue-router'
 import carServices from '@/services/car.services'
 import usersServices from '@/services/users.services'
 import type { CarouselConfig } from 'vue3-carousel'
 import type { User } from '@/types/users'
-
+import type { Review } from '@/types/review'
+import reviewServices from '@/services/review.services'
 const router = useRouter()
 const route = useRoute()
 const id = ref(0)
 const currentSlide = ref(0)
-
+const starNum = ref<number | null>(null)
 const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
 const selectedOption = ref('pickup')
+
+import Swal from 'sweetalert2'
+
+const dateRange = ref<[Date, Date]>([new Date(), new Date()])
+
+const disableDates = (date: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return date < today
+}
+
 const fees = [
   {
     title: 'Phí vượt giới hạn',
@@ -70,7 +85,8 @@ const currentUser = reactive<Partial<User>>({
   deletedat: null,
 })
 const cars = reactive<Partial<Car>[]>([])
-
+const reviews = reactive<Partial<Review>[]>([])
+const inputReviewContent = ref('')
 const car = reactive<Partial<Car>>({
   id: 0,
   name: '',
@@ -107,10 +123,70 @@ const car = reactive<Partial<Car>>({
   deletedat: null,
 })
 
-const images = Array.from({ length: 10 }, (_, index) => ({
-  id: index + 1,
-  url: `https://picsum.photos/seed/${Math.random()}/1920/1080`,
-}))
+async function modifyReview(e: Event) {
+  e.preventDefault()
+
+  try {
+    if (!starNum.value) {
+      throw 'Vui lòng chọn số sao'
+    }
+
+    // Find if current user already reviewed this car
+    const existingReview = reviews.find((r) => r.userId === currentUser.id)
+
+    if (existingReview) {
+      await reviewServices.update(existingReview.id ?? 0, {
+        content: inputReviewContent.value,
+        star: starNum.value,
+      })
+    } else {
+      await reviewServices.create({
+        carId: car.id,
+        userId: currentUser.id,
+        content: inputReviewContent.value,
+        star: starNum.value,
+      })
+    }
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Chỉnh sửa nhận xét thành công!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã có lỗi xảy ra! ' + error,
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+    console.log(error)
+  }
+}
+const userReview = ref<Partial<Review> | null>(null)
+
+async function initReviewVariable() {
+  starNum.value = 0
+
+  // Get existing review for this car by the current user
+  const respReview = await reviewServices.getOneByCarIdAndUserId(car.id ?? 0, currentUser.id ?? 0)
+  let review = respReview.data.review?.[0] ?? {
+    id: 0,
+    content: '',
+    userId: currentUser.id ?? 0,
+    carId: car.id ?? 0,
+    star: 0,
+    createdat: '',
+    updatedat: '',
+    deletedat: null,
+  }
+
+  userReview.value = review
+  starNum.value = review.star
+}
 
 onMounted(async () => {
   try {
@@ -119,15 +195,19 @@ onMounted(async () => {
     let respCar = await carServices.getOne(id.value)
     Object.assign(car, respCar.data.car[0])
 
-    console.log(car.owneravatar)
-
     let respCars = await carServices.getAll()
     cars.push(...respCars.data.cars)
 
-    console.log(cars)
     const respUser = await usersServices.getMe()
     Object.assign(currentUser, respUser.data.user)
-  } catch (error) {}
+
+    const respReviews = await reviewServices.getOneByCarId(car.id ?? 0)
+
+    reviews.splice(0, reviews.length, ...respReviews.data.reviews)
+    initReviewVariable()
+  } catch (error) {
+    console.error('Error loading data:', error)
+  }
 })
 </script>
 
@@ -479,7 +559,10 @@ onMounted(async () => {
             <button class="btn btn-outline-success p-3 fw-bold">Xem thêm</button>
           </div>
 
-          <div v-if="currentUser.id != 0" class="mt-3 d-flex justify-content-between align-items-center border rounded p-4">
+          <div
+            v-if="currentUser.id != 0"
+            class="mt-3 d-flex justify-content-between align-items-center border rounded p-4"
+          >
             <div class="d-flex w-100">
               <img
                 v-if="car.owneravatar != null && car.owneravatar != ''"
@@ -494,33 +577,81 @@ onMounted(async () => {
                 alt=""
                 class="img-fluid rounded-circle me-2"
               />
-              <div class="d-flex flex-column align-content-center justify-content-center w-100">
+              <div class="d-flex flex-column w-100">
                 <div class="fw-bold mb-2">{{ currentUser.fullname }}</div>
-                <div class="d-flex w-100">
-                  <svg
-                    v-for="i in 5"
-                    :key="i"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-star-fill"
-                    viewBox="0 0 16 16"
-                    style="color: #f6c854"
-                  >
-                    <path
-                      d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
-                    />
-                  </svg>
+
+                <div class="rating-wrapper">
+                  <!-- star 5 -->
+                  <input
+                    v-model="starNum"
+                    class="rating-input"
+                    type="radio"
+                    id="star-5"
+                    name="star-rating"
+                    :value="5"
+                  />
+                  <label for="star-5" class="star-rating"><i class="fas fa-star"></i></label>
+
+                  <!-- star 4 -->
+                  <input
+                    v-model="starNum"
+                    class="rating-input"
+                    type="radio"
+                    id="star-4"
+                    name="star-rating"
+                    :value="4"
+                  />
+                  <label for="star-4" class="star-rating"><i class="fas fa-star"></i></label>
+
+                  <!-- star 3 -->
+                  <input
+                    v-model="starNum"
+                    class="rating-input"
+                    type="radio"
+                    id="star-3"
+                    name="star-rating"
+                    :value="3"
+                  />
+                  <label for="star-3" class="star-rating"><i class="fas fa-star"></i></label>
+
+                  <!-- star 2 -->
+                  <input
+                    v-model="starNum"
+                    class="rating-input"
+                    type="radio"
+                    id="star-2"
+                    name="star-rating"
+                    :value="2"
+                  />
+                  <label for="star-2" class="star-rating"><i class="fas fa-star"></i></label>
+
+                  <!-- star 1 -->
+                  <input
+                    v-model="starNum"
+                    class="rating-input"
+                    type="radio"
+                    id="star-1"
+                    name="star-rating"
+                    :value="1"
+                  />
+                  <label for="star-1" class="star-rating"><i class="fas fa-star"></i></label>
                 </div>
+
                 <textarea
+                  v-model="inputReviewContent"
                   class="form-control mt-2 w-100"
                   rows="3"
                   placeholder="Viết đánh giá của bạn..."
                 ></textarea>
-                <div class="align-self-end mt-2">
 
-                  <button type="submit" class="btn btn-outline-success fw-bold p-3 ">Gửi</button>
+                <div class="align-self-end mt-2">
+                  <button
+                    type="submit"
+                    class="btn btn-outline-success fw-bold p-3"
+                    @click="modifyReview"
+                  >
+                    Gửi
+                  </button>
                 </div>
               </div>
             </div>
@@ -572,18 +703,6 @@ onMounted(async () => {
             </div>
             <hr />
 
-            <div class="d-flex justify-content-between">
-              <div class="fw-bold">Thành tiền</div>
-              <div class="fw-bold">
-                {{
-                  ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
-                    style: 'currency',
-                    currency: 'VND',
-                  })
-                }}
-              </div>
-            </div>
-
             <div class="mt-1">
               <div class="fw-bold mb-2">Địa điểm giao nhận xe</div>
 
@@ -629,8 +748,26 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+            <Datepicker
+              v-model="dateRange"
+              range
+              :disabled-dates="disableDates"
+              placeholder="Chọn ngày bắt đầu và kết thúc"
+            />
 
-            <button type="button" class="btn btn-success text-uppercase fw-bold p-3 mt-4 w-100">
+            <div class="d-flex justify-content-between mt-2 mb-2">
+              <div class="fw-bold text-uppercase">Thành tiền</div>
+              <div class="fw-bold">
+                {{
+                  ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })
+                }}
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-success text-uppercase fw-bold p-3 w-100">
               Chọn thuê
             </button>
           </div>
@@ -789,5 +926,26 @@ pre {
 .fee-card {
   border-radius: 12px;
   border: 1px solid #e5e5e5;
+}
+.rating-wrapper {
+  direction: rtl !important;
+
+  .star-rating {
+    color: rgba(198, 206, 237, 0.8);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 1.5rem;
+    transition: color 0.5s;
+  }
+
+  .rating-input {
+    display: none;
+  }
+
+  .star-rating:hover,
+  .star-rating:hover ~ .star-rating,
+  .rating-input:checked ~ .star-rating {
+    color: #f4bb47;
+  }
 }
 </style>
