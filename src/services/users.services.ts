@@ -9,7 +9,9 @@ class UserService {
 
   async getAll() {
     try {
-      const res = await this.api.get('/users')
+      const res = await this.api.get('/users', {
+        withCredentials: true,
+      })
       return res.data
     } catch (err) {
       handlingError(err)

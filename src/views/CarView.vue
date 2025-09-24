@@ -6,6 +6,8 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
 import type { Car } from '@/types/car'
+import type { City } from '@/types/city'
+import type { Brand } from '@/types/brand'
 import { useRoute, useRouter } from 'vue-router'
 import carServices from '@/services/car.services'
 import usersServices from '@/services/users.services'
@@ -13,6 +15,8 @@ import type { CarouselConfig } from 'vue3-carousel'
 import type { User } from '@/types/users'
 import type { Review } from '@/types/review'
 import reviewServices from '@/services/review.services'
+import cityServices from '@/services/city.services'
+import brandServices from '@/services/brand.services'
 const router = useRouter()
 const route = useRoute()
 const id = ref(0)
@@ -24,7 +28,41 @@ const selectedOption = ref('pickup')
 import Swal from 'sweetalert2'
 
 const dateRange = ref<[Date, Date]>([new Date(), new Date()])
-
+const updateCar = reactive<Partial<Car>>({
+  name: '',
+  licenseplate: '',
+  description: '',
+  regulation: '',
+  color: 'Trắng',
+  seats: 4,
+  price: 0,
+  ownerid: 0,
+  brandid: 1,
+  cityid: 1,
+  transmissiontypeid: 1,
+  fueltypeid: 1,
+  insurance: 1,
+  images: [] as string[],
+})
+const brands = ref<Brand[]>([
+  {
+    id: 0,
+    description: '',
+    name: '',
+    createdat: '',
+    updatedat: '',
+    deletedat: null,
+  },
+])
+const cities = ref<City[]>([
+  {
+    id: 0,
+    name: '',
+    createdat: '',
+    updatedat: '',
+    deletedat: null,
+  },
+])
 const disableDates = (date: Date) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -167,7 +205,7 @@ async function modifyReview(e: Event) {
   }
 }
 const userReview = ref<Partial<Review> | null>(null)
-
+const avgrating = ref(0)
 async function initReviewVariable() {
   starNum.value = 0
 
@@ -188,6 +226,78 @@ async function initReviewVariable() {
   starNum.value = review.star
 }
 
+const toBase64 = (file: any) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+  })
+
+async function uploadImageCar(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = input.files
+
+  if (!files || files.length === 0) return
+
+  try {
+    const fileArray = Array.from(files)
+    const base64Images = await Promise.all(fileArray.map((file) => toBase64(file).then(String)))
+    updateCar.images = base64Images
+  } catch (err) {
+    console.error('Error uploading images:', err)
+  }
+}
+
+async function updateCarProcess(e: Event) {
+  e.preventDefault()
+
+  const requiredFields = [
+    'name',
+    'licenseplate',
+    'description',
+    'color',
+    'seats',
+    'price',
+    'cityid',
+    'brandid',
+    'transmissiontypeid',
+    'fueltypeid',
+    'insurance',
+    'images',
+  ]
+
+  const isEmpty = (val: any) => val === undefined || val === null || val === ''
+  const hasEmptyRequiredFields = requiredFields.some((field) =>
+    isEmpty(updateCar[field as keyof typeof updateCar]),
+  )
+
+  try {
+    if (hasEmptyRequiredFields) {
+      throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
+    }
+
+    console.log(updateCar)
+    await carServices.create(updateCar)
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Thêm xe thành công!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    Swal.fire({
+      title: 'Thất bại!',
+      text: `Thêm xe thất bại! Error: ${error}`,
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  }
+}
+
 onMounted(async () => {
   try {
     id.value = Number(route.params.id)
@@ -202,9 +312,14 @@ onMounted(async () => {
     Object.assign(currentUser, respUser.data.user)
 
     const respReviews = await reviewServices.getOneByCarId(car.id ?? 0)
-
     reviews.splice(0, reviews.length, ...respReviews.data.reviews)
+
     initReviewVariable()
+    const respCities = await cityServices.getAll()
+    cities.value = respCities.data.citys
+
+    const respBrands = await brandServices.getAll()
+    brands.value = respBrands.data.brands
   } catch (error) {
     console.error('Error loading data:', error)
   }
@@ -213,7 +328,318 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="container mt-5">
+    <div class="container mt-4">
+      <div v-if="currentUser.id == car.ownerid" class="w-100 d-flex justify-content-end mb-3">
+        <button
+          @click="
+            () => {
+              Object.assign(updateCar, car)
+            }
+          "
+          class="btn btn-primary fw-bold p-3"
+          data-bs-toggle="modal"
+          data-bs-target="#updateCarModal"
+        >
+          Chỉnh sửa
+        </button>
+
+        <button
+          class="btn btn-danger fw-bold ms-2 p-3"
+          data-bs-toggle="modal"
+          data-bs-target="#deleteCarModal"
+        >
+          Xóa
+        </button>
+      </div>
+
+      <div
+        class="modal fade"
+        id="deleteCarModal"
+        tabindex="-1"
+        aria-labelledby="deleteCarModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteCarModalLabel">
+                Xác nhận xóa xe
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              Xóa xe này sẽ không thể khôi phục. Bạn có chắc chắn muốn tiếp tục?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Xóa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="updateCarModal"
+        tabindex="-1"
+        aria-labelledby="updateCarModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="updateCarModalLabel">Cập nhật xe</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form class="w-100 justify-content-between p-2">
+                <div class="">
+                  <!-- Name -->
+                  <div class="mb-3">
+                    <label for="name" class="fw-bold form-label">Tên (*):</label>
+                    <input
+                      v-model="updateCar.name"
+                      type="text"
+                      class="form-control"
+                      id="name"
+                      required
+                    />
+                  </div>
+
+                  <!-- license plate -->
+                  <div class="mb-3">
+                    <label for="plate" class="fw-bold form-label">Biển số xe (*):</label>
+                    <input
+                      v-model="updateCar.licenseplate"
+                      type="text"
+                      class="form-control"
+                      id="plate"
+                      required
+                    />
+                  </div>
+
+                  <!-- description -->
+                  <div class="mb-3">
+                    <label for="description" class="fw-bold form-label">Mô tả xe (*):</label>
+                    <div class="d-flex align-items-center">
+                      <textarea
+                        v-model="updateCar.description"
+                        class="form-control"
+                        id="description"
+                        required
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  <!-- regulation -->
+                  <div class="mb-3">
+                    <label for="regulation" class="fw-bold form-label"
+                      >Luật khi dùng xe (nếu có):</label
+                    >
+                    <div class="d-flex align-items-center">
+                      <textarea
+                        v-model="updateCar.regulation"
+                        class="form-control"
+                        id="regulation"
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  <!-- color -->
+                  <div class="mb-3">
+                    <label for="color" class="fw-bold form-label">Màu xe (*):</label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        v-model="updateCar.color"
+                        type="text"
+                        class="form-control"
+                        id="color"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- seats -->
+                  <div class="mb-3">
+                    <label for="seats" class="fw-bold form-label">Số ghế xe (*):</label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        v-model="updateCar.seats"
+                        type="number"
+                        class="form-control"
+                        id="seats"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- price -->
+                  <div class="mb-3">
+                    <label for="price" class="fw-bold form-label">Giá thuê (*):</label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        v-model="updateCar.price"
+                        type="number"
+                        class="form-control"
+                        id="price"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- brand -->
+                  <div class="mb-3">
+                    <label class="fw-bold" for="selectBrand">Thương hiệu (*)</label>
+                    <select
+                      v-model="updateCar.brandid"
+                      id="selectBrand"
+                      class="form-select"
+                      aria-label="Default select example"
+                    >
+                      <option :value="brand.id" v-for="brand in brands">{{ brand.name }}</option>
+                    </select>
+                  </div>
+
+                  <!-- city -->
+                  <div class="mb-3">
+                    <label class="fw-bold" for="selectCity">Thành phố (*)</label>
+                    <select
+                      v-model="updateCar.cityid"
+                      id="selectCity"
+                      class="form-select"
+                      aria-label="Default select example"
+                    >
+                      <option v-for="city in cities" :value="city.id">{{ city.name }}</option>
+                    </select>
+                  </div>
+
+                  <!-- transmission type -->
+                  <div class="mb-3">
+                    <label class="fw-bold" for="selectTransmissionType">Loại số (*)</label>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.transmissiontypeid"
+                        class="form-check-input"
+                        type="radio"
+                        :value="1"
+                        name="selectTransmissionType"
+                        id="selectTransmissionType1"
+                      />
+                      <label class="form-check-label" for="selectTransmissionType1">
+                        Số tự động
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.transmissiontypeid"
+                        class="form-check-input"
+                        type="radio"
+                        name="selectTransmissionType"
+                        id="selectTransmissionType2"
+                        :value="2"
+                      />
+                      <label class="form-check-label" for="selectTransmissionType2"> Số sàn </label>
+                    </div>
+                  </div>
+
+                  <!-- fuel type -->
+                  <div class="mb-3">
+                    <label class="fw-bold" for="selectFuelType">Loại nhiên liệu (*)</label>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.fueltypeid"
+                        class="form-check-input"
+                        type="radio"
+                        name="selectFuelType"
+                        id="selectFuelType1"
+                        :value="1"
+                      />
+                      <label class="form-check-label" for="selectFuelType1"> Xe xăng </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.fueltypeid"
+                        class="form-check-input"
+                        type="radio"
+                        name="selectFuelType"
+                        id="selectFuelType2"
+                        :value="2"
+                      />
+                      <label class="form-check-label" for="selectFuelType2"> Xe điện </label>
+                    </div>
+                  </div>
+
+                  <!-- insurance -->
+                  <div class="mb-3">
+                    <label class="fw-bold" for="selectInsurance">Bảo hiểm (*)</label>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.insurance"
+                        class="form-check-input"
+                        type="radio"
+                        name="selectInsurance"
+                        id="selectInsurance1"
+                        :value="true"
+                      />
+                      <label class="form-check-label" for="selectInsurance1"> Có </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        v-model="updateCar.insurance"
+                        class="form-check-input"
+                        type="radio"
+                        name="selectInsurance"
+                        id="selectInsurance2"
+                        :value="false"
+                      />
+                      <label class="form-check-label" for="selectInsurance2"> Không </label>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="formFileMultiple" class="form-label fw-bold"
+                      >Ảnh xe (1 hoặc nhiều)</label
+                    >
+                    <input
+                      class="form-control"
+                      type="file"
+                      @change="uploadImageCar($event)"
+                      id="formFileMultiple"
+                      multiple
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary rounded"
+                data-bs-dismiss="modal"
+                style="border-radius: 0px"
+              >
+                Hủy
+              </button>
+              <button
+                @click="updateCarProcess($event)"
+                type="submit"
+                class="btn btn-primary rounded fw-bold"
+                style="border-radius: 0px"
+              >
+                Cập nhật xe
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row" v-if="car.images && car.images.length > 0">
         <!-- Left Column -->
         <div class="col-8">
@@ -516,20 +942,32 @@ onMounted(async () => {
                 d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
               />
             </svg>
-            <div class="fw-bold">5.0</div>
-            <div class="ms-2">• 12 đánh giá</div>
+            <div class="fw-bold">{{ car.avgrating }}</div>
+            <div class="ms-2">• {{ car.reviewcount }} đánh giá</div>
           </div>
 
           <div class="d-flex flex-column gap-1">
             <div
-              v-for="i in 2"
-              :key="i"
+              v-for="review in reviews"
+              :key="review.id"
               class="mt-3 d-flex justify-content-between align-items-center border rounded p-4"
             >
               <div class="d-flex">
-                <img src="https://placehold.co/80x80" alt="" class="rounded-circle m-3" />
+                <img
+                  v-if="review.avatar != null && review.avatar != ''"
+                  :src="review.avatar"
+                  class="rounded-circle me-2"
+                  style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover"
+                  alt="Profile Image"
+                />
+                <img
+                  v-else
+                  src="https://placehold.co/80x80"
+                  alt=""
+                  class="img-fluid rounded-circle me-2"
+                />
                 <div class="d-flex flex-column align-content-center justify-content-center">
-                  <div class="fw-bold mb-2">Nhan Le</div>
+                  <div class="fw-bold mb-2">{{ review.fullname }}</div>
                   <div class="d-flex">
                     <svg
                       v-for="i in 5"
@@ -547,17 +985,17 @@ onMounted(async () => {
                       />
                     </svg>
                   </div>
-                  <div>Xe đời 2024 chạy siêu sướng. Chủ xe dễ thương, vui vẻ.</div>
+                  <div>{{ review.content }}</div>
                 </div>
               </div>
 
-              <div class="text-secondary">03/05/2025</div>
+              <div class="text-secondary">{{ review.createdat ?? '03/10/2025' }}</div>
             </div>
           </div>
 
-          <div class="text-end mt-2">
+          <!-- <div class="text-end mt-2">
             <button class="btn btn-outline-success p-3 fw-bold">Xem thêm</button>
-          </div>
+          </div> -->
 
           <div
             v-if="currentUser.id != 0"
@@ -565,8 +1003,8 @@ onMounted(async () => {
           >
             <div class="d-flex w-100">
               <img
-                v-if="car.owneravatar != null && car.owneravatar != ''"
-                :src="car.owneravatar"
+                v-if="currentUser.avatar != null && currentUser.avatar != ''"
+                :src="currentUser.avatar"
                 class="rounded-circle me-2"
                 style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover"
                 alt="Profile Image"
@@ -577,11 +1015,11 @@ onMounted(async () => {
                 alt=""
                 class="img-fluid rounded-circle me-2"
               />
-              <div class="d-flex flex-column w-100">
-                <div class="fw-bold mb-2">{{ currentUser.fullname }}</div>
-
+              <div class="d-flex flex-column align-items-start mb-2 w-100">
+                <div class="fw-bold me-3">{{ currentUser.fullname }}</div>
                 <div class="rating-wrapper">
-                  <!-- star 5 -->
+                  <!-- stars -->
+
                   <input
                     v-model="starNum"
                     class="rating-input"
@@ -592,7 +1030,6 @@ onMounted(async () => {
                   />
                   <label for="star-5" class="star-rating"><i class="fas fa-star"></i></label>
 
-                  <!-- star 4 -->
                   <input
                     v-model="starNum"
                     class="rating-input"
@@ -603,7 +1040,6 @@ onMounted(async () => {
                   />
                   <label for="star-4" class="star-rating"><i class="fas fa-star"></i></label>
 
-                  <!-- star 3 -->
                   <input
                     v-model="starNum"
                     class="rating-input"
@@ -614,7 +1050,6 @@ onMounted(async () => {
                   />
                   <label for="star-3" class="star-rating"><i class="fas fa-star"></i></label>
 
-                  <!-- star 2 -->
                   <input
                     v-model="starNum"
                     class="rating-input"
@@ -625,7 +1060,6 @@ onMounted(async () => {
                   />
                   <label for="star-2" class="star-rating"><i class="fas fa-star"></i></label>
 
-                  <!-- star 1 -->
                   <input
                     v-model="starNum"
                     class="rating-input"
@@ -703,7 +1137,7 @@ onMounted(async () => {
             </div>
             <hr />
 
-            <div class="mt-1">
+            <div class="mt-1" v-if="currentUser.id != 0">
               <div class="fw-bold mb-2">Địa điểm giao nhận xe</div>
 
               <!-- Option 1 -->
@@ -748,28 +1182,36 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            <Datepicker
-              v-model="dateRange"
-              range
-              :disabled-dates="disableDates"
-              placeholder="Chọn ngày bắt đầu và kết thúc"
-            />
+            <div v-if="currentUser.id != 0">
+              <Datepicker
+                v-model="dateRange"
+                range
+                :disabled-dates="disableDates"
+                placeholder="Chọn ngày bắt đầu và kết thúc"
+              />
 
-            <div class="d-flex justify-content-between mt-2 mb-2">
-              <div class="fw-bold text-uppercase">Thành tiền</div>
-              <div class="fw-bold">
-                {{
-                  ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
-                    style: 'currency',
-                    currency: 'VND',
-                  })
-                }}
+              <div class="d-flex justify-content-between mt-2 mb-2">
+                <div class="fw-bold text-uppercase">Thành tiền</div>
+                <div class="fw-bold">
+                  {{
+                    ((car.price ?? 0) + 96050).toLocaleString('it-IT', {
+                      style: 'currency',
+                      currency: 'VND',
+                    })
+                  }}
+                </div>
               </div>
-            </div>
 
-            <button type="button" class="btn btn-success text-uppercase fw-bold p-3 w-100">
-              Chọn thuê
-            </button>
+              <button
+                :disabled="
+                  dateRange[0] == null || dateRange[1] == null || currentUser.id == car.ownerid
+                "
+                type="button"
+                class="btn btn-success text-uppercase fw-bold p-3 w-100"
+              >
+                Chọn thuê
+              </button>
+            </div>
           </div>
           <div class="card fee-card p-3 mt-3">
             <h6 class="fw-bold text-success mb-3">Phụ phí có thể phát sinh</h6>
@@ -928,24 +1370,27 @@ pre {
   border: 1px solid #e5e5e5;
 }
 .rating-wrapper {
-  direction: rtl !important;
+  display: inline-flex; /* only take space stars need */
+  flex-direction: row-reverse; /* hover highlight logic works */
+  justify-content: flex-start; /* align to left */
+  gap: 0.25rem;
+  width: auto; /* prevent full width stretching */
+}
 
-  .star-rating {
-    color: rgba(198, 206, 237, 0.8);
-    cursor: pointer;
-    display: inline-flex;
-    font-size: 1.5rem;
-    transition: color 0.5s;
-  }
+.star-rating {
+  color: rgba(198, 206, 237, 0.8);
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: color 0.3s;
+}
 
-  .rating-input {
-    display: none;
-  }
+.rating-input {
+  display: none;
+}
 
-  .star-rating:hover,
-  .star-rating:hover ~ .star-rating,
-  .rating-input:checked ~ .star-rating {
-    color: #f4bb47;
-  }
+.star-rating:hover,
+.star-rating:hover ~ .star-rating,
+.rating-input:checked ~ .star-rating {
+  color: #f4bb47;
 }
 </style>

@@ -66,7 +66,7 @@ onMounted(async () => {
       currentUser.value = resp.data.user
       console.log(currentUser.value)
 
-      router.push({ name: 'admin' })
+      if (currentUser.value.username == "admin") router.push({ name: 'admin' })
     
   } catch (error) {
     console.log(error)

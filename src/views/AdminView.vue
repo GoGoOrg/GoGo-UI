@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
@@ -9,7 +9,7 @@ import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
 
 import type { Car } from '@/types/car'
-
+import type { User } from '@/types/users'
 const router = useRouter()
 const cookies = useCookies()
 const token = cookies.cookies.get('Admin Token')
@@ -44,6 +44,9 @@ const currentUser = ref({
   updated_at: null,
   role: '',
 })
+
+const users = reactive<Partial<User[]>>([])
+const cars = reactive<Partial<Car>[]>([])
 
 // Example car data
 const car = ref<Partial<Car>>({
@@ -109,9 +112,11 @@ onMounted(async () => {
       label.addEventListener('click', (e) => e.preventDefault())
     })
 
-
     const respUser = await usersServices.getMe()
     currentUser.value = respUser.data.user
+
+    const respUsers = await usersServices.getAll()
+    users.splice(0, users.length, ...respUsers.data.users)
 
     if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
       await Swal.fire({
@@ -126,7 +131,7 @@ onMounted(async () => {
 
     // Load car data
     const respCars = await carServices.getAll()
-    console.log(respCars.data.cars)
+    cars.splice(0, cars.length, ...respCars.data.cars)
   } catch (error) {
     console.error(error)
   }
@@ -229,14 +234,14 @@ onMounted(async () => {
                   <i class="fa-solid fa-users fa-3x" style="color: #fbbfc0"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng người dùng</p>
-                    <h6 class="mb-0 text-end">users.length</h6>
+                    <h6 class="mb-0 text-end">{{ users.length }}</h6>
                   </div>
                 </div>
                 <div class="bg-light w-50 p-4 d-flex align-items-center justify-content-between">
                   <i class="fa-brands fa-product-hunt fa-3x" style="color: #fbbfc0"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng xe</p>
-                    <h6 class="mb-0 text-end">products.length</h6>
+                    <h6 class="mb-0 text-end">{{ cars.length }}</h6>
                   </div>
                 </div>
               </div>
@@ -672,13 +677,6 @@ onMounted(async () => {
                   style="vertical-align: middle"
                   scope="col"
                 >
-                  Ngày nhập
-                </th>
-                <th
-                  class="fw-bold text-uppercase text-center"
-                  style="vertical-align: middle"
-                  scope="col"
-                >
                   Tên xe
                 </th>
                 <th
@@ -700,7 +698,7 @@ onMounted(async () => {
                   style="vertical-align: middle"
                   scope="col"
                 >
-                  Phân loại
+                  Biển số xe
                 </th>
                 <th
                   class="fw-bold text-uppercase text-center"
@@ -709,33 +707,27 @@ onMounted(async () => {
                 >
                   Thương hiệu
                 </th>
-                <th
-                  class="fw-bold text-uppercase text-center"
-                  style="vertical-align: middle"
-                  scope="col"
-                >
-                  Thao tác
-                </th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <th scope="row"></th>
-                <th scope="row">product.created_at.slice(0, 10)</th>
+              <tr v-for="car in cars" :key="car.id" class="text-center">
+                <th scope="row">{{ car.id }}</th>
                 <th scope="row">
-                  <a class="fw-bold text-dark" :href="'http://localhost:5173/products/'">
-                    product.name
+                  <a class="fw-bold text-dark" :href="'http://localhost:5173/car/' + car.id">
+                    {{ car.name }}
                   </a>
                 </th>
                 <th scope="row">
-                  <img height="50" width="50" alt="" />
+                  <img class="img-thumbnail" height="80" width="80" alt="" :src="car.imageurl" />
                 </th>
                 <th scope="row">
-                  product.unitPrice.toLocaleString("it-IT", { style: "currency", currency: "VND", })
+                  {{
+                    (car.price ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+                  }}
                 </th>
-                <th scope="row">categoriesMap.get(product.catId)</th>
-                <th scope="row" class="text-capitalize">product.brandName</th>
-                <th scope="row">
+                <th scope="row">{{ car.licenseplate }}</th>
+                <th scope="row" class="text-capitalize">{{ car.brand }}</th>
+                <!-- <th scope="row">
                   <button
                     class="btn btn-sm"
                     style="background-color: #fbbfc0; color: white"
@@ -753,7 +745,7 @@ onMounted(async () => {
                   >
                     <i class="fa-solid fa-trash"></i>
                   </button>
-                </th>
+                </th> -->
               </tr>
             </tbody>
           </table>
@@ -1298,7 +1290,7 @@ onMounted(async () => {
           style="width: 80vw"
         >
           <h2 class="p-4">Các người dùng trong hệ thống</h2>
-          <div class="container d-flex justify-content-center">
+          <div class="container d-flex justify-content-center text-center">
             <div class="w-100">
               <table class="table">
                 <thead>
@@ -1311,15 +1303,28 @@ onMounted(async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">user.accountId</th>
+                  <tr v-for="user in users" :key="user?.id" class="text-center">
+                    <th scope="row">{{ user?.id }}</th>
                     <td>
-                      <img style="border-radius: 50%" width="40" height="40" alt="" />
-                      <img src="https://placehold.co/40x40" style="border-radius: 50%" alt="" />
+                      <img
+                        v-if="user?.avatar != null && user?.avatar != ''"
+                        :src="user?.avatar"
+                        class="rounded-circle me-2 img-thumbnail"
+                        style="height: 60px; width: 60px; border-radius: 50%; object-fit: cover"
+                        alt="Profile Image"
+                      />
+                      <img
+                        v-else
+                        src="https://placehold.co/60x60"
+                        alt=""
+                        class="img-fluid rounded-circle me-2"
+                      />
                     </td>
-                    <td>user.name</td>
-                    <td>user.email</td>
-                    <td>user.role</td>
+                    <td>{{ user?.fullname }}</td>
+                    <td>{{ user?.email }}</td>
+                    <td v-if="user?.role == 'admin'">Admin</td>
+                    <td v-if="user?.role == 'owner'">Chủ xe</td>
+                    <td v-if="user?.role == 'user'">Người dùng</td>
                   </tr>
                 </tbody>
               </table>

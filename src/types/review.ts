@@ -4,6 +4,8 @@ export interface Review {
   userId: number
   carId: number
   star: number
+  fullname: string
+  avatar: string | null // nullable
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

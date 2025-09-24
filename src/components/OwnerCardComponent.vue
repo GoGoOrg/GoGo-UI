@@ -37,6 +37,7 @@ defineProps<{
 </script>
 
 <template>
+  
   <div class="card shadow-sm mb-5">
     <div class="card-header bg-white border-bottom-0">
       <ul class="nav nav-tabs card-header-tabs">
