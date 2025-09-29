@@ -8,7 +8,7 @@ import CarCardComponent from '@/components/CarCardComponent.vue'
 import SearchBarComponent from '@/components/SearchBarComponent.vue'
 
 import { useRouter } from 'vue-router'
-const router = useRouter();
+const router = useRouter()
 
 const images = [
   {
@@ -28,7 +28,7 @@ const images = [
     contents: [
       '🌞 Hè đến rồi, cả nhà mình định đi đâu?',
       'Dù ngắn hay dài, hành trình nào cũng thêm ý nghĩa khi có gia đình bên cạnh. Khám phá mọi miền với xe tự lái riêng tư - thoải mái dừng chân, lưu giữ từng khoảnh khắc.',
-      '🎈Hè đi chơi xa, nhà ta thêm gần. Gogo tặng bạn ưu đãi 120k - nhập mã MI796, áp dụng cho chuyến đi 27/06 - 29/06/2025, đặt cọc trước 25/06/2025.',
+      '🎈Hè đi chơi xa, nhà ta thêm gần. GoGo tặng bạn ưu đãi 120k - nhập mã MI796, áp dụng cho chuyến đi 27/06 - 29/06/2025, đặt cọc trước 25/06/2025.',
       '🚗 Lên lịch đi ngay!',
     ],
     title: '🚗 Tận hưởng chuyến đi cùng gia đình với ưu đãi 120k - nhập mã MI796',
@@ -54,7 +54,7 @@ const carouselConfig = {
 
 const featuredLocations = [
   {
-    name: 'TP. Hồ Chí Minh',
+    name: 'TP Hồ Chí Minh',
     image:
       'https://images.unsplash.com/photo-1602479185069-cf2cfc4c463f?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     vehicles: '5000+ xe',
@@ -189,7 +189,9 @@ onMounted(async () => {
           </h5>
         </div>
 
-        <div class="search-container-main w-50 mt-5 position-absolute bottom-0 start-50 translate-middle">
+        <div
+          class="search-container-main w-50 mt-5 position-absolute bottom-0 start-50 translate-middle"
+        >
           <SearchBarComponent></SearchBarComponent>
         </div>
       </div>
@@ -262,9 +264,11 @@ onMounted(async () => {
     <div class="container py-5">
       <h2 class="text-center fw-bold mb-4">Địa Điểm Nổi Bật</h2>
       <div class="d-flex gap-3 justify-content-center">
-        <div
+
+        <a :href="'/city/' + location.name"
           v-for="location in featuredLocations"
           :key="location.name"
+
           class="card-city card position-relative text-white flex-shrink-0"
           style="min-width: 250px; border-radius: 20px; overflow: hidden"
         >
@@ -278,7 +282,7 @@ onMounted(async () => {
             <h5 class="card-title card-title-city">{{ location.name }}</h5>
             <p class="card-text cart-text-city small">{{ location.vehicles }}</p>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   </div>
@@ -326,7 +330,7 @@ onMounted(async () => {
             <div>
               <h3 class="fw-bold">Tài xế của bạn đã đến!</h3>
 
-              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên Gogo.</p>
+              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên GoGo.</p>
 
               <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
             </div>
@@ -518,6 +522,4 @@ onMounted(async () => {
 .card-city:hover {
   transform: scale(1.1);
 }
-
-
 </style>

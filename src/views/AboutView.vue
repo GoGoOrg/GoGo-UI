@@ -109,7 +109,7 @@
           >
             <div>
               <h3 class="fw-bold">Tài xế của bạn đã đến!</h3>
-              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên Gogo.</p>
+              <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên GoGo.</p>
               <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
             </div>
           </div>

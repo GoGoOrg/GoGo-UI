@@ -243,8 +243,9 @@ onMounted(async () => {
         + Thêm xe
       </button>
     </div>
+
     <div v-for="(car, index) in cars" :key="car.id" >
-      <h1>{{ index + 1 }}. {{ car.name }}</h1>
+      <h3>{{ index + 1 }}. {{ car.name }}</h3>
       <OwnerCardComponent :car="car" />
     </div>
   </div>

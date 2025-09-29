@@ -57,6 +57,11 @@ const router = createRouter({
       name: 'search view',
       component: () => import('../views/SearchView.vue'),
     },
+    {
+      path: '/city/:name',
+      name: 'city view',
+      component: () => import('../views/CityView.vue'),
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

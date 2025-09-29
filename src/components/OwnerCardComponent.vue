@@ -1,39 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import type { Car } from '@/types/car'
 const activeTab = ref('active')
 
 defineProps<{
-  car: {
-    id: number
-    name: string
-    licenseplate: string
-    description: string
-    regulation: string
-    color: string
-    seats: number
-    price: number
-    ownerid: number
-    brandid: number
-    cityid: number
-    transmissiontypeid: number
-    fueltypeid: number
-    totalride: number
-    totalheart: number
-    mortage: number
-    insurance: number
-    starnumber: number
-    avgrating: number
-    reviewcount: number
-    priceperday: number
-    discountvalue: number
-    discounttype: string
-    createdat: string
-    updatedat: string
-    deletedat: string | null
-    imageurl: string
-  }
+  car: Partial<Car>
 }>()
+
 </script>
 
 <template>
@@ -97,25 +70,25 @@ defineProps<{
             <div class="row text-center mb-4">
               <div class="col-4">
                 <i class="fa-solid fa-gears fa-2x text-success mb-1"></i>
-                <div class="small text-muted">Truyền động</div>
-                <div class="fw-semibold">{{ car.transmissiontypeid }}</div>
+                <div class="small">Truyền động</div>
+                <div class="fw-semibold">{{ car.transmissiontype }}</div>
               </div>
               <div class="col-4">
                 <i class="fa-solid fa-chair fa-2x text-success mb-1"></i>
-                <div class="small text-muted">Số ghế</div>
+                <div class="small">Số ghế</div>
                 <div class="fw-semibold">{{ car.seats }} chỗ</div>
               </div>
               <div class="col-4">
                 <i class="fa-solid fa-gas-pump fa-2x text-success mb-1"></i>
-                <div class="small text-muted">Nhiên liệu</div>
-                <div class="fw-semibold">{{ car.fueltypeid }}</div>
+                <div class="small">Nhiên liệu</div>
+                <div class="fw-semibold">{{ car.fueltype }}</div>
               </div>
             </div>
 
             <div class="bg-light border rounded p-3">
-              <div class="d-flex align-items-center mb-3">
-                <div class="display-6 text-primary me-2">{{ car.price }}</div>
-                <div class="text-muted fw-semibold">/ngày</div>
+              <div class="d-flex align-items-end mb-3">
+                <div class="display-6 fw-bold">{{ car.price?.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) }}</div>
+                <div class="fw-semibold">/ngày</div>
               </div>
               <ul class="list-unstyled mb-0">
                 <li><strong>Tổng lượt thuê:</strong> {{ car.totalride }}</li>

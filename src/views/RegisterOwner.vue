@@ -96,17 +96,17 @@ async function onRegister(e: any) {
       <div class="hero-content text-dark bg-white p-4 rounded-4 shadow">
         <h1 class="fw-bold mb-3">
           <span class="text-success">Cho Thuê Xe</span> Trên<br />
-          Gogo Để Gia Tăng<br />
+          GoGo Để Gia Tăng<br />
           Thu Nhập Đến <br />10tr/Tháng!
         </h1>
         <p class="mb-3">
-          Gogo không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với Gogo khi có giao dịch
+          GoGo không thu phí khi bạn đăng xe. Bạn chỉ chia sẻ phí dịch vụ với GoGo khi có giao dịch
           cho thuê thành công.
         </p>
         <hr />
         <p class="mb-2">
           <strong>Hotline:</strong> 1900 9217 (T2-T7 9AM–9PM)<br />
-          Hoặc để lại tin nhắn cho Gogo qua Fanpage
+          Hoặc để lại tin nhắn cho GoGo qua Fanpage
         </p>
         <button
           class="btn fw-bold btn-dark mt-2 ps-5 pe-5 pt-3 pb-3"
@@ -225,13 +225,12 @@ async function onRegister(e: any) {
         </div>
       </div>
     </div>
-
   </div>
   <div class="my-5 bg-light p-5">
     <h2 class="text-center fw-bold">Thu nhập ước tính của chủ xe</h2>
     <p class="text-center text-muted">
-      GoGo dựa trên dữ liệu thu nhập bình quân 6 tháng gần nhất của các chủ xe đang kinh doanh
-      hiệu quả trên hệ thống và thống kê theo từng khu vực.
+      GoGo dựa trên dữ liệu thu nhập bình quân 6 tháng gần nhất của các chủ xe đang kinh doanh hiệu
+      quả trên hệ thống và thống kê theo từng khu vực.
     </p>
 
     <div class="table-responsive">

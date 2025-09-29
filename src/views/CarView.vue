@@ -11,12 +11,17 @@ import type { Brand } from '@/types/brand'
 import { useRoute, useRouter } from 'vue-router'
 import carServices from '@/services/car.services'
 import usersServices from '@/services/users.services'
+import utilityServices from '@/services/utility.services'
+
 import type { CarouselConfig } from 'vue3-carousel'
 import type { User } from '@/types/users'
 import type { Review } from '@/types/review'
+import type { Utility } from '@/types/utility'
+
 import reviewServices from '@/services/review.services'
 import cityServices from '@/services/city.services'
 import brandServices from '@/services/brand.services'
+
 const router = useRouter()
 const route = useRoute()
 const id = ref(0)
@@ -124,6 +129,7 @@ const currentUser = reactive<Partial<User>>({
 })
 const cars = reactive<Partial<Car>[]>([])
 const reviews = reactive<Partial<Review>[]>([])
+const utilities = reactive<Partial<Utility>[]>([])
 const inputReviewContent = ref('')
 const car = reactive<Partial<Car>>({
   id: 0,
@@ -313,6 +319,9 @@ onMounted(async () => {
 
     const respReviews = await reviewServices.getOneByCarId(car.id ?? 0)
     reviews.splice(0, reviews.length, ...respReviews.data.reviews)
+
+    const respUtilities = await utilityServices.getAll();
+    utilities.splice(0, utilities.length, ...respUtilities.data.utilities)
 
     initReviewVariable()
     const respCities = await cityServices.getAll()

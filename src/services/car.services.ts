@@ -36,6 +36,15 @@ class CarService {
     } 
   }
 
+  async searchByCityName(name: string) {
+    try {
+      const response = await this.api.get(`/cars/city/${name}`)
+      return response.data
+    } catch (err) {
+      handlingError(err)
+    } 
+  }
+
   async getAllByOwnerId(id: number) {
     try {
       const response = await this.api.get(`/cars/owner/${id}`, {
