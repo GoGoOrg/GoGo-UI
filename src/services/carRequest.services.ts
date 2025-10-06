@@ -9,7 +9,7 @@ class CarAvailabilityService {
 
   async getAll() {
     try {
-      const response = await this.api.get("/caravailabilities");
+      const response = await this.api.get("/carrequest");
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -18,7 +18,7 @@ class CarAvailabilityService {
 
   async getOne(id: number) {
     try {
-      const response = await this.api.get(`/caravailabilities/${id}`);
+      const response = await this.api.get(`/carrequest/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -27,7 +27,7 @@ class CarAvailabilityService {
 
   async create(data: any) {
     try {
-      const response = await this.api.post("/caravailabilities", data);
+      const response = await this.api.post("/carrequest", data);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -36,7 +36,7 @@ class CarAvailabilityService {
 
   async delete(id: number) {
     try {
-      const response = await this.api.delete(`/caravailabilities/${id}`);
+      const response = await this.api.delete(`/carrequest/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -45,7 +45,7 @@ class CarAvailabilityService {
 
   async update(id: number, data: any) {
     try {
-      const response = await this.api.patch(`/caravailabilities/${id}`, data);
+      const response = await this.api.patch(`/carrequest/${id}`, data);
       return response.data;
     } catch (err) {
       handlingError(err);

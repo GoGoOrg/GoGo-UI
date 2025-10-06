@@ -9,7 +9,7 @@ class carutilitieservice {
 
   async getAll() {
     try {
-      const response = await this.api.get("/carutilities");
+      const response = await this.api.get("/car-utility");
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -18,7 +18,7 @@ class carutilitieservice {
 
   async getOne(id: number) {
     try {
-      const response = await this.api.get(`/carutilities/${id}`);
+      const response = await this.api.get(`/car-utility/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -27,7 +27,7 @@ class carutilitieservice {
 
   async create(data: any) {
     try {
-      const response = await this.api.post("/carutilities", data);
+      const response = await this.api.post("/car-utility", data);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -36,7 +36,7 @@ class carutilitieservice {
 
   async delete(id: number) {
     try {
-      const response = await this.api.delete(`/carutilities/${id}`);
+      const response = await this.api.delete(`/car-utility/${id}`);
       return response.data;
     } catch (err) {
       handlingError(err);
@@ -45,7 +45,7 @@ class carutilitieservice {
 
   async update(id: number, data: any) {
     try {
-      const response = await this.api.patch(`/carutilities/${id}`, data);
+      const response = await this.api.patch(`/car-utility/${id}`, data);
       return response.data;
     } catch (err) {
       handlingError(err);

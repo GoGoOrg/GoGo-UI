@@ -1,3 +1,5 @@
+import type { Utility } from './utility'
+
 export interface Car {
   id: number
   name: string
@@ -30,6 +32,8 @@ export interface Car {
   discounttype: string
   imageurl: string
   images: string[]
+  utilities: Utility[]   // ✅ New field for utilities (with name + icon)
+
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

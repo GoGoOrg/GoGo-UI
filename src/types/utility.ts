@@ -1,8 +1,7 @@
 export interface Utility {
   id: number
   name: string
-  description: string
-  imageUrl: string
+  icon: string
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

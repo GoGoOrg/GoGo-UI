@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, computed } from 'vue'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -31,6 +31,7 @@ const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
 const selectedOption = ref('pickup')
 
 import Swal from 'sweetalert2'
+import carUtilityServices from '@/services/carUtility.services'
 
 const dateRange = ref<[Date, Date]>([new Date(), new Date()])
 const updateCar = reactive<Partial<Car>>({
@@ -127,9 +128,13 @@ const currentUser = reactive<Partial<User>>({
   updatedat: '',
   deletedat: null,
 })
+
 const cars = reactive<Partial<Car>[]>([])
 const reviews = reactive<Partial<Review>[]>([])
+
 const utilities = reactive<Partial<Utility>[]>([])
+const selectedUtilityIds = computed<number[]>(() => (car.utilities ?? []).map((u) => u.id ?? 0))
+
 const inputReviewContent = ref('')
 const car = reactive<Partial<Car>>({
   id: 0,
@@ -162,11 +167,18 @@ const car = reactive<Partial<Car>>({
   discountvalue: 0,
   discounttype: '',
   images: [],
+  utilities: [],
   createdat: '',
   updatedat: '',
   deletedat: null,
 })
+const visible = ref(false)
+const currentIndex = ref(0)
 
+const openLightbox = (index: number) => {
+  currentIndex.value = index
+  visible.value = true
+}
 async function modifyReview(e: Event) {
   e.preventDefault()
 
@@ -304,6 +316,37 @@ async function updateCarProcess(e: Event) {
   }
 }
 
+async function saveUtilities() {
+  try {
+    if (!car.id) throw new Error('Car ID không hợp lệ')
+
+    // Extract only valid numeric IDs
+    const selectedIds = (car.utilities ?? [])
+      .map((u) => u.id)
+      .filter((id): id is number => typeof id === 'number')
+
+    // Call backend (delete + insert)
+    await carUtilityServices.update(car.id, selectedIds)
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Cập nhật tiện ích thành công!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    console.error('Error saving utilities:', error)
+    Swal.fire({
+      title: 'Thất bại!',
+      text: 'Cập nhật tiện ích thất bại!',
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  }
+}
+
 onMounted(async () => {
   try {
     id.value = Number(route.params.id)
@@ -320,8 +363,14 @@ onMounted(async () => {
     const respReviews = await reviewServices.getOneByCarId(car.id ?? 0)
     reviews.splice(0, reviews.length, ...respReviews.data.reviews)
 
-    const respUtilities = await utilityServices.getAll();
+    const respUtilities = await utilityServices.getAll()
     utilities.splice(0, utilities.length, ...respUtilities.data.utilities)
+
+    utilities.forEach((u) => {
+      if (u.icon) {
+        u.icon = u.icon.replace(/width="\d+"/, '').replace(/height="\d+"/, '')
+      }
+    })
 
     initReviewVariable()
     const respCities = await cityServices.getAll()
@@ -333,6 +382,26 @@ onMounted(async () => {
     console.error('Error loading data:', error)
   }
 })
+
+function toggleUtility(u: Partial<Utility>) {
+  if (!car.utilities) car.utilities = []
+
+  const index = car.utilities.findIndex((util) => util.id === u.id)
+  if (index !== -1) {
+    // remove if already exists
+    car.utilities.splice(index, 1)
+  } else {
+    // add if not exists — cast to full Utility since you’re pushing partial data
+    car.utilities.push({
+      id: u.id ?? 0,
+      name: u.name ?? '',
+      icon: u.icon ?? '',
+      createdat: u.createdat ?? '',
+      updatedat: u.updatedat ?? '',
+      deletedat: u.deletedat ?? null,
+    })
+  }
+}
 </script>
 
 <template>
@@ -371,9 +440,7 @@ onMounted(async () => {
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="deleteCarModalLabel">
-                Xác nhận xóa xe
-              </h1>
+              <h1 class="modal-title fs-5" id="deleteCarModalLabel">Xác nhận xóa xe</h1>
               <button
                 type="button"
                 class="btn-close"
@@ -649,26 +716,41 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="row" v-if="car.images && car.images.length > 0">
-        <!-- Left Column -->
+      <div v-if="car.images && car.images.length > 0" class="row g-2">
+        <!-- Left Column: Main image -->
         <div class="col-8">
-          <img :src="car.images[0]" alt="" class="img-fluid rounded-4 w-100 cursor-pointer" />
+          <img
+            :src="car.images[0]"
+            alt="Car"
+            class="img-fluid rounded-4 w-100 cursor-pointer"
+            @click="openLightbox(0)"
+            style="object-fit: cover; height: 100%"
+          />
         </div>
 
-        <!-- Right Column -->
-        <div class="col-4 d-flex flex-column justify-content-between">
+        <!-- Right Column: Side thumbnails -->
+        <div class="col-4 d-flex flex-column justify-content-between gap-2">
           <img
             v-for="(img, index) in car.images.slice(1, 4)"
             :key="index"
             :src="img"
-            alt=""
+            alt="Car image"
             class="img-fluid rounded-4 cursor-pointer"
+            @click="openLightbox(index + 1)"
             style="max-height: 200px; object-fit: cover"
           />
         </div>
+
+        <!-- Lightbox viewer -->
+        <vue-easy-lightbox
+          :visible="visible"
+          :imgs="car.images"
+          :index="currentIndex"
+          @hide="visible = false"
+        />
       </div>
 
-      <div class="row mt-5 mb-5">
+      <div class="row mt-5">
         <!-- Left column -->
         <div class="col-8">
           <!--  Name section -->
@@ -680,12 +762,6 @@ onMounted(async () => {
                 <i class="fa-solid fa-heart text-dark"></i>
               </button>
             </div>
-          </div>
-          <!-- badge section -->
-          <div>
-            <span class="badge text-bg-primary me-1 rounded-4 p-2">Primary</span>
-            <span class="badge text-bg-success me-1 rounded-4 p-2">Success</span>
-            <span class="badge text-bg-warning me-1 rounded-4 p-2">Warning</span>
           </div>
 
           <!-- default utility section -->
@@ -742,10 +818,83 @@ onMounted(async () => {
 
           <!-- addtional utility section -->
           <hr />
-          <div>
+          <div class="d-flex justify-content-between align-items-center">
             <h4>Các tiện nghi khác</h4>
+            <button
+              v-if="currentUser.id == car.ownerid"
+              class="btn btn-light"
+              data-bs-toggle="modal"
+              data-bs-target="#utilityModal"
+            >
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
           </div>
 
+          <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 text-center">
+            <div
+              v-for="utility in car.utilities"
+              :key="utility.id"
+              class="col d-flex align-items-center justify-content-start"
+            >
+              <span
+                class="me-2 d-flex align-items-center justify-content-center utility-icon text-primary"
+                v-html="utility.icon"
+              ></span>
+              <span class="text-dark">{{ utility.name }}</span>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="utilityModal"
+            tabindex="-1"
+            aria-labelledby="utilityModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="utilityModalLabel">Modal title</h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+
+                <div class="modal-body">
+                  <div v-for="utility in utilities" :key="utility.id" class="form-check mb-3">
+                    <input
+                      class="form-check-input me-2"
+                      type="checkbox"
+                      :id="'utility-' + utility.id"
+                      :checked="selectedUtilityIds.includes(utility.id ?? -1)"
+                      @change="toggleUtility(utility)"
+                    />
+                    <div class="d-flex align-items-center">
+                      <span
+                        class="utility-icon d-flex align-items-center justify-content-center"
+                        v-html="utility.icon"
+                      ></span>
+                      <label class="form-check-label" for="checkDefault">{{ utility.name }} </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Hủy
+                  </button>
+                  <button type="button" class="btn btn-primary" @click="saveUtilities">
+                    Lưu thay đổi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr />
           <!-- cancel trip -->
           <div class="mt-5">
             <h5 class="fw-bold mb-3">Chính sách huỷ chuyến</h5>
@@ -839,7 +988,7 @@ onMounted(async () => {
                   <p>
                     *Nhân viên GoGo sẽ liên hệ khách thuê (qua số điện thoại đã đăng ký trên GoGo)
                     để xin thông tin tài khoản ngân hàng, hoặc Khách thuê có thể chủ động gửi thông
-                    tin cho GoGo qua email contact@gogo.vn hoặc nhắn tin tại GoGo Fanpage
+                    tin cho GoGo qua email contact@gogo.vn hoặc nhắn tin tại GoGo Fanpage.
                   </p>
                 </div>
               </div>
@@ -1401,5 +1550,24 @@ pre {
 .star-rating:hover ~ .star-rating,
 .rating-input:checked ~ .star-rating {
   color: #f4bb47;
+}
+
+.utility-icon :deep(svg) {
+  width: 24px;
+  height: 24px;
+  display: block;
+  fill: currentColor;
+}
+
+.utility-icon {
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* prevents text-like offset */
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

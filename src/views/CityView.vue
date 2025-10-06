@@ -145,4 +145,19 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.card-title-city {
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+.card-text-city {
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+}
+.card-city {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.card-city:hover {
+  transform: scale(1.1);
+}
+</style>
