@@ -1,9 +1,9 @@
-export interface CarAvailability {
+export interface CarRequest {
   id: number
-  carId: number
-  userId: number
-  startTime: string
-  endTime: string
+  carid: number
+  userid: number
+  starttime: string
+  endtime: string
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

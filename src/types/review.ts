@@ -1,8 +1,8 @@
 export interface Review {
   id: number
   content: string
-  userId: number
-  carId: number
+  userid: number
+  carid: number
   star: number
   fullname: string
   avatar: string | null // nullable

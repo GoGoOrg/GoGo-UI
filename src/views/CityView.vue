@@ -73,7 +73,7 @@ const cars = ref<Partial<Car>[]>([
 
 async function onSearching(event: Event) {
   event.preventDefault()
-  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
+  const inputElement = document.getElementByid('search-input-main') as HTMLInputElement
   const query = inputElement.value.trim()
   if (query) {
     router.push({ name: 'search view', params: { name: query } })

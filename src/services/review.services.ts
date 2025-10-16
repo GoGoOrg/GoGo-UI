@@ -25,7 +25,7 @@ class ReviewService {
     }
   }
 
-  async getOneByCarId(id: number) {
+  async getOneByCarid(id: number) {
     try {
       const response = await this.api.get(`/reviews/car/${id}`)
       return response.data
@@ -34,9 +34,9 @@ class ReviewService {
     }
   }
 
-  async getOneByCarIdAndUserId(carId: number, userId: number) {
+  async getOneByCaridAndUserid(carid: number, userid: number) {
     try {
-      const response = await this.api.get(`/reviews/car/${carId}/user/${userId}`)
+      const response = await this.api.get(`/reviews/car/${carid}/user/${userid}`)
       return response.data
     } catch (err) {
       handlingError(err)

@@ -204,9 +204,14 @@ onMounted(async () => {
                 ><i class="fa-solid fa-gear"></i> Quản lý</a
               >
             </li>
-            <li v-if="currentUser.username != 'admin'">
+            <li v-if="currentUser.role == 'owner'">
               <a class="dropdown-item" href="http://localhost:5173/owner"
                 ><i class="fa-solid fa-list"></i> Quản lý xe</a
+              >
+            </li>
+            <li v-if="currentUser.role == 'member'">
+              <a class="dropdown-item" href="http://localhost:5173/member"
+                ><i class="fa-solid fa-list"></i> Quản lý đăng ký xe</a
               >
             </li>
             <li>
@@ -283,8 +288,6 @@ onMounted(async () => {
                 <div class="mb-3">
                   <label for="registerEmailInput" class="form-label">Email</label>
                   <input
-                    @keydown="preventSpecialChars"
-                    pattern="[A-Za-z0-9]*"
                     v-model="inputFormRegister.email"
                     type="email"
                     class="form-control"
@@ -334,14 +337,6 @@ onMounted(async () => {
                 </div>
 
                 <button
-                  :disabled="
-                    inputFormRegister.email.length == 0 ||
-                    inputFormRegister.username.length == 0 ||
-                    inputFormRegister.password.length == 0 ||
-                    inputFormRegister.phone.length == 0 ||
-                    inputFormRegister.fullName.length == 0 ||
-                    repeatPasswordRegister.length == 0
-                  "
                   type="submit"
                   class="btn btn-success w-100 fw-bold p-3"
                   data-bs-dismiss="modal"

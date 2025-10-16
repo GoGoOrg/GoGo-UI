@@ -145,7 +145,7 @@ async function addDataToModal(id: any) {
 
 async function onSearching(event: Event) {
   event.preventDefault()
-  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
+  const inputElement = document.getElementByid('search-input-main') as HTMLInputElement
   const query = inputElement.value.trim()
   if (query) {
     router.push({ name: 'search view', params: { name: query } })
@@ -264,11 +264,10 @@ onMounted(async () => {
     <div class="container py-5">
       <h2 class="text-center fw-bold mb-4">Địa Điểm Nổi Bật</h2>
       <div class="d-flex gap-3 justify-content-center">
-
-        <a :href="'/city/' + location.name"
+        <a
+          :href="'/city/' + location.name"
           v-for="location in featuredLocations"
           :key="location.name"
-
           class="card-city card position-relative text-white flex-shrink-0"
           style="min-width: 250px; border-radius: 20px; overflow: hidden"
         >

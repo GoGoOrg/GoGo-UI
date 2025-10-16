@@ -17,10 +17,15 @@ import type { CarouselConfig } from 'vue3-carousel'
 import type { User } from '@/types/users'
 import type { Review } from '@/types/review'
 import type { Utility } from '@/types/utility'
+import type { CarRequest } from '@/types/carRequest'
 
 import reviewServices from '@/services/review.services'
 import cityServices from '@/services/city.services'
 import brandServices from '@/services/brand.services'
+
+import Swal from 'sweetalert2'
+import carUtilityServices from '@/services/carUtility.services'
+import carRequestServices from '@/services/carRequest.services'
 
 const router = useRouter()
 const route = useRoute()
@@ -30,10 +35,12 @@ const starNum = ref<number | null>(null)
 const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
 const selectedOption = ref('pickup')
 
-import Swal from 'sweetalert2'
-import carUtilityServices from '@/services/carUtility.services'
 
-const dateRange = ref<[Date, Date]>([new Date(), new Date()])
+const dateRange = ref<[Date, Date]>([
+  new Date(),
+  new Date(Date.now() + 24 * 60 * 60 * 1000), // +1 day
+])
+
 const updateCar = reactive<Partial<Car>>({
   name: '',
   licenseplate: '',
@@ -50,6 +57,8 @@ const updateCar = reactive<Partial<Car>>({
   insurance: 1,
   images: [] as string[],
 })
+const currentCarRequests = ref<CarRequest[]>([])
+
 const brands = ref<Brand[]>([
   {
     id: 0,
@@ -69,11 +78,6 @@ const cities = ref<City[]>([
     deletedat: null,
   },
 ])
-const disableDates = (date: Date) => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  return date < today
-}
 
 const fees = [
   {
@@ -133,7 +137,7 @@ const cars = reactive<Partial<Car>[]>([])
 const reviews = reactive<Partial<Review>[]>([])
 
 const utilities = reactive<Partial<Utility>[]>([])
-const selectedUtilityIds = computed<number[]>(() => (car.utilities ?? []).map((u) => u.id ?? 0))
+const selectedUtilityids = computed<number[]>(() => (car.utilities ?? []).map((u) => u.id ?? 0))
 
 const inputReviewContent = ref('')
 const car = reactive<Partial<Car>>({
@@ -188,7 +192,7 @@ async function modifyReview(e: Event) {
     }
 
     // Find if current user already reviewed this car
-    const existingReview = reviews.find((r) => r.userId === currentUser.id)
+    const existingReview = reviews.find((r) => r.userid === currentUser.id)
 
     if (existingReview) {
       await reviewServices.update(existingReview.id ?? 0, {
@@ -197,8 +201,8 @@ async function modifyReview(e: Event) {
       })
     } else {
       await reviewServices.create({
-        carId: car.id,
-        userId: currentUser.id,
+        carid: car.id,
+        userid: currentUser.id,
         content: inputReviewContent.value,
         star: starNum.value,
       })
@@ -228,12 +232,12 @@ async function initReviewVariable() {
   starNum.value = 0
 
   // Get existing review for this car by the current user
-  const respReview = await reviewServices.getOneByCarIdAndUserId(car.id ?? 0, currentUser.id ?? 0)
+  const respReview = await reviewServices.getOneByCaridAndUserid(car.id ?? 0, currentUser.id ?? 0)
   let review = respReview.data.review?.[0] ?? {
     id: 0,
     content: '',
-    userId: currentUser.id ?? 0,
-    carId: car.id ?? 0,
+    userid: currentUser.id ?? 0,
+    carid: car.id ?? 0,
     star: 0,
     createdat: '',
     updatedat: '',
@@ -295,7 +299,6 @@ async function updateCarProcess(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    console.log(updateCar)
     await carServices.create(updateCar)
 
     Swal.fire({
@@ -321,12 +324,12 @@ async function saveUtilities() {
     if (!car.id) throw new Error('Car ID không hợp lệ')
 
     // Extract only valid numeric IDs
-    const selectedIds = (car.utilities ?? [])
+    const selectedids = (car.utilities ?? [])
       .map((u) => u.id)
       .filter((id): id is number => typeof id === 'number')
 
     // Call backend (delete + insert)
-    await carUtilityServices.update(car.id, selectedIds)
+    await carUtilityServices.update(car.id, selectedids)
 
     Swal.fire({
       title: 'Thành công!',
@@ -347,6 +350,88 @@ async function saveUtilities() {
   }
 }
 
+async function requestRent() {
+  try {
+    const start = new Date(dateRange.value[0])
+    start.setHours(0, 0, 0, 0)
+
+    const end = new Date(dateRange.value[1])
+    end.setHours(0, 0, 0, 0)
+
+    await carRequestServices.create({
+      carid: car.id ?? 0,
+      userid: currentUser.id ?? 0,
+      starttime: start.toISOString().split('T')[0] + ' 00:00:00',
+      endtime: end.toISOString().split('T')[0] + ' 00:00:00',
+    })
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Yêu cầu thuê đã được gửi!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    console.error('Error saving request:', error)
+    Swal.fire({
+      title: 'Thất bại!',
+      text: 'Gửi yêu cầu thất bại!',
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  }
+}
+const disabledDates = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const requests = currentCarRequests.value
+
+  if (!requests || requests.length === 0) {
+    return (date: Date) => {
+      const checkDate = new Date(date)
+      checkDate.setHours(0, 0, 0, 0)
+      return checkDate < today
+    }
+  }
+
+  // Prepare disabled date ranges
+  const ranges = requests
+    .filter((req) => req.starttime && req.endtime)
+    .map((req) => {
+      const start = new Date(req.starttime.replace(' ', 'T'))
+      const end = new Date(req.endtime.replace(' ', 'T'))
+      const accept = req.accept
+      const deny = req.deny
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return null
+      }
+
+      start.setHours(0, 0, 0, 0)
+      end.setHours(23, 59, 59, 999)
+
+      return { start, end, accept, deny }
+    })
+    .filter(Boolean) as { start: Date; end: Date; accept: Boolean; deny: Boolean }[]
+
+  return (date: Date) => {
+    const checkDate = new Date(date)
+    checkDate.setHours(0, 0, 0, 0)
+
+    if (checkDate < today) return true
+
+    const isInRange = ranges.some((r) => {
+      const result = checkDate >= r.start && checkDate <= r.end && r.deny == false
+      return result
+    })
+
+    return isInRange
+  }
+})
+
 onMounted(async () => {
   try {
     id.value = Number(route.params.id)
@@ -360,11 +445,14 @@ onMounted(async () => {
     const respUser = await usersServices.getMe()
     Object.assign(currentUser, respUser.data.user)
 
-    const respReviews = await reviewServices.getOneByCarId(car.id ?? 0)
+    const respReviews = await reviewServices.getOneByCarid(car.id ?? 0)
     reviews.splice(0, reviews.length, ...respReviews.data.reviews)
 
     const respUtilities = await utilityServices.getAll()
     utilities.splice(0, utilities.length, ...respUtilities.data.utilities)
+
+    const respCarRequests = await carRequestServices.getAllByCarid(id.value)
+    currentCarRequests.value = respCarRequests.data.carrequests
 
     utilities.forEach((u) => {
       if (u.icon) {
@@ -869,7 +957,7 @@ function toggleUtility(u: Partial<Utility>) {
                       class="form-check-input me-2"
                       type="checkbox"
                       :id="'utility-' + utility.id"
-                      :checked="selectedUtilityIds.includes(utility.id ?? -1)"
+                      :checked="selectedUtilityids.includes(utility.id ?? -1)"
                       @change="toggleUtility(utility)"
                     />
                     <div class="d-flex align-items-center">
@@ -1172,6 +1260,7 @@ function toggleUtility(u: Partial<Utility>) {
                 src="https://placehold.co/80x80"
                 alt=""
                 class="img-fluid rounded-circle me-2"
+                style="height: 80px; width: 80px; border-radius: 50%"
               />
               <div class="d-flex flex-column align-items-start mb-2 w-100">
                 <div class="fw-bold me-3">{{ currentUser.fullname }}</div>
@@ -1343,8 +1432,9 @@ function toggleUtility(u: Partial<Utility>) {
             <div v-if="currentUser.id != 0">
               <Datepicker
                 v-model="dateRange"
+                :enable-time-picker="false"
+                :disabled-dates="disabledDates"
                 range
-                :disabled-dates="disableDates"
                 placeholder="Chọn ngày bắt đầu và kết thúc"
               />
 
@@ -1366,6 +1456,7 @@ function toggleUtility(u: Partial<Utility>) {
                 "
                 type="button"
                 class="btn btn-success text-uppercase fw-bold p-3 w-100"
+                @click="requestRent"
               >
                 Chọn thuê
               </button>

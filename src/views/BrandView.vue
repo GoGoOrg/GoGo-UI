@@ -57,7 +57,7 @@ const cars = ref<Partial<Car>[]>([
 
 async function onSearching(event: Event) {
   event.preventDefault()
-  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
+  const inputElement = document.getElementByid('search-input-main') as HTMLInputElement
   const query = inputElement.value.trim()
   if (query) {
     router.push({ name: 'search view', params: { name: query } })
@@ -70,7 +70,7 @@ onMounted(async () => {
     let respBrand = await brandServices.getOne(id.value)
     brand.value = respBrand.data.brand[0]
 
-    let respCar = await carServices.getAllByBrandId(id.value)
+    let respCar = await carServices.getAllByBrandid(id.value)
     cars.value = respCar.data.cars
   } catch (error) {
     console.log(error)

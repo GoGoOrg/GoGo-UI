@@ -1,7 +1,7 @@
 export interface Booking {
   id: number
-  userId: number
-  carId: number
+  userid: number
+  carid: number
   status: string
   startDate: string
   endDate: string

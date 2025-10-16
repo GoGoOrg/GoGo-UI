@@ -1,7 +1,7 @@
 export interface CarTag {
   id: number
-  carId: number
-  tagId: number
+  carid: number
+  tagid: number
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

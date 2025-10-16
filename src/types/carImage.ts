@@ -1,6 +1,6 @@
 export interface CarImage {
   id: number
-  carId: number
+  carid: number
   imageUrl: string
   isPrimary: boolean
   createdat: string // or Date

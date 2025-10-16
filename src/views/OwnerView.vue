@@ -193,7 +193,7 @@ onMounted(async () => {
     const respUser = await usersServices.getMe()
 
     Object.assign(currentUser, respUser.data.user)
-    // if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
+    // if (currentUser.value.role !== 'admin' || currentUser.value.accountid === 0) {
     //   await Swal.fire({
     //     title: 'Không có quyền!',
     //     text: 'Vui lòng đăng nhập dưới vai trò admin để xem thông tin',
@@ -205,8 +205,10 @@ onMounted(async () => {
     // }
 
     // Load car data
-    const respCars = await carServices.getAllByOwnerId(currentUser.id) // TODO
+    const respCars = await carServices.getAllByOwnerid(currentUser.id) // TODO
     cars.value = respCars.data.cars
+
+    console.log(cars.value)
 
     const respCities = await cityServices.getAll()
     cities.value = respCities.data.citys
@@ -244,7 +246,7 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-for="(car, index) in cars" :key="car.id" >
+    <div v-for="(car, index) in cars" :key="car.id">
       <h3>{{ index + 1 }}. {{ car.name }}</h3>
       <OwnerCardComponent :car="car" />
     </div>

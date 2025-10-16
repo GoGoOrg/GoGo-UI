@@ -1,7 +1,7 @@
 export interface CarPromotion {
   id: number
-  carId: number
-  promotionId: number
+  carid: number
+  promotionid: number
   createdat: string // or Date
   updatedat: string // or Date
   deletedat: string | null // nullable

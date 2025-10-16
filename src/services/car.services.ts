@@ -33,7 +33,7 @@ class CarService {
       return response.data
     } catch (err) {
       handlingError(err)
-    } 
+    }
   }
 
   async searchByCityName(name: string) {
@@ -42,10 +42,10 @@ class CarService {
       return response.data
     } catch (err) {
       handlingError(err)
-    } 
+    }
   }
 
-  async getAllByOwnerId(id: number) {
+  async getAllByOwnerid(id: number) {
     try {
       const response = await this.api.get(`/cars/owner/${id}`, {
         withCredentials: true,
@@ -55,7 +55,7 @@ class CarService {
       handlingError(err)
     }
   }
-  async getAllByBrandId(id: number) {
+  async getAllByBrandid(id: number) {
     try {
       const response = await this.api.get(`/cars/brand/${id}`)
       return response.data

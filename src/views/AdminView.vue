@@ -31,7 +31,7 @@ const toBase64 = (file: File): Promise<string | ArrayBuffer | null> =>
 
 // Admin user data
 const currentUser = ref({
-  accountId: 0,
+  accountid: 0,
   username: '',
   password: '',
   email: '',
@@ -118,7 +118,7 @@ onMounted(async () => {
     const respUsers = await usersServices.getAll()
     users.splice(0, users.length, ...respUsers.data.users)
 
-    if (currentUser.value.role !== 'admin' || currentUser.value.accountId === 0) {
+    if (currentUser.value.role !== 'admin' || currentUser.value.accountid === 0) {
       await Swal.fire({
         title: 'Không có quyền!',
         text: 'Vui lòng đăng nhập dưới vai trò admin để xem thông tin',
@@ -1489,7 +1489,7 @@ onMounted(async () => {
                 <tbody>
                   <tr>
                     <td>order.created_at.slice(0, 10)</td>
-                    <td>order.orderId</td>
+                    <td>order.orderid</td>
                     <td>order.accountName</td>
                     <td>
                       order.totalPrice.toLocaleString("it-IT", { style: "currency", currency: "VND",
@@ -1747,7 +1747,7 @@ onMounted(async () => {
                 <tbody>
                   <tr>
                     <td>order.created_at.slice(0, 10)</td>
-                    <td>order.orderId</td>
+                    <td>order.orderid</td>
                     <td>order.accountName</td>
                     <td>
                       order.totalPrice.toLocaleString("it-IT", { style: "currency", currency: "VND",
