@@ -9,4 +9,10 @@ export interface CarRequest {
   deletedat: string | null // nullable
   accept: boolean
   deny: boolean
+  fullname: string
+  username: string
+  email: string
+  phone: string
+  avatar: string
+  about: string
 }

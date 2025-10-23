@@ -145,7 +145,7 @@ async function addDataToModal(id: any) {
 
 async function onSearching(event: Event) {
   event.preventDefault()
-  const inputElement = document.getElementByid('search-input-main') as HTMLInputElement
+  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
   const query = inputElement.value.trim()
   if (query) {
     router.push({ name: 'search view', params: { name: query } })
@@ -156,6 +156,8 @@ onMounted(async () => {
   try {
     let respCars = await carServices.getAll()
     cars.value = respCars.data.cars
+
+    
   } catch (error) {}
 })
 </script>
@@ -254,7 +256,7 @@ onMounted(async () => {
     </div>
 
     <div class="mt-5 pb-5 pt-5 text-center w-100" style="background-color: #f6f6f6">
-      <h1 class="display-6 fw-bold m-5">Xe Dành Cho Bạn</h1>
+      <h1 class="display-6 fw-bold">Xe Dành Cho Bạn</h1>
 
       <div class="d-flex flex-wrap justify-content-center">
         <CarCardComponent v-for="car in cars" :car="car"></CarCardComponent>
