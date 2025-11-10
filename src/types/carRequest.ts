@@ -15,4 +15,7 @@ export interface CarRequest {
   phone: string
   avatar: string
   about: string
+  price: number
+  totalprice: number
+  carname: string
 }

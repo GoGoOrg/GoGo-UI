@@ -16,6 +16,15 @@ class CarService {
     }
   }
 
+    async getTopHireCars() {
+    try {
+      const response = await this.api.get('/cars/carrequest/1')
+      return response.data
+    } catch (err) {
+      handlingError(err)
+    }
+  }
+
   async getMyCar(id: number) {
     try {
       const response = await this.api.get(`/cars/mycars`, {

@@ -151,7 +151,7 @@ onMounted(async () => {
       <div class="p-3 fw-bold">
         <RouterLink class="text-decoration-none text-black" to="/about">Về GoGo</RouterLink>
       </div>
-      <div class="p-3 fw-bold">
+      <div class="p-3 fw-bold" v-if="currentUser.role != 'owner'">
         <RouterLink class="text-decoration-none text-black" to="/owner/register"
           >Trở thành chủ xe</RouterLink
         >

@@ -3,6 +3,7 @@ export interface Review {
   content: string
   userid: number
   carid: number
+  carname: string
   star: number
   fullname: string
   avatar: string | null // nullable

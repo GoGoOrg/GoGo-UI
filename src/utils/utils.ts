@@ -24,3 +24,4 @@ export function preventSpecialChars(event: KeyboardEvent) {
     event.preventDefault()
   }
 }
+

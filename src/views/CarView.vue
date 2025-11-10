@@ -358,11 +358,18 @@ async function requestRent() {
     const end = new Date(dateRange.value[1])
     end.setHours(0, 0, 0, 0)
 
+    const price = (car.price ?? 0 ) + 96050;
+    const totalDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    const totalPrice = totalDays * price
+
+
     await carRequestServices.create({
       carid: car.id ?? 0,
       userid: currentUser.id ?? 0,
       starttime: start.toISOString().split('T')[0] + ' 00:00:00',
       endtime: end.toISOString().split('T')[0] + ' 00:00:00',
+      price: price,
+      totalprice: totalPrice
     })
 
     Swal.fire({

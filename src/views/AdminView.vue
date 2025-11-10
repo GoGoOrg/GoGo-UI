@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
-
 import { Chart, Grid, Line } from 'vue3-charts'
+import { calculateTimeElapse } from '@/utils/utils'
+
 import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
+import reviewServices from '@/services/review.services'
 
 import type { Car } from '@/types/car'
 import type { User } from '@/types/users'
+import type { Review } from '@/types/review'
+import type { CarRequest } from '@/types/carRequest'
+
+import carRequestServices from '@/services/carRequest.services'
+
 const router = useRouter()
 const cookies = useCookies()
 const token = cookies.cookies.get('Admin Token')
@@ -47,37 +54,11 @@ const currentUser = ref({
 
 const users = reactive<Partial<User[]>>([])
 const cars = reactive<Partial<Car>[]>([])
-
+const topHireCars = reactive<Partial<Car>[]>([])
 // Example car data
-const car = ref<Partial<Car>>({
-  id: 0,
-  name: '',
-  licenseplate: '',
-  description: '',
-  regulation: '',
-  color: '',
-  seats: 0,
-  price: 0,
-  ownerid: 0,
-  brandid: 0,
-  cityid: 0,
-  transmissiontypeid: 0,
-  fueltypeid: 0,
-  totalride: 0,
-  totalheart: 0,
-  mortage: 0,
-  insurance: 0,
-  starnumber: 0,
-  avgrating: 0,
-  reviewcount: 0,
-  priceperday: 0,
-  discountvalue: 0,
-  discounttype: '',
-  createdat: '',
-  updatedat: '',
-  deletedat: null,
-})
-
+const car = ref<Partial<Car>>({})
+const carRequests = ref<CarRequest[]>([])
+const reviews = ref<Review[]>([])
 const newCar = ref({
   name: '',
   type: '',
@@ -104,6 +85,63 @@ const newCar = ref({
   discountvalue: 0,
   discounttype: '',
 })
+
+const countTotalSaleToday = ref(0)
+const countTotalPriceToday = ref(0)
+const countTotalPrice = ref(0)
+const doneCalculate = ref(false)
+const startDate = ref('2025-11-06')
+const endDate = ref('2025-11-06')
+
+const filteredHires = computed(() => {
+  return carRequests.value.filter((carrequest: any) => {
+    const nextDay = new Date(endDate.value)
+    nextDay.setDate(nextDay.getDate() + 1) // Add one day to endDate
+    return carrequest.createdat >= startDate.value && carrequest.createdat < nextDay.toISOString()
+  })
+})
+
+const totalRevenue = computed(() => {
+  return filteredHires.value.reduce((sum, carRequest: any) => {
+    return sum + (carRequest.accept == true ? carRequest.totalprice : 0)
+  }, 0)
+})
+
+function countToday() {
+  const currentDate = new Date().toISOString().split('T')[0]
+
+  for (let i = 0; i < carRequests.value.length; i++) {
+    if (carRequests.value[i].createdat.slice(0, 10) == currentDate) {
+      countTotalSaleToday.value += 1
+      if (carRequests.value[i].accept == true)
+        countTotalPriceToday.value += carRequests.value[i].totalprice
+    }
+  }
+}
+
+const maxReview = ref(0)
+const fiveStar = ref(0)
+const fourStar = ref(0)
+const threeStar = ref(0)
+const twoStar = ref(0)
+const oneStar = ref(0)
+
+function calculateReview() {
+  reviews.value.forEach((r) => {
+    if (r.star == 5) fiveStar.value += 1
+    if (r.star == 4) fourStar.value += 1
+    if (r.star == 3) threeStar.value += 1
+    if (r.star == 2) twoStar.value += 1
+    if (r.star == 1) oneStar.value += 1
+  })
+  maxReview.value = Math.max(
+    fiveStar.value,
+    fourStar.value,
+    threeStar.value,
+    twoStar.value,
+    oneStar.value,
+  )
+}
 
 onMounted(async () => {
   try {
@@ -132,6 +170,32 @@ onMounted(async () => {
     // Load car data
     const respCars = await carServices.getAll()
     cars.splice(0, cars.length, ...respCars.data.cars)
+
+    const respTopHireCars = await carServices.getTopHireCars()
+    topHireCars.splice(0, topHireCars.length, ...respTopHireCars.data.cars)
+
+    const respCarRequests = await carRequestServices.getAll()
+    carRequests.value = respCarRequests.data.carrequests
+
+    console.log(carRequests.value)
+
+    let respReviews = await reviewServices.getAll()
+    reviews.value = respReviews.data.reviews
+
+    calculateReview()
+
+    countToday()
+    for (let i = 0; i < carRequests.value.length; i++) {
+      plByMonth.value[Number(carRequests.value[i].createdat.slice(5, 7)) - 1].pl += 1
+
+      if (carRequests.value[i].accept == true) {
+        plByMoney.value[Number(carRequests.value[i].createdat.slice(5, 7)) - 1].pl +=
+          carRequests.value[i].totalprice
+
+        countTotalPrice.value += carRequests.value[i].totalprice
+      }
+    }
+    doneCalculate.value = true
   } catch (error) {
     console.error(error)
   }
@@ -147,6 +211,16 @@ onMounted(async () => {
             <a
               href="#"
               class="list-group-item list-group-item-action py-2 ripple active"
+              aria-current="true"
+              data-bs-toggle="tab"
+              data-bs-target="#metric"
+            >
+              <i class="fas fa-chart-line fa-fw me-3"></i>
+              <span>Thống kê</span>
+            </a>
+            <a
+              href="#"
+              class="list-group-item list-group-item-action py-2 ripple"
               aria-current="false"
               data-bs-toggle="tab"
               data-bs-target="#order"
@@ -156,16 +230,6 @@ onMounted(async () => {
               <span>Lượt thuê</span>
             </a>
 
-            <a
-              href="#"
-              class="list-group-item list-group-item-action py-2 ripple"
-              aria-current="true"
-              data-bs-toggle="tab"
-              data-bs-target="#metric"
-            >
-              <i class="fas fa-chart-line fa-fw me-3"></i>
-              <span>Thống kê</span>
-            </a>
             <a
               href="#"
               class="list-group-item list-group-item-action py-2 ripple"
@@ -181,7 +245,7 @@ onMounted(async () => {
                 </div>
               </div>
             </a>
-            <a
+            <!-- <a
               href="#"
               class="list-group-item list-group-item-action py-2 ripple"
               aria-current="false"
@@ -195,7 +259,7 @@ onMounted(async () => {
                   <span>Dữ liệu danh mục</span>
                 </div>
               </div>
-            </a>
+            </a> -->
 
             <a
               href="#"
@@ -215,7 +279,7 @@ onMounted(async () => {
       <div class="tab-content" id="v-pills-tabContent">
         <!-- Statistics Overview Tab -->
         <div
-          class="tab-pane fade mt-4"
+          class="tab-pane fade show active mt-4"
           id="metric"
           role="tabpanel"
           aria-labelledby="metric-tab"
@@ -231,14 +295,14 @@ onMounted(async () => {
                 <div
                   class="bg-light w-50 me-4 p-4 d-flex align-items-center justify-content-between"
                 >
-                  <i class="fa-solid fa-users fa-3x" style="color: #fbbfc0"></i>
+                  <i class="fa-solid fa-users fa-3x" style="color: #5fcf86"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng người dùng</p>
                     <h6 class="mb-0 text-end">{{ users.length }}</h6>
                   </div>
                 </div>
                 <div class="bg-light w-50 p-4 d-flex align-items-center justify-content-between">
-                  <i class="fa-brands fa-product-hunt fa-3x" style="color: #fbbfc0"></i>
+                  <i class="fa-brands fa-product-hunt fa-3x" style="color: #5fcf86"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng xe</p>
                     <h6 class="mb-0 text-end">{{ cars.length }}</h6>
@@ -250,19 +314,23 @@ onMounted(async () => {
                 <div
                   class="bg-light w-50 me-4 p-4 d-flex align-items-center justify-content-between"
                 >
-                  <i class="fa fa-chart-bar fa-3x" style="color: #fbbfc0"></i>
+                  <i class="fa fa-chart-bar fa-3x" style="color: #5fcf86"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Tổng lượt thuê</p>
-                    <h6 class="mb-0 text-end">orders.length</h6>
+                    <h6 class="mb-0 text-end">{{ carRequests.length }}</h6>
                   </div>
                 </div>
                 <div class="bg-light w-50 p-4 d-flex align-items-center justify-content-between">
-                  <i class="fa fa-chart-pie fa-3x" style="color: #fbbfc0"></i>
+                  <i class="fa fa-chart-pie fa-3x" style="color: #5fcf86"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Tổng doanh thu</p>
                     <h6 class="mb-0 text-end">
-                      countTotalPrice.toLocaleString("it-IT", { style: "currency", currency: "VND"
-                      })
+                      {{
+                        (countTotalPrice ?? 0).toLocaleString('it-IT', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })
+                      }}
                     </h6>
                   </div>
                 </div>
@@ -275,10 +343,11 @@ onMounted(async () => {
                     <div class="d-flex align-items-center justify-content-between mb-4">
                       <h6 class="mb-0">Thống kê lượt thuê</h6>
                     </div>
-                    <div id="worldwide-sales">
+                    <div id="worldwide-sales" v-if="doneCalculate">
                       <Chart
                         :size="{ width: 500, height: 400 }"
                         :margin="{ left: 0, top: 20, right: 0, bottom: 0 }"
+                        :data="plByMonth"
                         direction="horizontal"
                       >
                         <template #layers>
@@ -295,10 +364,11 @@ onMounted(async () => {
                     <div class="d-flex align-items-center justify-content-between mb-4">
                       <h6 class="mb-0">Thống kê doanh thu</h6>
                     </div>
-                    <div id="sales-revenue">
+                    <div id="sales-revenue" v-if="doneCalculate">
                       <Chart
                         :size="{ width: 500, height: 400 }"
                         :margin="{ left: 0, top: 20, right: 0, bottom: 0 }"
+                        :data="plByMoney"
                         direction="horizontal"
                       >
                         <template #layers>
@@ -321,14 +391,31 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="p-4 mt-3 text-" style="background-color: #fbbfc0">
+              <div class="p-4 mt-3 text-white" style="background-color: #5fcf86">
                 <h6>Xe được thuê nhiều nhất</h6>
                 <div class="d-flex justify-content-between">
                   <div class="fw-bold">
-                    <div class="text-uppercase"></div>
-                    <a class="fw-bold text-dark" :href="'http://localhost:5173/products/'"> </a>
+                    <a
+                      :href="'http://localhost:5173/car' + topHireCars[0]?.id"
+                      class="text-decoration-underline text-white"
+                    >
+                      <div class="text-uppercase">{{ topHireCars[0]?.name }}</div>
+                    </a>
+                    <a class="fw-bold text-dark" :href="'http://localhost:5173/car/'"> </a>
                   </div>
-                  <div class="fw-bold">Lượt thuê:</div>
+
+                  <div class="d-flex flex-column">
+                    <div class="fw-bold">Lượt thuê: {{ topHireCars[0]?.totalrequests }}</div>
+                    <div class="fw-bold">
+                      Tổng doanh thu:
+                      {{
+                        (topHireCars[0]?.totalincome ?? 0).toLocaleString('it-IT', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })
+                      }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -340,29 +427,33 @@ onMounted(async () => {
             <div class="container-fluid">
               <div class="row g-4">
                 <div class="d-flex">
-                  <input type="date" class="form-control me-4" />
-                  <input type="date" class="form-control" />
+                  <input type="date" class="form-control me-4" v-model="startDate" />
+                  <input type="date" class="form-control" v-model="endDate" />
                 </div>
                 <div class="">
                   <div class="d-flex">
                     <div
                       class="bg-light w-50 me-4 p-4 d-flex align-items-center justify-content-between"
                     >
-                      <i class="fa fa-chart-bar fa-3x" style="color: #fbbfc0"></i>
+                      <i class="fa fa-chart-bar fa-3x" style="color: #5fcf86"></i>
                       <div class="ms-3">
                         <p class="mb-2">Tổng lượt thuê trong khoảng thời gian</p>
-                        <h6 class="mb-0 text-end">filteredOrders.length</h6>
+                        <h6 class="mb-0 text-end">{{ filteredHires.length }}</h6>
                       </div>
                     </div>
                     <div
                       class="bg-light w-50 p-4 d-flex align-items-center justify-content-between"
                     >
-                      <i class="fa fa-chart-pie fa-3x" style="color: #fbbfc0"></i>
+                      <i class="fa fa-chart-pie fa-3x" style="color: #5fcf86"></i>
                       <div class="ms-3">
                         <p class="mb-2">Tổng doanh thu trong khoảng thời gian</p>
                         <h6 class="mb-0 text-end">
-                          totalRevenue.toLocaleString("it-IT", { style: "currency", currency: "VND",
-                          })
+                          {{
+                            totalRevenue.toLocaleString('it-IT', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })
+                          }}
                         </h6>
                       </div>
                     </div>
@@ -397,9 +488,9 @@ onMounted(async () => {
                             aria-valuenow="5"
                             aria-valuemin="0"
                             aria-valuemax="5"
-                            :style="`width: ${0}%`"
+                            :style="`width: ${(fiveStar * 100) / maxReview}%`"
                           >
-                            fiveStar
+                            {{ fiveStar }}
                           </div>
                         </div>
                       </div>
@@ -421,9 +512,9 @@ onMounted(async () => {
                             aria-valuenow="4"
                             aria-valuemin="0"
                             aria-valuemax="5"
-                            :style="`width: %`"
+                            :style="`width: ${(fourStar * 100) / maxReview}%`"
                           >
-                            fourStar
+                            {{ fourStar }}
                           </div>
                         </div>
                       </div>
@@ -444,9 +535,9 @@ onMounted(async () => {
                             aria-valuenow="3"
                             aria-valuemin="0"
                             aria-valuemax="5"
-                            :style="`width: %`"
+                            :style="`width: ${(threeStar * 100) / maxReview}%`"
                           >
-                            threeStar
+                            {{ threeStar }}
                           </div>
                         </div>
                       </div>
@@ -466,9 +557,9 @@ onMounted(async () => {
                             aria-valuenow="2"
                             aria-valuemin="0"
                             aria-valuemax="5"
-                            :style="`width: %`"
+                            :style="`width: ${(twoStar * 100) / maxReview}%`"
                           >
-                            twoStar
+                            {{ twoStar }}
                           </div>
                         </div>
                       </div>
@@ -487,20 +578,28 @@ onMounted(async () => {
                             aria-valuenow="1"
                             aria-valuemin="0"
                             aria-valuemax="5"
-                            :style="`width: ${0}%`"
+                            :style="`width: ${(oneStar * 100) / maxReview}%`"
                           >
-                            oneStar
+                            {{ oneStar }}
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="d-flex align-items-center border-bottom py-3">
+
+                    <div
+                      v-for="review in reviews"
+                      :key="review.id"
+                      class="d-flex align-items-center border-bottom py-3"
+                    >
                       <img
+                        v-if="review.avatar != '' && review.avatar != null"
                         class="rounded-circle flex-shrink-0"
                         alt=""
+                        :src="review.avatar"
                         style="width: 60px; height: 60px"
                       />
                       <img
+                        v-else
                         src="https://placehold.co/60x60"
                         class="rounded-circle flex-shrink-0"
                         alt=""
@@ -508,17 +607,26 @@ onMounted(async () => {
                       <div class="ms-3" style="width: 90%">
                         <div class="d-flex w-100 justify-content-between">
                           <h6 class="mb-0 w-75">
-                            review.name đã đánh giá
-                            <a :href="'http://localhost:5173/products/'"> review.productName </a>
+                            {{ review.fullname }} đã đánh giá
+                            <a :href="'http://localhost:5173/car/' + review.carid">{{
+                              review.carname
+                            }}</a>
                           </h6>
                           <div class="d-flex flex-column justify-content-end text-end">
-                            <small> calculateTimeElapse(review.created_at) </small>
+                            <small>{{ calculateTimeElapse(review.createdat) }}</small>
                             <div>
-                              <i class="fas fa-star d-inline-block" style="color: #f4bb47"></i>
+                              <i
+                                v-for="index in review.star"
+                                :key="index"
+                                class="fas fa-star d-inline-block"
+                                style="color: #f4bb47"
+                              ></i>
                             </div>
                           </div>
                         </div>
-                        <span style="display: block" class="text-truncate"> review.content </span>
+                        <span style="display: block" class="text-truncate">{{
+                          review.content
+                        }}</span>
                       </div>
                     </div>
                   </div>
@@ -655,7 +763,7 @@ onMounted(async () => {
           <div class="w-100 align-content-end text-end mb-2">
             <button
               class="btn btn-light text-white fw-bold p-3"
-              style="background-color: #fbbfc0; border-radius: 50px"
+              style="background-color: #5fcf86; border-radius: 50px"
               data-bs-toggle="modal"
               data-bs-target="#addProductModal"
             >
@@ -1309,7 +1417,7 @@ onMounted(async () => {
                       <img
                         v-if="user?.avatar != null && user?.avatar != ''"
                         :src="user?.avatar"
-                        class="rounded-circle me-2 img-thumbnail"
+                        class="rounded-circle me-3 mb-5"
                         style="height: 60px; width: 60px; border-radius: 50%; object-fit: cover"
                         alt="Profile Image"
                       />
@@ -1324,7 +1432,7 @@ onMounted(async () => {
                     <td>{{ user?.email }}</td>
                     <td v-if="user?.role == 'admin'">Admin</td>
                     <td v-if="user?.role == 'owner'">Chủ xe</td>
-                    <td v-if="user?.role == 'user'">Người dùng</td>
+                    <td v-if="user?.role == 'member'">Người dùng</td>
                   </tr>
                 </tbody>
               </table>
@@ -1333,14 +1441,14 @@ onMounted(async () => {
         </div>
 
         <div
-          class="bg-light rounded tab-pane fade show active mt-4"
+          class="bg-light rounded tab-pane fade mt-4"
           id="order"
           role="tabpanel"
           aria-labelledby="order-tab"
           style="width: 80vw"
         >
-          <h2 class="ms-4 pt-4">Danh sách thuê xe</h2>
-          <div class="container justify-content-center align-items-center">
+          <h2 class="ms-4 pt-4">Danh sách các yêu cầu thuê xe</h2>
+          <!-- <div class="container justify-content-center align-items-center">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
               <li class="nav-item" role="presentation">
                 <button
@@ -1450,22 +1558,21 @@ onMounted(async () => {
               </li>
             </ul>
             <div class="tab-content" id="myTabContent"></div>
-          </div>
+          </div> -->
 
-          <h4 class="ms-4 pt-4">Đơn chưa duyệt</h4>
           <div class="bg-light text-center rounded ps-4 pe-4 pb-4">
             <div class="table-responsive">
               <table class="table text-start align-middle table-bordered table-hover mb-0">
                 <thead>
                   <tr class="text-dark">
                     <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Ngày đặt
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Mã lượt thuê
+                      Ngày yêu cầu
                     </th>
                     <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
                       Khách hàng
+                    </th>
+                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+                      Xe
                     </th>
                     <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
                       Tổng tiền
@@ -1473,35 +1580,34 @@ onMounted(async () => {
                     <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
                       Trạng thái
                     </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Tình trạng
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Phương thức thanh toán
-                    </th>
-                    <th
-                      style="vertical-align: middle"
-                      class="fw-bold text-uppercase width: 10%;"
-                      scope="col"
-                    ></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>order.created_at.slice(0, 10)</td>
-                    <td>order.orderid</td>
-                    <td>order.accountName</td>
+                  <tr v-for="carRequest in carRequests" :key="carRequest.id">
+                    <td>{{ carRequest.createdat.slice(0, 10) }}</td>
+                    <td>{{ carRequest.fullname }}</td>
                     <td>
-                      order.totalPrice.toLocaleString("it-IT", { style: "currency", currency: "VND",
-                      })
+                      <a :href="'http://localhost:5173/car/' + carRequest.carid">
+                        {{ carRequest.carname }}
+                      </a>
                     </td>
-                    <td class="text-danger">Chưa thanh toán</td>
-                    <td class="text-success">Đã thanh toán</td>
-                    <td class="text-danger">Đã hủy</td>
-                    <td>Đã duyệt</td>
-                    <td>Chưa duyệt</td>
-                    <td>order.paymentType</td>
                     <td>
+                      {{
+                        carRequest.totalprice.toLocaleString('it-IT', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })
+                      }}
+                    </td>
+                    <td v-if="carRequest.accept == true" class="text-success">Đã duyệt</td>
+                    <td
+                      v-if="carRequest.accept == false && carRequest.deny == false"
+                      class="text-primary"
+                    >
+                      Đang chờ
+                    </td>
+                    <td v-if="carRequest.deny == true" class="text-danger">Đã từ chối</td>
+                    <!-- <td>
                       <a
                         class="btn btn-sm"
                         style="background-color: #fbbfc0; color: white"
@@ -1511,7 +1617,7 @@ onMounted(async () => {
                       >
                         Chi tiết
                       </a>
-                    </td>
+                    </td> -->
                   </tr>
                 </tbody>
               </table>
@@ -1710,69 +1816,6 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <h4 class="pt-4 text-start">Đơn đã duyệt</h4>
-            <div class="table-responsive">
-              <table class="table text-start align-middle table-bordered table-hover mb-0">
-                <thead>
-                  <tr class="text-dark">
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Ngày đặt
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Mã lượt thuê
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Khách hàng
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Tổng tiền
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Trạng thái
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Tình trạng
-                    </th>
-                    <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
-                      Phương thức thanh toán
-                    </th>
-                    <th
-                      style="vertical-align: middle"
-                      class="fw-bold text-uppercase width: 10%;"
-                      scope="col"
-                    ></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>order.created_at.slice(0, 10)</td>
-                    <td>order.orderid</td>
-                    <td>order.accountName</td>
-                    <td>
-                      order.totalPrice.toLocaleString("it-IT", { style: "currency", currency: "VND",
-                      })
-                    </td>
-                    <td class="text-danger">Chưa thanh toán</td>
-                    <td class="text-success">Đã thanh toán</td>
-                    <td class="text-danger">Đã hủy</td>
-                    <td>Đã duyệt</td>
-                    <td>Chưa duyệt</td>
-                    <td>order.paymentType</td>
-                    <td>
-                      <a
-                        class="btn btn-sm"
-                        style="background-color: #fbbfc0; color: white"
-                        href=""
-                        data-bs-toggle="modal"
-                        data-bs-target="#detailOrder"
-                      >
-                        Chi tiết
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -2165,3 +2208,9 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.fa-star {
+  color: #f4bb47;
+}
+</style>

@@ -40,4 +40,7 @@ export interface Car {
   deletedat: string | null // nullable
 
   carrequests: CarRequest[]
+
+  totalincome: number
+  totalrequests: number
 }

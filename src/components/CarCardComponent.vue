@@ -33,7 +33,8 @@ defineProps<{
     </div>
     <div class="card-body text-center">
       <span class="badge text-bg-secondary mb-2 fs-6">
-        <i class="fas fa-map-marker-alt me-1"></i> Giao xe tận nơi
+        <!-- <i class="fas fa-map-marker-alt me-1"></i>  -->
+        Giao xe tận nơi
       </span>
 
       <RouterLink class="text-decoration-none text-black" :to="'/car/' + car.id">
