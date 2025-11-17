@@ -6,7 +6,9 @@ import { onMounted, ref } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import Swal from 'sweetalert2'
 import usersServices from '../services/users.services'
+import type { Notification } from '../types/notification.ts'
 import type { User } from '../types/users.ts'
+import notificationServices from '@/services/notification.services.ts'
 const router = useRouter()
 const cookies = useCookies()
 
@@ -30,6 +32,9 @@ const currentUser = ref(<Partial<User>>{})
 const showLoginPassword = ref(false)
 const showRegisterPassword = ref(false)
 const showRepeatPassword = ref(false)
+
+const notifications = ref<Partial<Notification>[]>([])
+const unreadCount = ref(0)
 
 function toggleLoginPassword() {
   showLoginPassword.value = !showLoginPassword.value
@@ -121,10 +126,39 @@ async function onLogin(e: any) {
   }
 }
 
+async function fetchNotifications() {
+  try {
+    const resp = await notificationServices.getAllByUserId(currentUser.value.id ?? 0)
+
+    notifications.value = resp.data.notifications || []
+    unreadCount.value = notifications.value.filter((n) => !n.isread).length
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function markAsRead(notificationId: number) {
+  try {
+    await notificationServices.update(notificationId, { isread: true })
+
+    const notif = notifications.value.find((n) => n.id === notificationId)
+    if (notif) {
+      notif.isread = true
+      unreadCount.value = notifications.value.filter((n) => !n.isread).length
+    }
+  } catch (err) {
+    console.error('Failed to mark notification as read', err)
+  }
+}
+
 onMounted(async () => {
   try {
     const respUser = await usersServices.getMe()
     currentUser.value = respUser.data.user
+
+    if (currentUser.value.id) {
+      fetchNotifications()
+    }
   } catch (error) {
     console.error(error)
   }
@@ -177,6 +211,43 @@ onMounted(async () => {
         </button>
       </div>
       <div v-else class="d-flex align-items-center">
+        <div class="position-relative me-2">
+          <button
+            class="btn btn-light position-relative"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-bell"></i>
+            <span
+              v-if="unreadCount > 0"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            >
+              {{ unreadCount }}
+              <span class="visually-hidden">unread messages</span>
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 250px">
+            <li v-if="notifications.length === 0" class="text-center text-muted">
+              Không có thông báo nào
+            </li>
+            <li
+              v-for="n in notifications"
+              :key="n.id"
+              class="dropdown-item d-flex justify-content-between align-items-start"
+              @click="markAsRead(n.id ?? 0)"
+              :class="{ 'bg-light': !n.isread }"
+              style="cursor: pointer"
+            >
+              <div>
+                <div>{{ n.message }}</div>
+                <small class="text-muted">{{ n.createdat??"".slice(0, 10) }}</small>
+              </div>
+              <span v-if="!n.isread" class="badge bg-success">New</span>
+            </li>
+          </ul>
+        </div>
+
         <div class="dropdown">
           <button
             class="btn btn-light dropdown-toggle me-2"
@@ -185,12 +256,12 @@ onMounted(async () => {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-           
-              <img  v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
-                :src="currentUser.avatar"
-                style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover"
-                alt=""
-              />
+            <img
+              v-if="currentUser != null && currentUser.avatar != null && currentUser.avatar != ''"
+              :src="currentUser.avatar"
+              style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover"
+              alt=""
+            />
             <i v-else class="fa-solid fa-user"></i>
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">

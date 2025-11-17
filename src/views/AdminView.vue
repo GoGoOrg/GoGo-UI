@@ -324,9 +324,9 @@ onMounted(async () => {
                   <i class="fa fa-chart-pie fa-3x" style="color: #5fcf86"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Tổng doanh thu</p>
-                    <h6 class="mb-0 text-end">
+                    <h6 class="mb-0 text-end" v-if="countTotalPrice > 0">
                       {{
-                        (countTotalPrice ?? 0).toLocaleString('it-IT', {
+                        countTotalPrice.toLocaleString('it-IT', {
                           style: 'currency',
                           currency: 'VND',
                         })
@@ -406,10 +406,10 @@ onMounted(async () => {
 
                   <div class="d-flex flex-column">
                     <div class="fw-bold">Lượt thuê: {{ topHireCars[0]?.totalrequests }}</div>
-                    <div class="fw-bold">
+                    <div class="fw-bold" v-if="(topHireCars[0]?.totalincome ?? 0) > 0">
                       Tổng doanh thu:
                       {{
-                        (topHireCars[0]?.totalincome ?? 0).toLocaleString('it-IT', {
+                        Number(topHireCars[0]?.totalincome ?? 0).toLocaleString('it-IT', {
                           style: 'currency',
                           currency: 'VND',
                         })
@@ -421,10 +421,10 @@ onMounted(async () => {
             </div>
             <!-- Sale & Revenue End -->
 
-            <h2 class="p-4">Thống kê lượt thuê và doanh thu</h2>
+            <!-- <h2 class="p-4">Thống kê lượt thuê và doanh thu</h2> -->
 
             <!-- Sales Chart Start -->
-            <div class="container-fluid">
+            <!-- <div class="container-fluid">
               <div class="row g-4">
                 <div class="d-flex">
                   <input type="date" class="form-control me-4" v-model="startDate" />
@@ -460,7 +460,7 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Widgets Start -->
             <div class="container-fluid pt-4 d-flex w-100">
@@ -593,15 +593,15 @@ onMounted(async () => {
                     >
                       <img
                         v-if="review.avatar != '' && review.avatar != null"
-                        class="rounded-circle flex-shrink-0"
+                        class="rounded-circle flex-shrink-0 me-3"
                         alt=""
                         :src="review.avatar"
-                        style="width: 60px; height: 60px"
+                        style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover"
                       />
                       <img
                         v-else
                         src="https://placehold.co/60x60"
-                        class="rounded-circle flex-shrink-0"
+                        class="rounded-circle flex-shrink-0 me-3"
                         alt=""
                       />
                       <div class="ms-3" style="width: 90%">
@@ -1398,7 +1398,7 @@ onMounted(async () => {
           style="width: 80vw"
         >
           <h2 class="p-4">Các người dùng trong hệ thống</h2>
-          <div class="container d-flex justify-content-center text-center">
+          <div class="container d-flex justify-content-center text-center ">
             <div class="w-100">
               <table class="table">
                 <thead>
@@ -1417,7 +1417,7 @@ onMounted(async () => {
                       <img
                         v-if="user?.avatar != null && user?.avatar != ''"
                         :src="user?.avatar"
-                        class="rounded-circle me-3 mb-5"
+                        class="rounded-circle me-3"
                         style="height: 60px; width: 60px; border-radius: 50%; object-fit: cover"
                         alt="Profile Image"
                       />
@@ -1425,7 +1425,7 @@ onMounted(async () => {
                         v-else
                         src="https://placehold.co/60x60"
                         alt=""
-                        class="img-fluid rounded-circle me-2"
+                        class="img-fluid rounded-circle me-3"
                       />
                     </td>
                     <td>{{ user?.fullname }}</td>
@@ -2213,4 +2213,5 @@ onMounted(async () => {
 .fa-star {
   color: #f4bb47;
 }
+
 </style>

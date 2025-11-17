@@ -439,6 +439,8 @@ const disabledDates = computed(() => {
   }
 })
 
+const checkReviewed = ref(false)
+
 onMounted(async () => {
   try {
     id.value = Number(route.params.id)
@@ -460,6 +462,12 @@ onMounted(async () => {
 
     const respCarRequests = await carRequestServices.getAllByCarid(id.value)
     currentCarRequests.value = respCarRequests.data.carrequests
+
+    currentCarRequests.value.forEach((req) => {
+      if (req.accept && req.userid === currentUser.id) {
+        checkReviewed.value = true
+      }
+    })
 
     utilities.forEach((u) => {
       if (u.icon) {
@@ -1251,8 +1259,8 @@ function toggleUtility(u: Partial<Utility>) {
           </div> -->
 
           <div
-            v-if="currentUser.id != 0"
-            class="mt-3 d-flex justify-content-between align-items-center border rounded p-4"
+            v-if="checkReviewed"
+            class="mt-3 d-flex justify-content-between align-items-center border rounded p-4 mb-5"
           >
             <div class="d-flex w-100">
               <img
