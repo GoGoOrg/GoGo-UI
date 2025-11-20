@@ -18,4 +18,5 @@ export interface CarRequest {
   price: number
   totalprice: number
   carname: string
+  carimage: string
 }

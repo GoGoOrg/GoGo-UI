@@ -130,7 +130,9 @@ async function fetchNotifications() {
   try {
     const resp = await notificationServices.getAllByUserId(currentUser.value.id ?? 0)
 
-    notifications.value = resp.data.notifications || []
+    console.log('Notifications:', resp)
+    
+    notifications.value = resp.data.notifications;
     unreadCount.value = notifications.value.filter((n) => !n.isread).length
   } catch (err) {
     console.error(err)
@@ -146,6 +148,15 @@ async function markAsRead(notificationId: number) {
       notif.isread = true
       unreadCount.value = notifications.value.filter((n) => !n.isread).length
     }
+
+    if (currentUser.value.role === 'owner') {
+
+      router.push({ name: 'owner view' })
+    } 
+    if (currentUser.value.role === 'member') {
+
+      router.push({ name: 'member view' })
+    } 
   } catch (err) {
     console.error('Failed to mark notification as read', err)
   }
@@ -157,7 +168,8 @@ onMounted(async () => {
     currentUser.value = respUser.data.user
 
     if (currentUser.value.id) {
-      fetchNotifications()
+      await fetchNotifications()
+
     }
   } catch (error) {
     console.error(error)
@@ -213,7 +225,7 @@ onMounted(async () => {
       <div v-else class="d-flex align-items-center">
         <div class="position-relative me-2">
           <button
-            class="btn btn-light position-relative"
+            class="btn btn-light position-relative me-1"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -241,9 +253,9 @@ onMounted(async () => {
             >
               <div>
                 <div>{{ n.message }}</div>
-                <small class="text-muted">{{ n.createdat??"".slice(0, 10) }}</small>
+                <small class="text-muted" v-if="n.createdat">{{ n.createdat.slice(0, 10) }}</small>
               </div>
-              <span v-if="!n.isread" class="badge bg-success">New</span>
+              <span v-if="!n.isread" class="badge bg-success ms-3">Mới</span>
             </li>
           </ul>
         </div>

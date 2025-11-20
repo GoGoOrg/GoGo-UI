@@ -1,6 +1,6 @@
 import createApiClient, { handlingError } from './api.service'
 
-class CarAvailabilityService {
+class CarRequestService {
   private api: any
 
   constructor(baseUrl = 'http://localhost:3000/api') {
@@ -19,6 +19,14 @@ class CarAvailabilityService {
   async getAllByCarid(carid: number) {
     try {
       const response = await this.api.get(`/carrequest/car/${carid}`)
+      return response.data
+    } catch (err) {
+      handlingError(err)
+    }
+  }
+  async getAllByUserid(carid: number) {
+    try {
+      const response = await this.api.get(`/carrequest/user/${carid}`)
       return response.data
     } catch (err) {
       handlingError(err)
@@ -62,4 +70,4 @@ class CarAvailabilityService {
   }
 }
 
-export default new CarAvailabilityService()
+export default new CarRequestService()
