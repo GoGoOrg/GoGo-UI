@@ -142,22 +142,10 @@ const choosenImage = ref({ id: 0, url: '', contents: [], title: '' })
 async function addDataToModal(id: any) {
   choosenImage.value = id
 }
-
-async function onSearching(event: Event) {
-  event.preventDefault()
-  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
-  const query = inputElement.value.trim()
-  if (query) {
-    router.push({ name: 'search view', params: { name: query } })
-  }
-}
-
 onMounted(async () => {
   try {
     let respCars = await carServices.getAll()
     cars.value = respCars.data.cars
-
-    
   } catch (error) {}
 })
 </script>
@@ -261,6 +249,10 @@ onMounted(async () => {
       <div class="d-flex flex-wrap justify-content-center">
         <CarCardComponent v-for="car in cars" :car="car"></CarCardComponent>
       </div>
+
+      <RouterLink class="text-decoration-none" :to="'/hire'">
+        <button class="btn btn-outline-success fw-bold p-4">Xem tất cả</button>
+      </RouterLink>
     </div>
 
     <div class="container py-5">
@@ -309,8 +301,9 @@ onMounted(async () => {
               <p class="mb-3">
                 Tự tay cầm lái chiếc xe bạn yêu thích cho hành trình thêm hứng khởi.
               </p>
-
-              <button class="btn btn-success fw-semibold px-4">Thuê xe tự lái</button>
+              <RouterLink class="text-decoration-none" :to="'/hire'">
+                <button class="btn btn-success fw-semibold px-4">Thuê xe tự lái</button>
+              </RouterLink>
             </div>
           </div>
         </div>
@@ -333,7 +326,9 @@ onMounted(async () => {
 
               <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên GoGo.</p>
 
-              <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
+              <RouterLink class="text-decoration-none" :to="'/hire'">
+                <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
+              </RouterLink>
             </div>
           </div>
         </div>

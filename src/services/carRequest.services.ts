@@ -24,9 +24,9 @@ class CarRequestService {
       handlingError(err)
     }
   }
-  async getAllByUserid(carid: number) {
+  async getAllByUserid(userid: number) {
     try {
-      const response = await this.api.get(`/carrequest/user/${carid}`)
+      const response = await this.api.get(`/carrequest/user/${userid}`)
       return response.data
     } catch (err) {
       handlingError(err)

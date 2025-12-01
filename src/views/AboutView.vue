@@ -89,7 +89,9 @@
               <p class="mb-3">
                 Tự tay cầm lái chiếc xe bạn yêu thích cho hành trình thêm hứng khởi.
               </p>
-              <button class="btn btn-success fw-semibold px-4">Thuê xe tự lái</button>
+              <RouterLink class="text-decoration-none" :to="'/hire'">
+                <button class="btn btn-success fw-semibold px-4">Thuê xe tự lái</button>
+              </RouterLink>
             </div>
           </div>
         </div>
@@ -110,7 +112,10 @@
             <div>
               <h3 class="fw-bold">Tài xế của bạn đã đến!</h3>
               <p class="mb-3">Chuyến đi thêm thú vị cùng các bác tài 5★ trên GoGo.</p>
-              <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
+
+              <RouterLink class="text-decoration-none" :to="'/hire'">
+                <button class="btn btn-success fw-semibold px-4">Thuê xe có tài xế</button>
+              </RouterLink>
             </div>
           </div>
         </div>

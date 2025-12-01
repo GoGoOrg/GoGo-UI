@@ -46,20 +46,10 @@ const cars = ref<Partial<Car>[]>([
   },
 ])
 
-async function onSearching(event: Event) {
-  event.preventDefault()
-  const inputElement = document.getElementById('search-input-main') as HTMLInputElement
-  const query = inputElement.value.trim()
-  if (query) {
-    router.push({ name: 'search view', params: { name: query } })
-  }
-}
-
 onMounted(async () => {
   try {
-    name.value = route.params.name as string
 
-    let respCars = await carServices.searchByName(name.value)
+    let respCars = await carServices.getAll()
     cars.value = respCars.data.cars
 
     console.log(respCars)
@@ -75,11 +65,8 @@ onMounted(async () => {
   </div>
 
   <div class="container mb-5 mt-5 w-100">
-    <h1 class="mb-5">
-      <span v-if="cars.length"> Các xe có tên {{ name }}</span>
-      <span v-else> Không có xe nào có tên {{ name }} </span>
-      <span style="color: brown" class="fw-bold text-uppercase"> </span>
-    </h1>
+
+    <h1 class="text-center w-100">Tất cả xe</h1>
 
     <div class="w-100 d-flex justify-content-end mb-3">
       <select class="form-select w-25" aria-label="Default select example">

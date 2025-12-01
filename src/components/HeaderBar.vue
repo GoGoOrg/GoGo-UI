@@ -278,7 +278,7 @@ onMounted(async () => {
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">
             <li>
-              <a class="dropdown-item" :href="'http://localhost:5173/personal/' + currentUser.id"
+              <a class="dropdown-item" :href="'http://localhost:5173/personal'"
                 ><i class="fa-solid fa-user"></i> Tài khoản</a
               >
             </li>

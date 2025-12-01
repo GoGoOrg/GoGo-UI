@@ -4,7 +4,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/personal/:id',
+      path: '/personal',
       name: 'personal',
       component: () => import('../views/PersonalView.vue'),
     },
@@ -67,6 +67,11 @@ const router = createRouter({
       name: 'city view',
       component: () => import('../views/CityView.vue'),
     },
+    {
+      path: '/hire',
+      name: 'hire view',
+      component: () => import('../views/HireView.vue'),
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

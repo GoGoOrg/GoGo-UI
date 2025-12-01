@@ -940,7 +940,7 @@ function toggleUtility(u: Partial<Utility>) {
               class="col d-flex align-items-center justify-content-start"
             >
               <span
-                class="me-2 d-flex align-items-center justify-content-center utility-icon text-primary"
+                class="me-2 d-flex align-items-center justify-content-center utility-icon text-success"
                 v-html="utility.icon"
               ></span>
               <span class="text-dark">{{ utility.name }}</span>
@@ -1189,7 +1189,7 @@ function toggleUtility(u: Partial<Utility>) {
             </div>
           </div>
 
-          <div class="mt-3 d-flex align-items-center justify-content-start">
+          <div class="mt-3 d-flex align-items-center justify-content-start mb-5">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -1207,11 +1207,11 @@ function toggleUtility(u: Partial<Utility>) {
             <div class="ms-2">• {{ car.reviewcount }} đánh giá</div>
           </div>
 
-          <div class="d-flex flex-column gap-1">
+          <div class="d-flex flex-column gap-1 mb-5">
             <div
               v-for="review in reviews"
               :key="review.id"
-              class="mt-3 d-flex justify-content-between align-items-center border rounded p-4"
+              class=" d-flex justify-content-between align-items-center border rounded p-4"
             >
               <div class="d-flex">
                 <img
@@ -1250,7 +1250,7 @@ function toggleUtility(u: Partial<Utility>) {
                 </div>
               </div>
 
-              <div class="text-secondary">{{ review.createdat ?? '03/10/2025' }}</div>
+              <div class="text-secondary">{{ review.createdat?.slice(0, 10) ?? '03/10/2025' }}</div>
             </div>
           </div>
 

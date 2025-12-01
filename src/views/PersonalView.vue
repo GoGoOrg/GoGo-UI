@@ -4,24 +4,15 @@ import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import usersServices from '@/services/users.services'
 
+import type { CarRequest } from '@/types/carRequest'
+import type { User } from '@/types/users'
+import carRequestServices from '@/services/carRequest.services'
+
 const router = useRouter()
 const route = useRoute()
 const id = ref(0)
 
-const currentUser = ref({
-  id: 0,
-  username: '',
-  password: '',
-  fullname: '',
-  email: '',
-  phone: '',
-  birthDate: '',
-  avatar: '',
-  billingAddress: '',
-  created_at: '',
-  updated_at: '',
-  role: '',
-})
+const currentUser = ref(<Partial<User>>{})
 
 const toBase64 = (file: any) =>
   new Promise((resolve, reject) => {
@@ -35,7 +26,7 @@ async function uploadAvatar(event: any) {
   try {
     let code = await toBase64(event.target.files[0])
 
-    let resp = await usersServices.updateAvatar(currentUser.value.id, {
+    let resp = await usersServices.updateAvatar(currentUser.value.id ?? 0, {
       avatar: String(code),
     })
 
@@ -45,11 +36,88 @@ async function uploadAvatar(event: any) {
   }
 }
 
+const oldPassword = ref('')
+const newPassword = ref('')
+const newRepeatPassword = ref('')
+var changePassword = async (e: any) => {
+  e.preventDefault()
+  try {
+    if (newPassword.value != newRepeatPassword.value) {
+      Swal.fire({
+        title: 'Thất bại!',
+        text: 'Mật khẩu mới không trùng khớp',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        timer: 1500,
+      })
+      return
+    }
+    await usersServices.updatePassword({
+      username: currentUser.value.username,
+      accountId: currentUser.value.id,
+      newPassword: newPassword.value,
+      password: oldPassword.value,
+    })
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Cập nhật mật khẩu tài khoản thành công!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    Swal.fire({
+      title: 'Thất bại!',
+      text: 'Cập nhật mật khẩu tài khoản thất bại! Error: ' + error,
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  }
+}
+
+var updateUser = async (e: any) => {
+  e.preventDefault()
+  try {
+    if (currentUser.value.birthday == undefined || currentUser.value.birthday == '') {
+      currentUser.value.birthday = '2002-10-10'
+    }
+    await usersServices.update(currentUser.value.id ?? 0, {
+      fullname: currentUser.value.fullname,
+      email: currentUser.value.email,
+      phone: currentUser.value.phone,
+      birthday: currentUser.value.birthday.slice(0, 10),
+    })
+
+    Swal.fire({
+      title: 'Thành công!',
+      text: 'Cập nhật tài khoản thành công!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (error) {
+    Swal.fire({
+      title: 'Thất bại!',
+      text: 'Cập nhật tài khoản thất bại! Error: ' + error,
+      icon: 'error',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  }
+}
+const carRequests = ref<CarRequest[]>([])
+
 onMounted(async () => {
   try {
-    id.value = Number(route.params.id)
     const respUser = await usersServices.getMe()
     currentUser.value = respUser.data.user
+
+    const respCarRequests = await carRequestServices.getAllByUserid(currentUser.value.id ?? 0)
+    carRequests.value = respCarRequests.data.carrequests
+
+    console.log(currentUser.value.id)
   } catch (error) {
     console.log(error)
   }
@@ -57,13 +125,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="width: 100vw" class="pb-5 mt-3 pt-5 bg-light">
+  <div style="width: 100vw" class="pb-5 mt-3 pt-5">
     <div class="container d-flex justify-content-center">
       <div class="w-100 mt-3">
         <h2>Hồ Sơ Của Tôi</h2>
         <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
 
-        <form class="d-flex w-100 justify-content-between mb-5">
+        <form @submit="updateUser" class="d-flex w-100 justify-content-between mb-5">
           <div class="w-50">
             <!-- Username -->
             <div class="mb-3">
@@ -135,52 +203,76 @@ onMounted(async () => {
               <!-- Date of Birth -->
               <div class="mb-3 w-25">
                 <label for="dob" class="fw-bold form-label">Ngày sinh:</label>
-                <input type="date" id="dob" class="form-control" required />
+                <input
+                  type="date"
+                  id="dob"
+                  class="form-control"
+                  v-model="currentUser.birthday"
+                  required
+                />
               </div>
             </div>
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
               <label for="address" class="fw-bold form-label">Địa chỉ:</label>
               <input
-                v-model="currentUser.billingAddress"
+                v-model="currentUser.address"
                 type="text"
                 id="address"
                 class="form-control"
                 required
               />
-            </div>
-            <button type="submit" class="btn btn-primary">Lưu</button>
+            </div> -->
+            <button type="submit" class="btn btn-outline-success">Lưu</button>
           </div>
           <!-- Profile Picture -->
         </form>
-        <form class="">
+        <form @submit="changePassword" class="">
           <div>
             <label class="fw-bold" for="oldPassword">Mật khẩu cũ: </label>
-            <input type="password" id="oldPassword" class="form-control" required />
+            <input
+              v-model="oldPassword"
+              type="password"
+              id="oldPassword"
+              class="form-control"
+              required
+            />
           </div>
           <div class="mt-3">
             <label class="fw-bold" for="newPassword">Mật khẩu mới: </label>
-            <input type="password" id="newPassword" class="form-control" required />
+            <input
+              v-model="newPassword"
+              type="password"
+              id="newPassword"
+              class="form-control"
+              required
+            />
           </div>
           <div class="mt-3">
             <label class="fw-bold" for="newRepeatPassword">Nhập lại mật khẩu: </label>
-            <input type="password" id="newRepeatPassword" class="form-control" required />
+            <input
+              v-model="newRepeatPassword"
+              type="password"
+              id="newRepeatPassword"
+              class="form-control"
+              required
+            />
           </div>
 
-          <button type="submit" class="mb-3 mt-3 btn btn-primary">Đổi mật khẩu</button>
+          <button type="submit" class="mb-3 mt-3 btn btn-outline-success">Đổi mật khẩu</button>
         </form>
       </div>
       <div class="mb-3 d-flex flex-column text-center mt-3 me-5">
         <div class="d-flex flex-column">
           <h4>Ảnh đại diện</h4>
           <div class="d-flex align-items-center flex-column mt-3">
-              <img
+            <img
               v-if="currentUser.avatar != null && currentUser.avatar != ''"
               :src="currentUser.avatar"
               class="rounded-circle me-3 mb-5"
               style="height: 150px; width: 150px; border-radius: 50%; object-fit: cover"
               alt="Profile Image"
-              />
+            />
             <input
               type="file"
               @change="uploadAvatar($event)"
@@ -193,6 +285,71 @@ onMounted(async () => {
           Dung lượng file tối đa 1 MB, Định dạng: JPEG, PNG
         </small>
       </div>
+    </div>
+  </div>
+
+  <div v-if="currentUser.role == 'member' && carRequests.length > 0" class="text-center rounded ps-4 pe-4 pb-4 container">
+    <h2 class="ms-4 mb-3">Lịch sử các yêu cầu thuê xe</h2>
+    <div class="table-responsive">
+      <table class="table text-start align-middle table-bordered table-hover mb-0">
+        <thead>
+          <tr class="text-dark">
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+              Ngày yêu cầu
+            </th>
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">Xe</th>
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+              Ngày bắt đầu
+            </th>
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+              Ngày kết thúc
+            </th>
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+              Tổng tiền
+            </th>
+            <th style="vertical-align: middle" class="fw-bold text-uppercase" scope="col">
+              Trạng thái
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="carRequest in carRequests" :key="carRequest.id">
+            <td>{{ carRequest.createdat.slice(0, 10) }}</td>
+            <td>
+              <a :href="'http://localhost:5173/car/' + carRequest.carid">
+                {{ carRequest.carname }}
+              </a>
+            </td>
+            <td>{{ carRequest.starttime.slice(0, 10) }}</td>
+            <td>{{ carRequest.endtime.slice(0, 10) }}</td>
+
+            <td>
+              {{
+                carRequest.totalprice.toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'VND',
+                })
+              }}
+            </td>
+            <td v-if="carRequest.accept == true" class="text-success">Đã duyệt</td>
+            <td v-if="carRequest.accept == false && carRequest.deny == false" class="text-primary">
+              Đang chờ
+            </td>
+            <td v-if="carRequest.deny == true" class="text-danger">Đã từ chối</td>
+            <!-- <td>
+                      <a
+                        class="btn btn-sm"
+                        style="background-color: #fbbfc0; color: white"
+                        href=""
+                        data-bs-toggle="modal"
+                        data-bs-target="#detailOrder"
+                      >
+                        Chi tiết
+                      </a>
+                    </td> -->
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>

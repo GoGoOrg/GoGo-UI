@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+
 import type { Car } from '@/types/car'
+import type { User } from '@/types/users'
+import type { CarRequest } from '@/types/carRequest'
+
 import carRequestServices from '@/services/carRequest.services'
 
 import Swal from 'sweetalert2'
@@ -10,6 +14,13 @@ const activeTab = ref('active')
 const props = defineProps<{
   car: Partial<Car>
 }>()
+
+const carRequests = ref<CarRequest[]>([])
+
+async function getAllCarRequestByUserId(userid: number) {
+  const respCarRequests = await carRequestServices.getAllByUserid(userid ?? 0)
+  carRequests.value = respCarRequests.data.carrequests
+}
 
 async function updateRequest(accept: boolean, requestId: number) {
   console.log('Updating request:', { accept, requestId })
@@ -114,7 +125,8 @@ function checkExistCarRequestHandled() {
             @click.prevent="activeTab = 'link'"
           >
             Người thuê
-            <span v-if="checkExistCarRequestsUnhandled()"
+            <span
+              v-if="checkExistCarRequestsUnhandled()"
               class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"
               style="font-size: 0.65rem"
             >
@@ -240,7 +252,9 @@ function checkExistCarRequestHandled() {
                         <a
                           data-bs-toggle="modal"
                           data-bs-target="#userInfoModal"
-                          class="text-primary fw-semibold"
+                          class="text-primary fw-bold"
+                          style="cursor: pointer"
+                          @click="getAllCarRequestByUserId(carrequest.userid)"
                         >
                           {{ carrequest.fullname }}
                         </a>
@@ -254,7 +268,7 @@ function checkExistCarRequestHandled() {
                         aria-labelledby="userInfoModalLabel"
                         aria-hidden="true"
                       >
-                        <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
                           <div class="modal-content">
                             <div class="modal-header">
                               <h5 class="modal-title" id="userInfoModalLabel">
@@ -282,10 +296,102 @@ function checkExistCarRequestHandled() {
                               <p><strong>Tên đăng nhập:</strong> {{ carrequest.username }}</p>
                               <p><strong>Email:</strong> {{ carrequest.email }}</p>
                               <p><strong>Số điện thoại:</strong> {{ carrequest.phone }}</p>
-                              <p>
-                                <strong>Giới thiệu:</strong>
-                                {{ carrequest.about || 'Chưa có thông tin' }}
-                              </p>
+
+                              <div
+                                v-if="carRequests.length > 0"
+                                class="text-center rounded ps-4 pe-4 pb-4 container mt-5"
+                              >
+                                <h2 class="ms-4 mb-3">Lịch sử các yêu cầu thuê xe</h2>
+                                <div class="table-responsive">
+                                  <table
+                                    class="table text-start align-middle table-bordered table-hover mb-0"
+                                  >
+                                    <thead>
+                                      <tr class="text-dark">
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Ngày yêu cầu
+                                        </th>
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Xe
+                                        </th>
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Ngày bắt đầu
+                                        </th>
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Ngày kết thúc
+                                        </th>
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Tổng tiền
+                                        </th>
+                                        <th
+                                          style="vertical-align: middle"
+                                          class="fw-bold text-uppercase"
+                                          scope="col"
+                                        >
+                                          Trạng thái
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr v-for="carRequest in carRequests" :key="carRequest.id">
+                                        <td>{{ carRequest.createdat.slice(0, 10) }}</td>
+                                        <td>
+                                          <a
+                                            :href="'http://localhost:5173/car/' + carRequest.carid"
+                                          >
+                                            {{ carRequest.carname }}
+                                          </a>
+                                        </td>
+                                        <td>{{ carRequest.starttime.slice(0, 10) }}</td>
+                                        <td>{{ carRequest.endtime.slice(0, 10) }}</td>
+
+                                        <td>
+                                          {{
+                                            carRequest.totalprice.toLocaleString('it-IT', {
+                                              style: 'currency',
+                                              currency: 'VND',
+                                            })
+                                          }}
+                                        </td>
+                                        <td v-if="carRequest.accept == true" class="text-success">
+                                          Đã duyệt
+                                        </td>
+                                        <td
+                                          v-if="
+                                            carRequest.accept == false && carRequest.deny == false
+                                          "
+                                          class="text-primary"
+                                        >
+                                          Đang chờ
+                                        </td>
+                                        <td v-if="carRequest.deny == true" class="text-danger">
+                                          Đã từ chối
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -358,7 +464,8 @@ function checkExistCarRequestHandled() {
                         <a
                           data-bs-toggle="modal"
                           data-bs-target="#userInfoModal"
-                          class="text-primary fw-semibold"
+                          class="text-primary fw-bold"
+                          style="cursor: pointer"
                         >
                           {{ carrequest.fullname }}
                         </a>
@@ -400,10 +507,6 @@ function checkExistCarRequestHandled() {
                               <p><strong>Tên đăng nhập:</strong> {{ carrequest.username }}</p>
                               <p><strong>Email:</strong> {{ carrequest.email }}</p>
                               <p><strong>Số điện thoại:</strong> {{ carrequest.phone }}</p>
-                              <p>
-                                <strong>Giới thiệu:</strong>
-                                {{ carrequest.about || 'Chưa có thông tin' }}
-                              </p>
                             </div>
                           </div>
                         </div>

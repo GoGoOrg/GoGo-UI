@@ -8,23 +8,11 @@ import usersServices from '@/services/users.services'
 import carRequestServices from '@/services/carRequest.services'
 
 import type { CarRequest } from '@/types/carRequest'
+import type { User } from '@/types/users'
 const router = useRouter()
 
 // Admin user data
-const currentUser = reactive({
-  id: 0,
-  username: '',
-  password: '',
-  email: '',
-  name: '',
-  phone: '',
-  birthDate: null,
-  avatar: '',
-  billingAddress: '',
-  created_at: null,
-  updated_at: null,
-  role: '',
-})
+const currentUser = ref(<Partial<User>>{})
 
 const carRequests = ref<CarRequest[]>([])
 
@@ -34,7 +22,7 @@ onMounted(async () => {
 
     Object.assign(currentUser, respUser.data.user)
 
-    const respCarRequests = await carRequestServices.getAllByUserid(currentUser.id)
+    const respCarRequests = await carRequestServices.getAllByUserid(currentUser.value.id ?? 0)
     carRequests.value = respCarRequests.data.carrequests
 
     console.log('Car Requests:', carRequests.value)
@@ -107,4 +95,6 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+
+  
 </template>
