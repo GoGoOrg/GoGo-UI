@@ -35,7 +35,6 @@ const starNum = ref<number | null>(null)
 const slideTo = (nextSlide: any) => (currentSlide.value = nextSlide)
 const selectedOption = ref('pickup')
 
-
 const dateRange = ref<[Date, Date]>([
   new Date(),
   new Date(Date.now() + 24 * 60 * 60 * 1000), // +1 day
@@ -358,10 +357,9 @@ async function requestRent() {
     const end = new Date(dateRange.value[1])
     end.setHours(0, 0, 0, 0)
 
-    const price = (car.price ?? 0 ) + 96050;
+    const price = (car.price ?? 0) + 96050
     const totalDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
     const totalPrice = totalDays * price
-
 
     await carRequestServices.create({
       carid: car.id ?? 0,
@@ -369,7 +367,7 @@ async function requestRent() {
       starttime: start.toISOString().split('T')[0] + ' 00:00:00',
       endtime: end.toISOString().split('T')[0] + ' 00:00:00',
       price: price,
-      totalprice: totalPrice
+      totalprice: totalPrice,
     })
 
     Swal.fire({
@@ -1189,6 +1187,9 @@ function toggleUtility(u: Partial<Utility>) {
             </div>
           </div>
 
+          <hr />
+          <h4>Đánh giá</h4>
+
           <div class="mt-3 d-flex align-items-center justify-content-start mb-5">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1211,7 +1212,7 @@ function toggleUtility(u: Partial<Utility>) {
             <div
               v-for="review in reviews"
               :key="review.id"
-              class=" d-flex justify-content-between align-items-center border rounded p-4"
+              class="d-flex justify-content-between align-items-center border rounded p-4"
             >
               <div class="d-flex">
                 <img

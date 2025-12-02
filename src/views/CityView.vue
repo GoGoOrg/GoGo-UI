@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import type { Car } from '@/types/car'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import carServices from '@/services/car.services'
 import CarCardComponent from '@/components/CarCardComponent.vue'
 import SearchBarComponent from '@/components/SearchBarComponent.vue'
-const router = useRouter()
 const route = useRoute()
 const cityName = ref('')
 
@@ -14,25 +13,21 @@ const featuredLocations = [
     name: 'TP Hồ Chí Minh',
     image:
       'https://images.unsplash.com/photo-1602479185069-cf2cfc4c463f?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    vehicles: '5000+ xe',
   },
   {
     name: 'Hà Nội',
     image:
       'https://images.unsplash.com/photo-1676019266474-3538f3f19e6b?q=80&w=2446&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    vehicles: '2500+ xe',
   },
   {
     name: 'Đà Nẵng',
     image:
       'https://images.unsplash.com/photo-1716903197952-440ea3233ba3?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    vehicles: '500+ xe',
   },
   {
     name: 'Cần thơ',
     image:
       'https://plus.unsplash.com/premium_photo-1693237310410-75528c5d5826?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    vehicles: '500+ xe',
   },
 ]
 
@@ -70,15 +65,25 @@ const cars = ref<Partial<Car>[]>([
     deletedat: null,
   },
 ])
+const sortOption = ref<string>('0')
 
-async function onSearching(event: Event) {
-  event.preventDefault()
-  const inputElement = document.getElementByid('search-input-main') as HTMLInputElement
-  const query = inputElement.value.trim()
-  if (query) {
-    router.push({ name: 'search view', params: { name: query } })
+const sortedCars = computed(() => {
+  const list = [...cars.value]
+
+  switch (sortOption.value) {
+    case '1':
+      // Price ascending
+      return list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+
+    case '2':
+      // Price descending
+      return list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+
+    default:
+      // Default (original order — unsorted)
+      return list
   }
-}
+})
 
 onMounted(async () => {
   try {
@@ -106,17 +111,18 @@ onMounted(async () => {
       <span style="color: brown" class="fw-bold text-uppercase"> </span>
     </h1>
 
-    <div class="w-100 d-flex justify-content-end mb-3">
-      <select class="form-select w-25" aria-label="Default select example">
+    <div class="text-end mb-2 d-flex justify-content-end">
+      <div class="me-3">Sắp xếp theo:</div>
+
+      <select v-model="sortOption" class="form-select form-select-sm w-25" aria-label="Sort cars">
+        <option value="0">Mặc định</option>
         <option value="1">Giá tăng dần</option>
         <option value="2">Giá giảm dần</option>
-        <option value="3">A -> Z</option>
-        <option value="4">Z -> A</option>
       </select>
     </div>
 
     <div class="d-flex flex-wrap justify-content-center">
-      <CarCardComponent v-for="car in cars" :car="car"></CarCardComponent>
+      <CarCardComponent v-for="car in sortedCars" :car="car"></CarCardComponent>
     </div>
   </div>
 
@@ -138,7 +144,7 @@ onMounted(async () => {
         />
         <div class="card-img-overlay d-flex flex-column justify-content-end">
           <h5 class="card-title card-title-city">{{ location.name }}</h5>
-          <p class="card-text cart-text-city small">{{ location.vehicles }}</p>
+          <!-- <p class="card-text cart-text-city small">{{ location.vehicles }}</p> -->
         </div>
       </a>
     </div>

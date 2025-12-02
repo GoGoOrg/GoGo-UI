@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
@@ -13,78 +13,37 @@ import type { Brand } from '@/types/brand'
 import brandServices from '@/services/brand.services'
 
 import OwnerCardComponent from '@/components/OwnerCardComponent.vue'
+import type { User } from '@/types/users'
 
 const router = useRouter()
 
 // Admin user data
-const currentUser = reactive({
-  id: 0,
-  username: '',
-  password: '',
-  email: '',
-  name: '',
-  phone: '',
-  birthDate: null,
-  avatar: '',
-  billingAddress: '',
-  created_at: null,
-  updated_at: null,
-  role: '',
+const currentUser = ref<Partial<User>>({})
+
+const cities = ref<Partial<City>[]>([])
+
+const brands = ref<Partial<Brand>[]>([])
+
+const cars = ref<Partial<Car>[]>([])
+const sortOption = ref<string>('0')
+
+const sortedCars = computed(() => {
+  const list = [...cars.value]
+
+  switch (sortOption.value) {
+    case '1':
+      // Price ascending
+      return list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+
+    case '2':
+      // Price descending
+      return list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+
+    default:
+      // Default (original order — unsorted)
+      return list
+  }
 })
-
-const cities = ref<City[]>([
-  {
-    id: 0,
-    name: '',
-    createdat: '',
-    updatedat: '',
-    deletedat: null,
-  },
-])
-
-const brands = ref<Brand[]>([
-  {
-    id: 0,
-    description: '',
-    name: '',
-    createdat: '',
-    updatedat: '',
-    deletedat: null,
-  },
-])
-
-const cars = ref([
-  {
-    id: 0,
-    name: '',
-    licenseplate: '',
-    description: '',
-    regulation: '',
-    color: '',
-    seats: 0,
-    price: 0,
-    ownerid: 0,
-    brandid: 0,
-    cityid: 0,
-    transmissiontypeid: 0,
-    fueltypeid: 0,
-    totalride: 0,
-    totalheart: 0,
-    mortage: 0,
-    insurance: 0,
-    starnumber: 0,
-    avgrating: 0,
-    reviewcount: 0,
-    priceperday: 0,
-    discountvalue: 0,
-    discounttype: '',
-    createdat: '',
-    updatedat: '',
-    deletedat: null,
-    imageurl: '',
-  },
-])
-
 const newCar = reactive({
   name: '',
   licenseplate: '',
@@ -192,7 +151,7 @@ onMounted(async () => {
 
     const respUser = await usersServices.getMe()
 
-    Object.assign(currentUser, respUser.data.user)
+    currentUser.value = respUser.data.user
     // if (currentUser.value.role !== 'admin' || currentUser.value.accountid === 0) {
     //   await Swal.fire({
     //     title: 'Không có quyền!',
@@ -205,10 +164,8 @@ onMounted(async () => {
     // }
 
     // Load car data
-    const respCars = await carServices.getAllByOwnerid(currentUser.id) // TODO
+    const respCars = await carServices.getAllByOwnerid(currentUser.value.id ?? 0) // TODO
     cars.value = respCars.data.cars
-
-    console.log(cars.value)
 
     const respCities = await cityServices.getAll()
     cities.value = respCities.data.citys
@@ -227,11 +184,11 @@ onMounted(async () => {
 
     <div class="text-end mb-2 d-flex justify-content-end">
       <div class="me-3">Sắp xếp theo:</div>
-      <select class="form-select form-select-sm w-25" aria-label=".form-select-sm example">
-        <option selected>Mặc định</option>
-        <option value="1">One</option>
-        <option value="2">Two</option>
-        <option value="3">Three</option>
+
+      <select v-model="sortOption" class="form-select form-select-sm w-25" aria-label="Sort cars">
+        <option value="0">Mặc định</option>
+        <option value="1">Giá tăng dần</option>
+        <option value="2">Giá giảm dần</option>
       </select>
     </div>
 
@@ -246,7 +203,7 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-for="(car, index) in cars" :key="car.id">
+    <div v-if="cars.length > 0" v-for="(car, index) in sortedCars" :key="car.id">
       <h3>{{ index + 1 }}. {{ car.name }}</h3>
       <OwnerCardComponent :car="car" />
     </div>

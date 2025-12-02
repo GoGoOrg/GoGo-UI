@@ -1,15 +1,13 @@
 <script setup lang="ts">
+import Swal from 'sweetalert2'
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCookies } from 'vue3-cookies'
-import Swal from 'sweetalert2'
 import { Chart, Grid, Line } from 'vue3-charts'
-import { calculateTimeElapse } from '@/utils/utils'
+import { calculateTimeElapse, preventSpecialChars } from '@/utils/utils'
 
 import usersServices from '@/services/users.services'
 import carServices from '@/services/car.services'
 import reviewServices from '@/services/review.services'
-
 import type { Car } from '@/types/car'
 import type { User } from '@/types/users'
 import type { Review } from '@/types/review'
@@ -18,23 +16,12 @@ import type { CarRequest } from '@/types/carRequest'
 import carRequestServices from '@/services/carRequest.services'
 
 const router = useRouter()
-const cookies = useCookies()
-const token = cookies.cookies.get('Admin Token')
 
 // Chart data
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const plByMonth = ref(months.map((name) => ({ name, pl: 0, avg: 0, inc: 0 })))
 const plByMoney = ref(months.map((name) => ({ name, pl: 0, avg: 0, inc: 0 })))
-
-// Convert file to base64
-const toBase64 = (file: File): Promise<string | ArrayBuffer | null> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-  })
 
 // Admin user data
 const currentUser = ref({
@@ -55,36 +42,30 @@ const currentUser = ref({
 const users = reactive<Partial<User[]>>([])
 const cars = reactive<Partial<Car>[]>([])
 const topHireCars = reactive<Partial<Car>[]>([])
+
+const sortOption = ref<string>('0')
+
+const sortedCars = computed(() => {
+  const list = [...cars]
+
+  switch (sortOption.value) {
+    case '1':
+      // Price ascending
+      return list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+
+    case '2':
+      // Price descending
+      return list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+
+    default:
+      // Default (original order — unsorted)
+      return list
+  }
+})
+
 // Example car data
-const car = ref<Partial<Car>>({})
 const carRequests = ref<CarRequest[]>([])
 const reviews = ref<Review[]>([])
-const newCar = ref({
-  name: '',
-  type: '',
-  licenseplate: '',
-  description: '',
-  regulation: '',
-  color: '',
-  seats: 0,
-  doors: 0,
-  price: 0,
-  ownerid: 0,
-  brandid: 0,
-  cityid: 0,
-  transmissiontypeid: 0,
-  fueltypeid: 0,
-  totalride: 0,
-  totalheart: 0,
-  mortage: 0,
-  insurance: 0,
-  starnumber: 0,
-  avgrating: 0,
-  reviewcount: 0,
-  priceperday: 0,
-  discountvalue: 0,
-  discounttype: '',
-})
 
 const countTotalSaleToday = ref(0)
 const countTotalPriceToday = ref(0)
@@ -99,12 +80,6 @@ const filteredHires = computed(() => {
     nextDay.setDate(nextDay.getDate() + 1) // Add one day to endDate
     return carrequest.createdat >= startDate.value && carrequest.createdat < nextDay.toISOString()
   })
-})
-
-const totalRevenue = computed(() => {
-  return filteredHires.value.reduce((sum, carRequest: any) => {
-    return sum + (carRequest.accept == true ? carRequest.totalprice : 0)
-  }, 0)
 })
 
 function countToday() {
@@ -141,6 +116,81 @@ function calculateReview() {
     twoStar.value,
     oneStar.value,
   )
+}
+const showRegisterPassword = ref(false)
+const showRepeatPassword = ref(false)
+const repeatPasswordRegister = ref('')
+const inputFormRegister = ref({
+  username: '',
+  password: '',
+  fullName: '',
+  email: '',
+  phone: '',
+  role: 'member',
+})
+function toggleRegisterPassword() {
+  showRegisterPassword.value = !showRegisterPassword.value
+}
+function toggleRepeatPassword() {
+  showRepeatPassword.value = !showRepeatPassword.value
+}
+async function onRegister(e: any) {
+  e.preventDefault()
+  try {
+    // basic validation
+
+    if (
+      inputFormRegister.value.email == '' ||
+      inputFormRegister.value.fullName == '' ||
+      inputFormRegister.value.password == '' ||
+      inputFormRegister.value.phone == '' ||
+      inputFormRegister.value.username == ''
+    ) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Vui lòng nhập tất cả các trường thông tin.',
+      })
+      return
+    }
+
+    if (inputFormRegister.value.password !== repeatPasswordRegister.value) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Mật khẩu nhập lại không khớp.',
+      })
+      return
+    }
+
+    let resp = await usersServices.register(inputFormRegister.value)
+
+    users.push(resp.user)
+
+    inputFormRegister.value = {
+      username: '',
+      password: '',
+      fullName: '',
+      email: '',
+      phone: '',
+      role: 'member',
+    }
+    repeatPasswordRegister.value = ''
+    Swal.fire({
+      title: 'Success!',
+      text: 'Register success.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 1500,
+    })
+  } catch (err: any) {
+    Swal.fire({
+      title: 'Error!',
+      text: err || 'Đăng ký thất bại!',
+      icon: 'error',
+    })
+    console.log(err)
+  }
 }
 
 onMounted(async () => {
@@ -197,6 +247,7 @@ onMounted(async () => {
     }
     doneCalculate.value = true
   } catch (error) {
+    router.push({ name: 'admin login' })
     console.error(error)
   }
 })
@@ -295,14 +346,14 @@ onMounted(async () => {
                 <div
                   class="bg-light w-50 me-4 p-4 d-flex align-items-center justify-content-between"
                 >
-                  <i class="fa-solid fa-users fa-3x" style="color: #5fcf86"></i>
+                  <i class="fa-solid fa-users fa-3x text-success"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng người dùng</p>
                     <h6 class="mb-0 text-end">{{ users.length }}</h6>
                   </div>
                 </div>
                 <div class="bg-light w-50 p-4 d-flex align-items-center justify-content-between">
-                  <i class="fa-brands fa-product-hunt fa-3x" style="color: #5fcf86"></i>
+                  <i class="fa-brands fa-product-hunt fa-3x text-success"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Số lượng xe</p>
                     <h6 class="mb-0 text-end">{{ cars.length }}</h6>
@@ -314,14 +365,14 @@ onMounted(async () => {
                 <div
                   class="bg-light w-50 me-4 p-4 d-flex align-items-center justify-content-between"
                 >
-                  <i class="fa fa-chart-bar fa-3x" style="color: #5fcf86"></i>
+                  <i class="fa fa-chart-bar fa-3x text-success"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Tổng lượt thuê</p>
                     <h6 class="mb-0 text-end">{{ carRequests.length }}</h6>
                   </div>
                 </div>
                 <div class="bg-light w-50 p-4 d-flex align-items-center justify-content-between">
-                  <i class="fa fa-chart-pie fa-3x" style="color: #5fcf86"></i>
+                  <i class="fa fa-chart-pie fa-3x text-success"></i>
                   <div class="ms-3">
                     <p class="mb-2 fw-bold">Tổng doanh thu</p>
                     <h6 class="mb-0 text-end" v-if="countTotalPrice > 0">
@@ -391,7 +442,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="p-4 mt-3 text-white" style="background-color: #5fcf86">
+              <div class="p-4 mt-3 text-white bg-success">
                 <h6>Xe được thuê nhiều nhất</h6>
                 <div class="d-flex justify-content-between">
                   <div class="fw-bold">
@@ -760,15 +811,19 @@ onMounted(async () => {
           style="width: 80vw"
         >
           <h2>Danh sách xe</h2>
-          <div class="w-100 align-content-end text-end mb-2">
-            <button
-              class="btn btn-light text-white fw-bold p-3"
-              style="background-color: #5fcf86; border-radius: 50px"
-              data-bs-toggle="modal"
-              data-bs-target="#addProductModal"
+
+          <div class="text-end mb-4 mt-4 d-flex justify-content-end">
+            <div class="me-3">Sắp xếp theo:</div>
+
+            <select
+              class="form-select form-select-sm w-25"
+              aria-label="Sort cars"
+              v-model="sortOption"
             >
-              + Thêm xe
-            </button>
+              <option value="0">Mặc định</option>
+              <option value="1">Giá tăng dần</option>
+              <option value="2">Giá giảm dần</option>
+            </select>
           </div>
           <table class="table table-hover">
             <thead>
@@ -818,7 +873,7 @@ onMounted(async () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="car in cars" :key="car.id" class="text-center">
+              <tr v-for="car in sortedCars" :key="car.id" class="text-center">
                 <th scope="row">{{ car.id }}</th>
                 <th scope="row">
                   <a class="fw-bold text-dark" :href="'http://localhost:5173/car/' + car.id">
@@ -835,25 +890,6 @@ onMounted(async () => {
                 </th>
                 <th scope="row">{{ car.licenseplate }}</th>
                 <th scope="row" class="text-capitalize">{{ car.brand }}</th>
-                <!-- <th scope="row">
-                  <button
-                    class="btn btn-sm"
-                    style="background-color: #fbbfc0; color: white"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editProduct"
-                  >
-                    <i class="fa-regular fa-pen-to-square"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteProduct"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </th> -->
               </tr>
             </tbody>
           </table>
@@ -1398,6 +1434,16 @@ onMounted(async () => {
           style="width: 80vw"
         >
           <h2 class="p-4">Các người dùng trong hệ thống</h2>
+          <div class="align-content-end text-end pb-4 pe-4">
+            <button
+              class="btn btn-light text-white fw-bold p-3 bg-success"
+              style="border-radius: 50px"
+              data-bs-toggle="modal"
+              data-bs-target="#addUserModal"
+            >
+              + Thêm người dùng
+            </button>
+          </div>
           <div class="container d-flex justify-content-center text-center">
             <div class="w-100">
               <table class="table">
@@ -1847,15 +1893,15 @@ onMounted(async () => {
 
     <div
       class="modal fade"
-      id="addProductModal"
+      id="addUserModal"
       tabindex="-1"
-      aria-labelledby="addProductModalLabel"
+      aria-labelledby="addUserModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addProductModalLabel">Thêm xe</h5>
+            <h5 class="modal-title" id="addUserModalLabel">Thêm người dùng</h5>
             <button
               type="button"
               class="btn-close"
@@ -1864,149 +1910,117 @@ onMounted(async () => {
             ></button>
           </div>
           <div class="modal-body">
-            <form class="w-100 justify-content-between p-2">
-              <div class="">
-                <div class="mb-3 mt-3">
-                  <label class="fw-bold" for="selectCategory">Loại xe</label>
-                  <select
-                    id="selectCategory"
-                    class="form-select"
-                    aria-label="Default select example"
-                  >
-                    <option>cate.name</option>
-                  </select>
-                </div>
-
-                <div class="mb-3">
-                  <label class="fw-bold" for="selectBrand">Thương hiệu</label>
-                  <select id="selectBrand" class="form-select" aria-label="Default select example">
-                    <option>brand.name</option>
-                  </select>
-                </div>
-
-                <!-- Name -->
-                <div class="mb-3">
-                  <label for="name" class="fw-bold form-label">Tên:</label>
-                  <input type="text" class="form-control" id="name" required />
-                </div>
-
-                <!-- description -->
-                <div class="mb-3">
-                  <label for="description" class="fw-bold form-label">Mô tả xe:</label>
-                  <div class="d-flex align-items-center">
-                    <textarea class="form-control" id="description" required></textarea>
-                  </div>
-                </div>
-
-                <div class="d-flex">
-                  <div class="mb-3 w-75">
-                    <label for="guide" class="fw-bold form-label"
-                      >Hướng dẫn sử dụng (viết theo định dạng 1., 2., 3., ...):</label
-                    >
-                    <div class="d-flex align-items-center">
-                      <textarea class="form-control" id="guide" required> </textarea>
-                    </div>
-                  </div>
-
-                  <div class="mb-3 w-25">
-                    <label for="unit" class="fw-bold form-label">Đơn vị bán:</label>
-                    <input type="text" id="unit" class="form-control" required />
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="maintain" class="fw-bold form-label">Bảo quản: </label>
-                  <div class="d-flex align-items-center">
-                    <textarea class="form-control" id="maintain" required> </textarea>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="note" class="fw-bold form-label">Lưu ý khi sử dụng:</label>
-                  <div class="d-flex align-items-center">
-                    <textarea class="form-control" id="note" required> </textarea>
-                  </div>
-                </div>
-
-                <div class="mb-3 d-flex">
-                  <div class="d-flex flex-column w-50">
-                    <div class="d-flex w-100 mt-1">
-                      <div class="w-50">
-                        <label for="type" class="fw-bold form-label"
-                          >Loại (Ví dụ 50ml, 100ml):</label
-                        >
-                        <input type="text" id="type" class="form-control" required />
-                      </div>
-
-                      <div class="w-25">
-                        <label for="count" class="fw-bold form-label">Số lượng:</label>
-                        <input type="number" id="count" min="0" class="form-control" required />
-                      </div>
-
-                      <div class="w-25">
-                        <label for="price" class="fw-bold form-label">Giá loại:</label>
-                        <input type="number" id="price" min="0" class="form-control" required />
-                      </div>
-
-                      <button type="button" class="btn btn-dark" style="border-radius: 0">
-                        <i class="fa-solid fa-x"></i>
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      id="addInputBtn"
-                      class="w-100 btn-dark btn mt-2"
-                      style="border-radius: 0px"
-                    >
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </div>
-
-                  <div class="d-flex flex-column w-50 ms-3">
-                    <div class="fw-bold mb-2">Chọn nhãn cho xe:</div>
-                    <div class="d-flex flex-wrap" id="tag-wrap">
-                      <div class="me-2 mb-2">
-                        <input type="checkbox" class="btn-check" autocomplete="off" />
-                        <label class="btn btn-outline-dark" style="border-radius: 0px">
-                          tag.name
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="d-flex flex-column mb-3">
-                  <div class="fw-bold mb-2">Chọn thành phần cho xe:</div>
-                  <div class="d-flex flex-wrap" id="component-wrap">
-                    <div class="me-2 mb-2">
-                      <input type="checkbox" class="btn-check" autocomplete="off" />
-                      <label class="btn btn-outline-dark" style="border-radius: 0px">
-                        component.name
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="formFileMultiple" class="form-label fw-bold"
-                    >Ảnh xe (1 hoặc nhiều)</label
-                  >
-                  <input class="form-control" type="file" id="formFileMultiple" multiple />
-                </div>
+            <form @submit="onRegister">
+              <div class="mb-3">
+                <label for="registerUsernameInput" class="form-label">Tài khoản</label>
+                <input
+                  @keydown="preventSpecialChars"
+                  pattern="[A-Za-z0-9]*"
+                  v-model="inputFormRegister.username"
+                  type="text"
+                  class="form-control"
+                  id="registerUsernameInput"
+                  aria-describedby="username"
+                  required
+                />
               </div>
+
+              <div class="mb-3">
+                <label for="registerPhoneNumberInput" class="form-label">Số điện thoại</label>
+                <input
+                  @keydown="preventSpecialChars"
+                  pattern="[A-Za-z0-9]*"
+                  v-model="inputFormRegister.phone"
+                  type="text"
+                  class="form-control"
+                  id="registerPhoneNumberInput"
+                  aria-describedby="phone"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="registerNameInput" class="form-label">Họ và tên</label>
+                <input
+                  v-model="inputFormRegister.fullName"
+                  type="text"
+                  class="form-control"
+                  id="registerNameInput"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="registerEmailInput" class="form-label">Email</label>
+                <input
+                  v-model="inputFormRegister.email"
+                  type="email"
+                  class="form-control"
+                  id="registerEmailInput"
+                  required
+                />
+              </div>
+
+              <div class="mb-3 position-relative">
+                <label for="registerPasswordInput" class="form-label">Mật khẩu</label>
+                <input
+                  @keydown="preventSpecialChars"
+                  pattern="[A-Za-z0-9]*"
+                  v-model="inputFormRegister.password"
+                  :type="showRegisterPassword ? 'text' : 'password'"
+                  class="form-control"
+                  id="registerPasswordInput"
+                  required
+                />
+                <i
+                  :class="['bi', showRegisterPassword ? 'bi-eye' : 'bi-eye-slash']"
+                  class="position-absolute"
+                  style="top: 38px; right: 15px; cursor: pointer"
+                  @click="toggleRegisterPassword"
+                ></i>
+              </div>
+
+              <div class="mb-3 position-relative">
+                <label for="registerPasswordRepeatInput" class="form-label">Lặp lại mật khẩu</label>
+                <input
+                  @keydown="preventSpecialChars"
+                  pattern="[A-Za-z0-9]*"
+                  v-model="repeatPasswordRegister"
+                  :type="showRepeatPassword ? 'text' : 'password'"
+                  class="form-control"
+                  id="registerPasswordRepeatInput"
+                  required
+                />
+                <i
+                  :class="['bi', showRepeatPassword ? 'bi-eye' : 'bi-eye-slash']"
+                  class="position-absolute"
+                  style="top: 38px; right: 15px; cursor: pointer"
+                  @click="toggleRepeatPassword"
+                ></i>
+              </div>
+
+              <div class="mb-3">
+                <label for="roleSelect" class="form-label">Vai trò</label>
+                <select
+                  v-model="inputFormRegister.role"
+                  class="form-select"
+                  aria-label="Default select example"
+                >
+                  <option value="member" selected>Người dùng</option>
+                  <option value="owner">Chủ xe</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-success w-100 fw-bold p-3"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              >
+                Tạo người dùng
+              </button>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-              style="border-radius: 0px"
-            >
-              Hủy
-            </button>
-            <button type="submit" class="btn btn-danger" style="border-radius: 0px">Tạo xe</button>
           </div>
         </div>
       </div>
@@ -2017,5 +2031,10 @@ onMounted(async () => {
 <style scoped>
 .fa-star {
   color: #f4bb47;
+}
+.list-group-item.active {
+  background-color: #198754; /* bg-success */
+  border-color: #198754;
+  color: white;
 }
 </style>

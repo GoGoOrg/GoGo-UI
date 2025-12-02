@@ -101,7 +101,7 @@ async function onRegister(e: any) {
 async function onLogin(e: any) {
   e.preventDefault()
   try {
-    let resp = await userServices.login(inputFormLogin.value)
+    await userServices.login(inputFormLogin.value)
 
     Swal.fire({
       title: 'Success!',

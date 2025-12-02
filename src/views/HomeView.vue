@@ -273,7 +273,7 @@ onMounted(async () => {
           />
           <div class="card-img-overlay d-flex flex-column justify-content-end">
             <h5 class="card-title card-title-city">{{ location.name }}</h5>
-            <p class="card-text cart-text-city small">{{ location.vehicles }}</p>
+            <!-- <p class="card-text cart-text-city small">{{ location.vehicles }}</p> -->
           </div>
         </a>
       </div>
