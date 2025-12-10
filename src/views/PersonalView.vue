@@ -288,7 +288,10 @@ onMounted(async () => {
     </div>
   </div>
 
-  <div v-if="currentUser.role == 'member' && carRequests.length > 0" class="text-center rounded ps-4 pe-4 pb-4 container">
+  <div
+    v-if="currentUser.role == 'member' && carRequests.length > 0"
+    class="text-center rounded ps-4 pe-4 pb-4 container"
+  >
     <h2 class="ms-4 mb-3">Lịch sử các yêu cầu thuê xe</h2>
     <div class="table-responsive">
       <table class="table text-start align-middle table-bordered table-hover mb-0">
@@ -316,7 +319,7 @@ onMounted(async () => {
           <tr v-for="carRequest in carRequests" :key="carRequest.id">
             <td>{{ carRequest.createdat.slice(0, 10) }}</td>
             <td>
-              <a :href="'http://localhost:5173/car/' + carRequest.carid">
+              <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
                 {{ carRequest.carname }}
               </a>
             </td>

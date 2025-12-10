@@ -357,7 +357,7 @@ function checkExistCarRequestHandled() {
                                         <td>{{ carRequest.createdat.slice(0, 10) }}</td>
                                         <td>
                                           <a
-                                            :href="'http://localhost:5173/car/' + carRequest.carid"
+                                            :href="'https://gogoui.netlify.app/car/' + carRequest.carid"
                                           >
                                             {{ carRequest.carname }}
                                           </a>

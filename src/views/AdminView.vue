@@ -447,12 +447,12 @@ onMounted(async () => {
                 <div class="d-flex justify-content-between">
                   <div class="fw-bold">
                     <a
-                      :href="'http://localhost:5173/car' + topHireCars[0]?.id"
+                      :href="'https://gogoui.netlify.app/car' + topHireCars[0]?.id"
                       class="text-decoration-underline text-white"
                     >
                       <div class="text-uppercase">{{ topHireCars[0]?.name }}</div>
                     </a>
-                    <a class="fw-bold text-dark" :href="'http://localhost:5173/car/'"> </a>
+                    <a class="fw-bold text-dark" :href="'https://gogoui.netlify.app/car/'"> </a>
                   </div>
 
                   <div class="d-flex flex-column">
@@ -659,7 +659,7 @@ onMounted(async () => {
                         <div class="d-flex w-100 justify-content-between">
                           <h6 class="mb-0 w-75">
                             {{ review.fullname }} đã đánh giá
-                            <a :href="'http://localhost:5173/car/' + review.carid">{{
+                            <a :href="'https://gogoui.netlify.app/car/' + review.carid">{{
                               review.carname
                             }}</a>
                           </h6>
@@ -876,7 +876,7 @@ onMounted(async () => {
               <tr v-for="car in sortedCars" :key="car.id" class="text-center">
                 <th scope="row">{{ car.id }}</th>
                 <th scope="row">
-                  <a class="fw-bold text-dark" :href="'http://localhost:5173/car/' + car.id">
+                  <a class="fw-bold text-dark" :href="'https://gogoui.netlify.app/car/' + car.id">
                     {{ car.name }}
                   </a>
                 </th>
@@ -1633,7 +1633,7 @@ onMounted(async () => {
                     <td>{{ carRequest.createdat.slice(0, 10) }}</td>
                     <td>{{ carRequest.fullname }}</td>
                     <td>
-                      <a :href="'http://localhost:5173/car/' + carRequest.carid">
+                      <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
                         {{ carRequest.carname }}
                       </a>
                     </td>

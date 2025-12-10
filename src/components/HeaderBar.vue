@@ -131,8 +131,8 @@ async function fetchNotifications() {
     const resp = await notificationServices.getAllByUserId(currentUser.value.id ?? 0)
 
     console.log('Notifications:', resp)
-    
-    notifications.value = resp.data.notifications;
+
+    notifications.value = resp.data.notifications
     unreadCount.value = notifications.value.filter((n) => !n.isread).length
   } catch (err) {
     console.error(err)
@@ -150,13 +150,11 @@ async function markAsRead(notificationId: number) {
     }
 
     if (currentUser.value.role === 'owner') {
-
       router.push({ name: 'owner view' })
-    } 
+    }
     if (currentUser.value.role === 'member') {
-
       router.push({ name: 'member view' })
-    } 
+    }
   } catch (err) {
     console.error('Failed to mark notification as read', err)
   }
@@ -169,7 +167,6 @@ onMounted(async () => {
 
     if (currentUser.value.id) {
       await fetchNotifications()
-
     }
   } catch (error) {
     console.error(error)
@@ -278,22 +275,22 @@ onMounted(async () => {
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">
             <li>
-              <a class="dropdown-item" :href="'http://localhost:5173/personal'"
+              <a class="dropdown-item" :href="'https://gogoui.netlify.app/personal'"
                 ><i class="fa-solid fa-user"></i> Tài khoản</a
               >
             </li>
             <li v-if="currentUser != null && currentUser.username == 'admin'">
-              <a class="dropdown-item" href="http://localhost:5173/admin"
+              <a class="dropdown-item" href="https://gogoui.netlify.app/admin"
                 ><i class="fa-solid fa-gear"></i> Quản lý</a
               >
             </li>
             <li v-if="currentUser.role == 'owner'">
-              <a class="dropdown-item" href="http://localhost:5173/owner"
+              <a class="dropdown-item" href="https://gogoui.netlify.app/owner"
                 ><i class="fa-solid fa-list"></i> Quản lý xe</a
               >
             </li>
             <li v-if="currentUser.role == 'member'">
-              <a class="dropdown-item" href="http://localhost:5173/member"
+              <a class="dropdown-item" href="https://gogoui.netlify.app/member"
                 ><i class="fa-solid fa-list"></i> Quản lý đăng ký xe</a
               >
             </li>

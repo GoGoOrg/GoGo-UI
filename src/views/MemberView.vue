@@ -33,7 +33,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mt-5 ">
+  <div class="container mt-5">
     <h2 class="ms-4 pt-4 mb-3">Lịch sử các yêu cầu thuê xe</h2>
 
     <div class="text-center rounded ps-4 pe-4 pb-4">
@@ -57,8 +57,14 @@ onMounted(async () => {
             <tr v-for="carRequest in carRequests" :key="carRequest.id">
               <td>{{ carRequest.createdat.slice(0, 10) }}</td>
               <td>
-                <img class="img-thumbnail me-3" height="80" width="80" alt="" :src="carRequest.carimage" />
-                <a :href="'http://localhost:5173/car/' + carRequest.carid">
+                <img
+                  class="img-thumbnail me-3"
+                  height="80"
+                  width="80"
+                  alt=""
+                  :src="carRequest.carimage"
+                />
+                <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
                   {{ carRequest.carname }}
                 </a>
               </td>
@@ -95,6 +101,4 @@ onMounted(async () => {
       </div>
     </div>
   </div>
-
-  
 </template>

@@ -1511,9 +1511,12 @@ function toggleUtility(u: Partial<Utility>) {
               class="gallery-image"
             />
             <h1 class="card-title text-start">
-              <a class="text-dark fw-bold" :href="'http://localhost:5173/car/' + car.id" style="">{{
-                car.name
-              }}</a>
+              <a
+                class="text-dark fw-bold"
+                :href="'https://gogoui.netlify.app/car/' + car.id"
+                style=""
+                >{{ car.name }}</a
+              >
             </h1>
             <div class="card-body d-flex w-100 justify-content-center align-items-center">
               <img
