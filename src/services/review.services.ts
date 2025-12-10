@@ -3,7 +3,7 @@ import createApiClient, { handlingError } from './api.service'
 class ReviewService {
   private api: any
 
-  constructor(baseUrl = 'http://localhost:3000/api') {
+  constructor(baseUrl = 'https://gogo-server-br1n.onrender.com/api') {
     this.api = createApiClient(baseUrl)
   }
 

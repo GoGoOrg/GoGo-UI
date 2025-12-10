@@ -4,7 +4,7 @@ import axios from 'axios'
 
 class TypeService {
   api: any
-  constructor(baseUrl = 'http://localhost:3000/api') {
+  constructor(baseUrl = 'https://gogo-server-br1n.onrender.com/api') {
     this.api = createApiClient(baseUrl)
   }
   async getAll() {
@@ -36,7 +36,7 @@ class TypeService {
 
   async create(name: string) {
     return await axios
-      .post(`http://localhost:3000/api/types`, { name })
+      .post(`https://gogo-server-br1n.onrender.com/api/types`, { name })
       .then((res) => {
         return res.data
       })
@@ -55,7 +55,7 @@ class TypeService {
 
   async update(id: number, data: any) {
     return await axios
-      .patch(`http://localhost:3000/api/types/${id}`, data)
+      .patch(`https://gogo-server-br1n.onrender.com/api/types/${id}`, data)
       .then((res) => {
         return res.data
       })

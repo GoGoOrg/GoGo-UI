@@ -3,7 +3,7 @@ import createApiClient, { handlingError } from './api.service'
 class CarService {
   private api: any
 
-  constructor(baseUrl = 'http://localhost:3000/api') {
+  constructor(baseUrl = 'https://gogo-server-br1n.onrender.com/api') {
     this.api = createApiClient(baseUrl)
   }
 
@@ -16,7 +16,7 @@ class CarService {
     }
   }
 
-    async getTopHireCars() {
+  async getTopHireCars() {
     try {
       const response = await this.api.get('/cars/carrequest/1')
       return response.data
