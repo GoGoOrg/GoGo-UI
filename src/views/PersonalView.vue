@@ -68,10 +68,10 @@ var changePassword = async (e: any) => {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
+  } catch (err) {
     Swal.fire({
       title: 'Thất bại!',
-      text: 'Cập nhật mật khẩu tài khoản thất bại! Error: ' + error,
+      text: 'Cập nhật mật khẩu tài khoản thất bại! Error: ' + err,
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 1500,
@@ -99,10 +99,10 @@ var updateUser = async (e: any) => {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
+  } catch (err) {
     Swal.fire({
       title: 'Thất bại!',
-      text: 'Cập nhật tài khoản thất bại! Error: ' + error,
+      text: 'Cập nhật tài khoản thất bại! Error: ' + err,
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 1500,
@@ -120,8 +120,8 @@ onMounted(async () => {
     carRequests.value = respCarRequests.data.carrequests
 
     console.log(currentUser.value.id)
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.log(err)
   }
 })
 </script>

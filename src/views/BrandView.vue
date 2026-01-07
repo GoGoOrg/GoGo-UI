@@ -74,7 +74,6 @@ const sortedCars = computed(() => {
   }
 })
 
-
 onMounted(async () => {
   try {
     id.value = Number(route.params.id)
@@ -84,8 +83,8 @@ onMounted(async () => {
 
     let respCar = await carServices.getAllByBrandid(id.value)
     cars.value = respCar.data.cars
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.log(err)
   }
 })
 </script>

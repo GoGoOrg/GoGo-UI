@@ -216,15 +216,15 @@ async function modifyReview(e: Event) {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
+  } catch (err) {
     Swal.fire({
       title: 'Lỗi!',
-      text: 'Đã có lỗi xảy ra! ' + error,
+      text: 'Đã có lỗi xảy ra! ' + err,
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 1500,
     })
-    console.log(error)
+    console.log(err)
   }
 }
 const userReview = ref<Partial<Review> | null>(null)
@@ -279,6 +279,7 @@ async function updateCarProcess(e: Event) {
     'name',
     'licenseplate',
     'description',
+    'regulation',
     'color',
     'seats',
     'price',
@@ -287,7 +288,6 @@ async function updateCarProcess(e: Event) {
     'transmissiontypeid',
     'fueltypeid',
     'insurance',
-    'images',
   ]
 
   const isEmpty = (val: any) => val === undefined || val === null || val === ''
@@ -300,19 +300,26 @@ async function updateCarProcess(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    await carServices.update(car.id ?? 0, updateCar)
+    if (updateCar.images && updateCar.images.length != 4) {
+      throw 'Vui lòng chọn đầy đủ 4 ảnh cho xe hoặc để trống!'
+    }
 
+    const result = await carServices.update(car.id ?? 0, updateCar)
+    console.log('Update car result:', result)
     Swal.fire({
       title: 'Thành công!',
-      text: 'Thêm xe thành công!',
+      text: 'Chỉnh sửa xe thành công!',
       icon: 'success',
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
+    setTimeout(() => {
+      window.location.reload()
+    }, 1200)
+  } catch (err) {
     Swal.fire({
       title: 'Thất bại!',
-      text: `Thêm xe thất bại! Error: ${error}`,
+      text: `Chỉnh sửa xe thất bại! Error: ${err}`,
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 1500,
@@ -339,8 +346,8 @@ async function saveUtilities() {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
-    console.error('Error saving utilities:', error)
+  } catch (err) {
+    console.error('Error saving utilities:', err)
     Swal.fire({
       title: 'Thất bại!',
       text: 'Cập nhật tiện ích thất bại!',
@@ -379,8 +386,8 @@ async function requestRent() {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
-    console.error('Error saving request:', error)
+  } catch (err) {
+    console.error('Error saving request:', err)
     Swal.fire({
       title: 'Thất bại!',
       text: 'Gửi yêu cầu thất bại!',
@@ -481,8 +488,8 @@ onMounted(async () => {
 
     const respBrands = await brandServices.getAll()
     brands.value = respBrands.data.brands
-  } catch (error) {
-    console.error('Error loading data:', error)
+  } catch (err) {
+    console.error('Error loading data:', err)
   }
 })
 
@@ -783,9 +790,7 @@ function toggleUtility(u: Partial<Utility>) {
                   </div>
 
                   <div class="mb-3">
-                    <label for="formFileMultiple" class="form-label fw-bold"
-                      >Ảnh xe (1 hoặc nhiều)</label
-                    >
+                    <label for="formFileMultiple" class="form-label fw-bold">Ảnh xe (4 ảnh)</label>
                     <input
                       class="form-control"
                       type="file"
@@ -1513,7 +1518,7 @@ function toggleUtility(u: Partial<Utility>) {
               class="gallery-image"
             />
             <h1 class="card-title text-start">
-              <a class="text-dark fw-bold" :href="  `${APP_BASE_URL}/car/${car.id}`" style="">{{
+              <a class="text-dark fw-bold" :href="`${APP_BASE_URL}/car/${car.id}`" style="">{{
                 car.name
               }}</a>
             </h1>

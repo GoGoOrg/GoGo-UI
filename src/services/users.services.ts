@@ -58,7 +58,7 @@ class UserService {
       const res = await this.api.post('/users/logout', {
         withCredentials: true,
       })
-    } catch (error) {
+    } catch (err) {
       handlingError(error)
     }
   }

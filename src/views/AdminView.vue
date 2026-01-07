@@ -247,7 +247,7 @@ onMounted(async () => {
       }
     }
     doneCalculate.value = true
-  } catch (error) {
+  } catch (err) {
     router.push({ name: 'admin login' })
     console.error(error)
   }

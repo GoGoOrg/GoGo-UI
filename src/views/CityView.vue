@@ -93,8 +93,8 @@ onMounted(async () => {
     cars.value = respCars.data.cars
 
     console.log(respCars)
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.log(err)
   }
 })
 </script>

@@ -62,14 +62,13 @@ async function onLogin(e: any) {
 
 onMounted(async () => {
   try {
-      let resp = await userServices.getMe()
-      currentUser.value = resp.data.user
-      console.log(currentUser.value)
+    let resp = await userServices.getMe()
+    currentUser.value = resp.data.user
+    console.log(currentUser.value)
 
-      if (currentUser.value.username == "admin") router.push({ name: 'admin' })
-    
-  } catch (error) {
-    console.log(error)
+    if (currentUser.value.username == 'admin') router.push({ name: 'admin' })
+  } catch (err) {
+    console.log(err)
   }
 })
 </script>

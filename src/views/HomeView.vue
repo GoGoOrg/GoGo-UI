@@ -146,7 +146,7 @@ onMounted(async () => {
   try {
     let respCars = await carServices.getAll()
     cars.value = respCars.data.cars
-  } catch (error) {}
+  } catch (err) {}
 })
 </script>
 

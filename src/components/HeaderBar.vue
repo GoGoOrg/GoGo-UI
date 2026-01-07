@@ -170,8 +170,8 @@ onMounted(async () => {
     if (currentUser.value.id) {
       await fetchNotifications()
     }
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error(err)
   }
 })
 </script>

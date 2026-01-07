@@ -26,7 +26,7 @@ onMounted(async () => {
     carRequests.value = respCarRequests.data.carrequests
 
     console.log('Car Requests:', carRequests.value)
-  } catch (error) {
+  } catch (err) {
     console.error(error)
   }
 })

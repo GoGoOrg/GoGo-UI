@@ -61,13 +61,12 @@ const sortedCars = computed(() => {
 })
 onMounted(async () => {
   try {
-
     let respCars = await carServices.getAll()
     cars.value = respCars.data.cars
 
     console.log(respCars)
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.log(err)
   }
 })
 </script>
@@ -78,7 +77,6 @@ onMounted(async () => {
   </div>
 
   <div class="container mb-5 mt-5 w-100">
-
     <h1 class="text-center w-100">Tất cả xe</h1>
 
     <div class="text-end mb-2 d-flex justify-content-end">

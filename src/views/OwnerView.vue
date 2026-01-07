@@ -114,7 +114,10 @@ async function addCar(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    console.log(newCar)
+    if (!newCar.images || newCar.images.length != 4) {
+      throw 'Vui lòng chọn đầy đủ 4 ảnh cho xe!'
+    }
+
     await carServices.create(newCar)
 
     Swal.fire({
@@ -124,10 +127,10 @@ async function addCar(e: Event) {
       confirmButtonText: 'OK',
       timer: 1500,
     })
-  } catch (error) {
+  } catch (err) {
     Swal.fire({
       title: 'Thất bại!',
-      text: `Thêm xe thất bại! Error: ${error}`,
+      text: `Thêm xe thất bại! Error: ${err}`,
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 1500,
@@ -172,8 +175,8 @@ onMounted(async () => {
 
     const respBrands = await brandServices.getAll()
     brands.value = respBrands.data.brands
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error(err)
   }
 })
 </script>
@@ -407,9 +410,7 @@ onMounted(async () => {
               </div>
 
               <div class="mb-3">
-                <label for="formFileMultiple" class="form-label fw-bold"
-                  >Ảnh xe (1 hoặc nhiều)</label
-                >
+                <label for="formFileMultiple" class="form-label fw-bold">Ảnh xe (4 ảnh)</label>
                 <input
                   class="form-control"
                   type="file"
