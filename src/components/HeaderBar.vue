@@ -12,6 +12,8 @@ import notificationServices from '@/services/notification.services.ts'
 const router = useRouter()
 const cookies = useCookies()
 
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
+
 const repeatPasswordRegister = ref('')
 const inputFormRegister = ref({
   username: '',
@@ -275,22 +277,22 @@ onMounted(async () => {
           </button>
           <ul class="dropdown-menu rounded" aria-labelledby="dropdownMenuButton">
             <li>
-              <a class="dropdown-item" :href="'https://gogoui.netlify.app/personal'"
+              <a class="dropdown-item" :href="`${APP_BASE_URL}/personal`"
                 ><i class="fa-solid fa-user"></i> Tài khoản</a
               >
             </li>
             <li v-if="currentUser != null && currentUser.username == 'admin'">
-              <a class="dropdown-item" href="https://gogoui.netlify.app/admin"
+              <a class="dropdown-item" :href="`${APP_BASE_URL}/admin`"
                 ><i class="fa-solid fa-gear"></i> Quản lý</a
               >
             </li>
             <li v-if="currentUser.role == 'owner'">
-              <a class="dropdown-item" href="https://gogoui.netlify.app/owner"
+              <a class="dropdown-item" :href="`${APP_BASE_URL}/owner`"
                 ><i class="fa-solid fa-list"></i> Quản lý xe</a
               >
             </li>
             <li v-if="currentUser.role == 'member'">
-              <a class="dropdown-item" href="https://gogoui.netlify.app/member"
+              <a class="dropdown-item" :href="`${APP_BASE_URL}/member`"
                 ><i class="fa-solid fa-list"></i> Quản lý đăng ký xe</a
               >
             </li>

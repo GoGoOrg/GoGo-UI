@@ -27,6 +27,8 @@ import Swal from 'sweetalert2'
 import carUtilityServices from '@/services/carUtility.services'
 import carRequestServices from '@/services/carRequest.services'
 
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
+
 const router = useRouter()
 const route = useRoute()
 const id = ref(0)
@@ -298,7 +300,7 @@ async function updateCarProcess(e: Event) {
       throw 'Vui lòng nhập đầy đủ thông tin quan trọng!'
     }
 
-    await carServices.create(updateCar)
+    await carServices.update(car.id ?? 0, updateCar)
 
     Swal.fire({
       title: 'Thành công!',
@@ -1511,12 +1513,9 @@ function toggleUtility(u: Partial<Utility>) {
               class="gallery-image"
             />
             <h1 class="card-title text-start">
-              <a
-                class="text-dark fw-bold"
-                :href="'https://gogoui.netlify.app/car/' + car.id"
-                style=""
-                >{{ car.name }}</a
-              >
+              <a class="text-dark fw-bold" :href="  `${APP_BASE_URL}/car/${car.id}`" style="">{{
+                car.name
+              }}</a>
             </h1>
             <div class="card-body d-flex w-100 justify-content-center align-items-center">
               <img

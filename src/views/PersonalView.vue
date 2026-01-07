@@ -12,6 +12,8 @@ const router = useRouter()
 const route = useRoute()
 const id = ref(0)
 
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
+
 const currentUser = ref(<Partial<User>>{})
 
 const toBase64 = (file: any) =>
@@ -319,7 +321,7 @@ onMounted(async () => {
           <tr v-for="carRequest in carRequests" :key="carRequest.id">
             <td>{{ carRequest.createdat.slice(0, 10) }}</td>
             <td>
-              <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
+              <a :href="`${APP_BASE_URL}/car/${carRequest.carid}`">
                 {{ carRequest.carname }}
               </a>
             </td>

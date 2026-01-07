@@ -10,7 +10,7 @@ import carRequestServices from '@/services/carRequest.services'
 import type { CarRequest } from '@/types/carRequest'
 import type { User } from '@/types/users'
 const router = useRouter()
-
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
 // Admin user data
 const currentUser = ref(<Partial<User>>{})
 
@@ -64,7 +64,7 @@ onMounted(async () => {
                   alt=""
                   :src="carRequest.carimage"
                 />
-                <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
+                <a :href="`${APP_BASE_URL}/car/${carRequest.carid}`">
                   {{ carRequest.carname }}
                 </a>
               </td>

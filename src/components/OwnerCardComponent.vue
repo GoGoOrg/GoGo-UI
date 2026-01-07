@@ -10,6 +10,7 @@ import carRequestServices from '@/services/carRequest.services'
 import Swal from 'sweetalert2'
 
 const activeTab = ref('active')
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
 
 const props = defineProps<{
   car: Partial<Car>
@@ -357,7 +358,7 @@ function checkExistCarRequestHandled() {
                                         <td>{{ carRequest.createdat.slice(0, 10) }}</td>
                                         <td>
                                           <a
-                                            :href="'https://gogoui.netlify.app/car/' + carRequest.carid"
+                                            :href="`${APP_BASE_URL}/car/${carRequest.carid}`"
                                           >
                                             {{ carRequest.carname }}
                                           </a>

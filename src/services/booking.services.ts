@@ -3,7 +3,7 @@ import createApiClient, { handlingError } from './api.service'
 class BookingService {
   private api: any
 
-  constructor(baseUrl = 'https://gogo-server-br1n.onrender.com/api') {
+  constructor(baseUrl = import.meta.env.VITE_API_BASE_URL) {
     this.api = createApiClient(baseUrl)
   }
 

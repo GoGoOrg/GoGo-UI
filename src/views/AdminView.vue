@@ -16,6 +16,7 @@ import type { CarRequest } from '@/types/carRequest'
 import carRequestServices from '@/services/carRequest.services'
 
 const router = useRouter()
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
 
 // Chart data
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -447,12 +448,12 @@ onMounted(async () => {
                 <div class="d-flex justify-content-between">
                   <div class="fw-bold">
                     <a
-                      :href="'https://gogoui.netlify.app/car' + topHireCars[0]?.id"
+                      :href="`${APP_BASE_URL}/car/${topHireCars[0]?.id}`"
                       class="text-decoration-underline text-white"
                     >
                       <div class="text-uppercase">{{ topHireCars[0]?.name }}</div>
                     </a>
-                    <a class="fw-bold text-dark" :href="'https://gogoui.netlify.app/car/'"> </a>
+                    <a class="fw-bold text-dark" :href="`${APP_BASE_URL}/car/`"> </a>
                   </div>
 
                   <div class="d-flex flex-column">
@@ -659,7 +660,7 @@ onMounted(async () => {
                         <div class="d-flex w-100 justify-content-between">
                           <h6 class="mb-0 w-75">
                             {{ review.fullname }} đã đánh giá
-                            <a :href="'https://gogoui.netlify.app/car/' + review.carid">{{
+                            <a :href="`${APP_BASE_URL}/car/${review.carid}`">{{
                               review.carname
                             }}</a>
                           </h6>
@@ -876,7 +877,7 @@ onMounted(async () => {
               <tr v-for="car in sortedCars" :key="car.id" class="text-center">
                 <th scope="row">{{ car.id }}</th>
                 <th scope="row">
-                  <a class="fw-bold text-dark" :href="'https://gogoui.netlify.app/car/' + car.id">
+                  <a class="fw-bold text-dark" :href="`${APP_BASE_URL}/car/${car.id}`">
                     {{ car.name }}
                   </a>
                 </th>
@@ -1633,7 +1634,7 @@ onMounted(async () => {
                     <td>{{ carRequest.createdat.slice(0, 10) }}</td>
                     <td>{{ carRequest.fullname }}</td>
                     <td>
-                      <a :href="'https://gogoui.netlify.app/car/' + carRequest.carid">
+                      <a :href="`${APP_BASE_URL}/car/${carRequest.carid}`">
                         {{ carRequest.carname }}
                       </a>
                     </td>
