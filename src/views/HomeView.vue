@@ -168,7 +168,7 @@ onMounted(async () => {
         ></div>
 
         <!-- Text content -->
-        <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3">
+        <div class="position-absolute start-50 translate-middle text-center text-white px-3" style="top: 35%">
           <h1 class="display-4 fw-bold mb-3">
             GoGo - Cùng Bạn Đến Mọi
             <span>Hành Trình</span>

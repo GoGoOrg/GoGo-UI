@@ -58,6 +58,7 @@ const newCar = reactive({
   transmissiontypeid: 1,
   fueltypeid: 1,
   insurance: 1,
+  driver: false,
   images: [] as string[],
 })
 
@@ -102,6 +103,7 @@ async function addCar(e: Event) {
     'fueltypeid',
     'insurance',
     'images',
+    'driver',
   ]
 
   const isEmpty = (val: any) => val === undefined || val === null || val === ''
@@ -175,6 +177,7 @@ onMounted(async () => {
 
     const respBrands = await brandServices.getAll()
     brands.value = respBrands.data.brands
+    
   } catch (err) {
     console.error(err)
   }
@@ -328,86 +331,118 @@ onMounted(async () => {
                 </select>
               </div>
 
-              <!-- transmission type -->
-              <div class="mb-3">
-                <label class="fw-bold" for="selectTransmissionType">Loại số (*)</label>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.transmissiontypeid"
-                    class="form-check-input"
-                    type="radio"
-                    :value="1"
-                    name="selectTransmissionType"
-                    id="selectTransmissionType1"
-                  />
-                  <label class="form-check-label" for="selectTransmissionType1"> Số tự động </label>
+              <div class="d-flex gap-5">
+                <!-- transmission type -->
+                <div class="mb-3">
+                  <label class="fw-bold" for="selectTransmissionType">Loại số (*)</label>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.transmissiontypeid"
+                      class="form-check-input"
+                      type="radio"
+                      :value="1"
+                      name="selectTransmissionType"
+                      id="selectTransmissionType1"
+                    />
+                    <label class="form-check-label" for="selectTransmissionType1">
+                      Số tự động
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.transmissiontypeid"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectTransmissionType"
+                      id="selectTransmissionType2"
+                      :value="2"
+                    />
+                    <label class="form-check-label" for="selectTransmissionType2"> Số sàn </label>
+                  </div>
                 </div>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.transmissiontypeid"
-                    class="form-check-input"
-                    type="radio"
-                    name="selectTransmissionType"
-                    id="selectTransmissionType2"
-                    :value="2"
-                  />
-                  <label class="form-check-label" for="selectTransmissionType2"> Số sàn </label>
+
+                <!-- fuel type -->
+                <div class="mb-3">
+                  <label class="fw-bold" for="selectFuelType">Loại nhiên liệu (*)</label>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.fueltypeid"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectFuelType"
+                      id="selectFuelType1"
+                      :value="1"
+                    />
+                    <label class="form-check-label" for="selectFuelType1"> Xe xăng </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.fueltypeid"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectFuelType"
+                      id="selectFuelType2"
+                      :value="2"
+                    />
+                    <label class="form-check-label" for="selectFuelType2"> Xe điện </label>
+                  </div>
+                </div>
+
+                <!-- insurance -->
+                <div class="mb-3">
+                  <label class="fw-bold" for="selectInsurance">Bảo hiểm (*)</label>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.insurance"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectInsurance"
+                      id="selectInsurance1"
+                      :value="true"
+                    />
+                    <label class="form-check-label" for="selectInsurance1"> Có </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.insurance"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectInsurance"
+                      id="selectInsurance2"
+                      :value="false"
+                    />
+                    <label class="form-check-label" for="selectInsurance2"> Không </label>
+                  </div>
+                </div>
+
+                <!-- driver -->
+                <div class="mb-3">
+                  <label class="fw-bold" for="selectDriver">Tài xế (*)</label>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.driver"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectDriver"
+                      id="selectDriver1"
+                      :value="true"
+                    />
+                    <label class="form-check-label" for="selectDriver1"> Có </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      v-model="newCar.driver"
+                      class="form-check-input"
+                      type="radio"
+                      name="selectDriver"
+                      id="selectDriver2"
+                      :value="false"
+                    />
+                    <label class="form-check-label" for="selectDriver2"> Không </label>
+                  </div>
                 </div>
               </div>
 
-              <!-- fuel type -->
-              <div class="mb-3">
-                <label class="fw-bold" for="selectFuelType">Loại nhiên liệu (*)</label>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.fueltypeid"
-                    class="form-check-input"
-                    type="radio"
-                    name="selectFuelType"
-                    id="selectFuelType1"
-                    :value="1"
-                  />
-                  <label class="form-check-label" for="selectFuelType1"> Xe xăng </label>
-                </div>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.fueltypeid"
-                    class="form-check-input"
-                    type="radio"
-                    name="selectFuelType"
-                    id="selectFuelType2"
-                    :value="2"
-                  />
-                  <label class="form-check-label" for="selectFuelType2"> Xe điện </label>
-                </div>
-              </div>
-
-              <!-- insurance -->
-              <div class="mb-3">
-                <label class="fw-bold" for="selectInsurance">Bảo hiểm (*)</label>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.insurance"
-                    class="form-check-input"
-                    type="radio"
-                    name="selectInsurance"
-                    id="selectInsurance1"
-                    :value="true"
-                  />
-                  <label class="form-check-label" for="selectInsurance1"> Có </label>
-                </div>
-                <div class="form-check">
-                  <input
-                    v-model="newCar.insurance"
-                    class="form-check-input"
-                    type="radio"
-                    name="selectInsurance"
-                    id="selectInsurance2"
-                    :value="false"
-                  />
-                  <label class="form-check-label" for="selectInsurance2"> Không </label>
-                </div>
-              </div>
 
               <div class="mb-3">
                 <label for="formFileMultiple" class="form-label fw-bold">Ảnh xe (4 ảnh)</label>

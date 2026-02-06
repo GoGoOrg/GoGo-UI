@@ -43,4 +43,6 @@ export interface Car {
 
   totalincome: number
   totalrequests: number
+
+  driver: boolean
 }
